@@ -118,7 +118,7 @@ def collection_large_copy(mongodb_uri,source_db, source_col, target_db, target_c
             batch_size: 批量插入大小
         """
         client = MongoClient(f'{mongodb_uri}',
-                             connectTimeoutMS=30000,
+                             connectTimeoutMS=3000000,
                              socketTimeoutMS=None)
 
         source = client[source_db][source_col]
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     # MongoDB 连接配置
     name=quote_plus("jun")
     pwd=quote_plus("xsd@d234F66lk77@44fx")
-    mongodb_uri = f"mongodb://{name}:{pwd}@localhost:2989/?connectTimeoutMS=9000000&authSource=webportal-dev&directConnection=true"
+    mongodb_uri = f"mongodb://{name}:{pwd}@localhost:2989/?connectTimeoutMS=19000000&authSource=webportal-dev&directConnection=true"
     # mongodb_uri = f"mongodb://{name}:{pwd}@webportal-k8s-dev-mongodb-0-f511ed4cc11a5904.elb.us-east-2.amazonaws.com:27017/?connectTimeoutMS=9000000&authSource=webportal-dev&directConnection=true"
 
     database_name = "webportal-dev"  # 数据库名
