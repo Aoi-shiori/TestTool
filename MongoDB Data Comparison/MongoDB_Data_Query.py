@@ -17,12 +17,13 @@ import math
 import os
 from typing import Dict, Optional, Union, List, Any
 # from bson import ObjectId
-from pymongo import MongoClient, InsertOne, DeleteMany
+from pymongo import MongoClient, InsertOne, DeleteMany,DESCENDING
 import pandas as pd
 from datetime import datetime
 from urllib.parse import quote_plus
 import time
 from logger import logger
+from bson import ObjectId
 import gc
 from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
@@ -51,9 +52,9 @@ def data_query_collections(uri, db_name, collection1, collection2, output_file, 
     coll2 = db[collection2]
 
     # 获取集合中的所有文档
-    # docs1 = list(coll1.find(query_date))
-    docs1=list(coll1.aggregate(query_date))
-    # docs2 = list(coll2.find(query_date))
+    # docs1 = list(coll1.find(query_date).sort([('_id', DESCENDING)]).limit(1000).skip(0))
+    # docs1=list(coll1.aggregate(query_date))
+    docs1 = list(coll1.find(query_date))
 
     # 将文档转换为 DataFrame
     df1 = pd.DataFrame(docs1)
@@ -83,35 +84,34 @@ def data_query_collections(uri, db_name, collection1, collection2, output_file, 
 if __name__ == "__main__":
     # MongoDB 连接配置
     name=quote_plus("jun")
-    # pwd=quote_plus("xsd@d234F66lk77@44fx") #dev
-    pwd=quote_plus("Hsd3y5TPRt8jSOq4oF7d") #prod
+    pwd=quote_plus("xsd@d234F66lk77@44fx") #dev
+    # pwd=quote_plus("Hsd3y5TPRt8jSOq4oF7d") #prod
     # mongodb_uri = f"mongodb://{name}:{pwd}@localhost:2989/?connectTimeoutMS=19000000&authSource=webportal-dev&directConnection=true"
-    mongodb_uri = f"mongodb://{name}:{pwd}@localhost:2999/?connectTimeoutMS=19000000&authSource=webportal-prod&directConnection=true"
-
-    # mongodb_uri = f"mongodb://{name}:{pwd}@webportal-k8s-dev-mongodb-0-f511ed4cc11a5904.elb.us-east-2.amazonaws.com:27017/?connectTimeoutMS=9000000&authSource=webportal-dev&directConnection=true"
+    mongodb_uri = f"mongodb://{name}:{pwd}@webportal-k8s-dev-mongodb-0-f511ed4cc11a5904.elb.us-east-2.amazonaws.com:27017/?connectTimeoutMS=9000000&authSource=webportal-dev&directConnection=true"
+    #mongodb_uri = f"mongodb://{name}:{pwd}@webportal-k8s-prod-mongodb-0-4ad4d750bb0ebaa9.elb.us-east-2.amazonaws.com:27017/?connectTimeoutMS=9000000&authSource=webportal-prod&directConnection=true"
     # mongodb_uri = f"mongodb://{name}:{pwd}@webportal-k8s-prod-mongodb-0-4ad4d750bb0ebaa9.elb.us-east-2.amazonaws.com:27017/?connectTimeoutMS=9000000&authSource=webportal-prod&directConnection=true"
-    # mongodb_uri = f"mongodb://{name}:{pwd}@ webportal-k8s-prod-mongodb-0-4ad4d750bb0ebaa9.elb.us-east-2.amazonaws.com:27017/?connectTimeoutMS=9000000&authSource=webportal-prod&directConnection=true"
+    # test=f"mongodb://{name}:{pwd}@webportal-k8s-prod-mongodb-0-4ad4d750bb0ebaa9.elb.us-east-2.amazonaws.com:27017/?authSource=webportal-prod&readPreference=primary&ssl=false&directConnection=true"
 
-    database_name = "webportal-prod"  # 数据库名
+    # database_name = "webportal-prod"  # 数据库名
+    database_name = "webportal-dev"  # 数据库名
 
-    # 对比的集合名称
-    # collection_a = "ecgEventChartData"  # 第一个集合名
-    # collection_b = "ecgEventChartData_copy1"  # 第二个集合名
-
+    # # 集合名称
+    collection_a = "ecgEventChartData"  # 第一个集合名
     # collection_a = "ecgTraitData"  # 第一个集合名
-    # collection_b = "ecgTraitData_copy1"  # 第二个集合名
-
     # collection_a = "ecgBeatData"  # 第一个集合名
-    # collection_b = "ecgBeatData_copy1"  # 第二个集合名
-
     # collection_a = "ecgEvents"  # 第一个集合名
-    # collection_b = "ecgEvents_copy1"  # 第二个集合名
+    # collection_a = "ecgEventTypes"  # 第一个集合名
+    # # 测试用集合
+    # collection_a = "ecgReports"  # 第一个集合名
 
-    collection_a = "ecgEventTypes"  # 第一个集合名
-    collection_b = "ecgEventTypes_copy1"  # 第二个集合名
+
+    collection_b = f"{collection_a}_copy1"  # 第二个集合名
 
     # 查询参数
-    clinic_ID="6848e8dd6b1fa7dec17a376e"
+    # clinic_ID="6848e8dd6b1fa7dec17a376e" #Test_340
+    # clinic_ID="67d3dfaf1cb193872481d490" #Test_310
+    clinic_ID="60b473bba334aa0053f08d0c" # First
+
 
     output_excel = f"collection_query_{collection_a}_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"  # 输出文件名
 
@@ -120,6 +120,12 @@ if __name__ == "__main__":
     start=time.time()
     logger.info(f"开始时间：{datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}")
 
+    if collection_a == "ecgEvents":
+        query_data="start"
+    elif collection_a == "ecgEventChartData":
+        query_data="ecgChartData.recordTime"
+    else:
+        query_data="recordTime"
     # 数据集对比
     data_query_collections(
         uri=mongodb_uri,
@@ -129,7 +135,12 @@ if __name__ == "__main__":
         output_file=output_excel,
         # query_date = { "$and": [ { "createdAt": { "$gte": datetime(2021, 5, 29) } }, { "clinic": ObjectId(clinic_ID) } ] }
         # query_date = {"$and": [{"start": {"$lt": datetime(2025, 7, 7)}}]}
-        query_date=[{"$group": {"_id": "$name","count": { "$sum": 1 }}}]
+        # query_date=[{"$group": {"_id": {"$name","$type"},"count": { "$sum": 1 }}}]
+        # query_date=[{"$group": {"_id": "$patient","count": { "$sum": 1 }}}]ss
+        # query_date=[{"$group": {"_id": "$name","count": { "$sum": 1 }}}]
+        # query_date=[{"$group": {"_id": "$patient", "count": {"$sum": 1}}}, {"$sort": {"count": -1}}]
+        # query_date=[{"$group": {"_id": "$patient", "count": {"$sum": 1}}}, {"$sort": {"count": -1}}]
+        query_date={"$and": [{query_data: {"$lt": datetime(2025, 2, 5)}}, {"clinic": ObjectId(clinic_ID)}]},  # 可选查询条件
 
         # 时间参数
         # ecgBeatData: recordTime

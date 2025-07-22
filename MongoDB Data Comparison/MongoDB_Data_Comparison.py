@@ -10,12 +10,12 @@
 # @Version      : 
 # @Description  : 
 # @Update Time  : 
-# @UpdateContent:  
+# @UpdateContent:
 
 """
 import math
 from typing import Dict, Optional, Union, List, Any
-# from bson import ObjectId
+from bson import ObjectId
 from pymongo import MongoClient, InsertOne, DeleteMany
 import pandas as pd
 from datetime import datetime
@@ -440,90 +440,7 @@ def apply_formatting(file_path: str, is_field_diff: bool) -> None:
         logger.warning(f"无法应用Excel格式化: {str(e)}")
 
 
-def collection_large_sharded_copy(mongodb_uri, source_db, source_col, target_db, target_col, batch_size, shard_key="_id"):
-    """
-    分片复制方案，避免内存溢出
 
-    参数:
-        shard_key: 用于分片的字段
-        batch_size: 每批文档数
-    """
-    client = MongoClient(f'{mongodb_uri}',
-                         connectTimeoutMS=3000000,
-                         socketTimeoutMS=None,
-                         maxPoolSize=15)
-
-    source = client[source_db][source_col]
-    target = client[target_db][target_col]
-    logger.info("Mongodb链接创建完成！")
-
-    # 清空目标集合
-    try:
-        logger.info(f"目标集合清理开始...")
-        target.bulk_write([DeleteMany({})])
-    except Exception as e:
-        logger.error(f"清理目标集合出现异常：{e}")
-    logger.info("目标集合数据清理完成！")
-    # # 获取文档总数
-    # total_docs = source.count_documents({})
-    # logger.info(f"开始复制 {total_docs} 条文档...")
-
-    # 1. 获取分片边界
-    min_id = source.find_one(sort=[(shard_key, 1)])[shard_key]
-    max_id = source.find_one(sort=[(shard_key, -1)])[shard_key]
-
-    logger.info(f"{collection_a}分片复制范围: {min_id} 到 {max_id}")
-
-    # 2. 定义分片大小(根据集合大小自动调整)
-    total_docs = source.count_documents({})
-    shard_count = max(10, total_docs // (batch_size * 100))  # 每10万文档一个分片
-    logger.info(f"将分为 {shard_count} 个分片进行复制")
-
-    # 3. 生成分片边界
-    pipeline = [
-        {"$bucketAuto": {
-            "groupBy": f"${shard_key}",
-            "buckets": shard_count,
-            "output": {"min": {"$min": f"${shard_key}"}, "max": {"$max": f"${shard_key}"}}
-        }}
-    ]
-    shards = list(source.aggregate(pipeline))
-
-    # 4. 分片复制
-    total_copied = 0
-    for i, shard in enumerate(shards, 1):
-        shard_min = shard["min"]
-        shard_max = shard["max"]
-
-        query = {shard_key: {"$gte": shard_min, "$lte": shard_max}}
-        shard_docs = source.count_documents(query)
-
-        logger.info(
-            f"处理分片 {i}/{len(shards)}: {shard_key} 从 {shard_min} 到 {shard_max} "
-            f"(约 {shard_docs} 文档)"
-        )
-
-        cursor = source.find(query).batch_size(batch_size)
-        batch = []
-
-        for doc in cursor:
-            batch.append(InsertOne(doc))
-            if len(batch) >= batch_size:
-                target.bulk_write(batch, ordered=False)
-                total_copied += len(batch)
-                batch = []
-                logger.debug(f"当前分片已复制: {total_copied}")
-
-        if batch:
-            target.bulk_write(batch, ordered=False)
-            total_copied += len(batch)
-
-        # 每个分片处理后释放内存
-        del batch
-        del cursor
-        gc.collect()
-
-    logger.info(f"{collection_a}复制完成! 共复制 {total_copied} 文档")
 
 
 
@@ -534,21 +451,21 @@ if __name__ == "__main__":
     pwd=quote_plus("xsd@d234F66lk77@44fx")
     mongodb_uri = f"mongodb://{name}:{pwd}@localhost:2989/?connectTimeoutMS=19000000&authSource=webportal-dev&directConnection=true"
     # mongodb_uri = f"mongodb://{name}:{pwd}@webportal-k8s-dev-mongodb-0-f511ed4cc11a5904.elb.us-east-2.amazonaws.com:27017/?connectTimeoutMS=9000000&authSource=webportal-dev&directConnection=true"
+    database_name = "webportal-dev"  # 数据库名
 
-    database_name = "webportal-dev2"  # 数据库名
+    """
+        待集合名称
+            "ecgBeatData","ecgEvents","ecgEventChartData","ecgTraitData"
+    """
+    # # 测试用集合
+    # collections = ["ecgReports"]
+
+    # 正式复制集合
+    # collections = ["ecgBeatData", "ecgEvents", "ecgEventChartData", "ecgTraitData"]
 
     # 对比的集合名称
-    # collection_a = "ecgEventChartData"  # 第一个集合名
-    # collection_b = "ecgEventChartData_copy1"  # 第二个集合名
-
-    collection_a = "ecgTraitData"  # 第一个集合名
-    collection_b = "ecgTraitData_copy1"  # 第二个集合名
-
-    # collection_a = "ecgBeatData"  # 第一个集合名
-    # collection_b = "ecgBeatData_copy1"  # 第二个集合名
-
-    # collection_a = "ecgEvents"  # 第一个集合名
-    # collection_b = "ecgEvents_copy1"  # 第二个集合名
+    collection_a = "ecgEvents"  # 第一个集合名
+    collection_b = f"{collection_a}_copy1"  # 第二个集合名
 
     # 查询参数
     clinic_ID="6848e8dd6b1fa7dec17a376e"
@@ -558,30 +475,23 @@ if __name__ == "__main__":
 
     #开始时间
     start=time.time()
-    logger.info(f"开始时间：{datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"---->开始时间：{datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}")
 
-    # 数据集复制
-    # collection_large_sharded_copy(mongodb_uri=mongodb_uri,source_db=database_name, source_col=collection_a, target_db=database_name, target_col=collection_b,batch_size=500)
+    """
+    compare_large_collections
+    大型数据集对比比较两个 MongoDB 集合并将结果写入 Excel 文件
 
-    # # 数据集对比
-    # compare_collections(
-    #     uri=mongodb_uri,
-    #     db_name=database_name,
-    #     collection1=collection_a,
-    #     collection2=collection_b,
-    #     output_file=output_excel,
-    #     # query_date = { "$and": [ { "createdAt": { "$gte": datetime(2021, 5, 29) } }, { "clinic": ObjectId(clinic_ID) } ] }
-    #     # query_date = {"$and": [{"start": {"$lt": datetime(2025, 7, 7)}}]}
-    #     query_date=None
-    #
-    #     # 时间参数
-    #     # ecgBeatData: recordTime
-    #     # ecgEvents: start
-    #     # ecgTraitData: recordTime
-    #     # ecgEventChartData: recordTime
-    # )
+    时间参数:
+        ecgBeatData: recordTime
+        ecgEvents: start
+        ecgTraitData: recordTime
+        ecgEventChartData: recordTime
+    """
+    if collection_a == "ecgEvents":
+        query_data="start"
+    else:
+        query_data="recordTime"
 
-    # 大型数据集对比
     compare_large_collections(
         uri=mongodb_uri,
         db_name=database_name,
@@ -590,12 +500,13 @@ if __name__ == "__main__":
         output_prefix=output_excel,
         # query={"status": "active"},  # 可选查询条件
         # query={"$and": [{"start": {"$lte": datetime(2025, 7, 7)}}]},  # 可选查询条件
-        query={},  # 可选查询条件
+        # query={ "$and": [ { "createdAt": { "$gte": datetime(2021, 5, 29) } }, { "clinic": ObjectId(clinic_ID) } ] },  # 可选查询条件
+        query={ "$and": [ { query_data: { "$gte": datetime(2025, 2, 5) } }, { "clinic": ObjectId(clinic_ID) } ] },  # 可选查询条件
         batch_size=5000,
         sample_size=1000
     )
 
     # 结束时间
-    logger.info(f"结束时间：{datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"---->结束时间：{datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info(f"总计耗时：{time.time()-start:.2f}s")
 
