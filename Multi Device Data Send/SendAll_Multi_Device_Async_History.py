@@ -13,6 +13,8 @@
 # @UpdateContent:
 v2.0-20250906:
 1、更新可以自定义每秒数据上传，暂时只支持 ECG 数据
+v2.0-20250907:
+1、assembly_datah函数：修复循环问题导致数据为空的 bug.
 
 """
 
@@ -370,11 +372,15 @@ def single_assembly_data(count, deviceId, record, stampEndTime, stampStartTime, 
 
 def main(startTime, endTime, deviceId, timeZone_offset, timezoneName, ProjectId, Subjectid, DATE_CONFIG, ret_lock):
     logger.info(f'{a} 正在组装数据... {a}')
-    arrayStartTime = time.strptime(startTime, "%Y-%m-%d %H:%M:%S")
 
+    arrayStartTime = time.strptime(startTime, "%Y-%m-%d %H:%M:%S")
     arrayEndTime = time.strptime(endTime, "%Y-%m-%d %H:%M:%S")
+    # logger.info(f"开始时间{arrayStartTime}")
+    # logger.info(f"结束时间{arrayEndTime}")
+
     stampStartTime = int(time.mktime(arrayStartTime) * 1000)
     stampEndTime = int(time.mktime(arrayEndTime) * 1000)
+
     stampStartTime = stampStartTime
     stampEndTime = stampEndTime
     count = 0
@@ -405,17 +411,21 @@ def main(startTime, endTime, deviceId, timeZone_offset, timezoneName, ProjectId,
                                       timezoneName, ProjectId, Subjectid, data_router)
         if status:
             logger.info(f' {a} 数据组装完毕,准备发送数据... {a}')
+
+
             time.sleep(3)
+
             # 运行异步任务
             asyncio.run(send())
         else:
             logger.error(f'{a} 数据组装失败... {a}')
     else:
-        status = assembly_data(count, deviceId, record, stampEndTime, stampStartTime, timeZone_offset, timezoneName,
+        status = assembly_data(count, deviceId, record, stampEndTime, stampStartTime,timeZone_offset, timezoneName,
                                ProjectId, Subjectid, data_router)
         if status:
             logger.info(f' {a} 数据组装完毕,准备发送数据... {a}')
             time.sleep(3)
+
             # 运行异步任务
             asyncio.run(send())
         else:
@@ -423,144 +433,40 @@ def main(startTime, endTime, deviceId, timeZone_offset, timezoneName, ProjectId,
     # ret_lock.release()
 
 
-# def assembly_data(count, deviceId, record, stampEndTime, stampStartTime,timeZone_offset,timezoneName,ProjectId,Subjectid,data_router):
-#     global recordTime, ecgDataList
-#     ecg_list, hr_list, rr_list = getEcgData()
-#     # ecg_list = getEcgData()
-#
-#     while True:
-#         # 组装15秒数据
-#         if record + 30000 < stampEndTime:
-#             ecgDataList = []
-#             for i in range(count * 30, count * 30 + 30):
-#                 recordTime = stampStartTime + (i * 1000)
-#                 # ecgData = assemble_data_ECG(deviceId, recordTime, ecg_list[i], hr_list[i], rr_list[i])
-#                 R=random.randint(0, 169)
-#
-#                 # 数据路由得到数据
-#                 """
-#                    数据路由功能
-#                        根据时间戳秒数返回特定数据
-#                        返回数据格式，
-#                    {
-#                                    'second': second,
-#                                    'data': time_range['data'],
-#                                    'Note': time_range.get('Note'),
-#                                    'priority': time_range.get('priority'),
-#                                    'timestamp': timestamp,
-#                                    'normalized_timestamp': self.normalize_timestamp(timestamp),
-#                                    'message': '默认配置数据'
-#                                }
-#
-#                 {
-#                             "range": [0, 15],
-#                             "data": {"HR": 11, "RR": 15, "Temp": 32.3},
-#                             "Note": "Cass1",
-#                             "priority": "lowest"
-#                         }
-#
-#                    """
-#                 result = data_router.get_data_for_timestamp(recordTime)
-#                 hr, rr, temp = result['data']["HR"], result['data']["RR"], result['data']["Temp"]
-#
-#                 # print("当前随机数:"+str(R) )
-#                 # y=0
-#                 # for  y in ecg_list[R]:
-#                 #     y=y+1
-#                 # if y != 128:
-#                 #     print("有问题的数据是",y,R)
-#
-#                 # 获取accStepTotal
-#                 accStepTotal=AccStep(recordTime,timeZone_offset).get_acc_step_total()
-#
-#                 # 组装数据
-#                 ecgData = assemble_data_ECG(deviceId, recordTime, ecg_list[R], HR=hr, RR=rr, Temp=temp,
-#                                             accStepTotal=accStepTotal, timeZone_offset=timeZone_offset,
-#                                             timezoneName=timezoneName, ProjectId=ProjectId, Subjectid=Subjectid)
-#
-#                 # timezoneName为空时候删除timezoneName字段
-#                 if timezoneName == "" or timezoneName == None:
-#                     del ecgData["timezoneName"]
-#                 else:
-#                     pass
-#
-#                 record = recordTime
-#
-#                 logger.info(
-#                     # f"数据处理 - 用例[{result.get('Note')}-P{result.get('priority')}] - "
-#                     f"数据处理 - 用例:[{result.get('Note')}] - "
-#                     f"时间戳[{ecgData['recordTime']}]:{'一致' if result.get('timestamp') == ecgData.get('recordTime') else '不一致'} - "
-#                     f"路由→组装: HR({result['data'].get('HR', 'N/A')}→{ecgData.get('data', {}).get('hr', 'N/A')}) | "
-#                     f"RR({result['data'].get('RR', 'N/A')}→{ecgData['data']['rr']}) | "
-#                     f"Temp({result['data'].get('Temp', 'N/A')}→{ecgData['data']['temperature']}) - "
-#                     # f"{'✓数据一致' if result['data'].get('HR') == ecgData.get('data', {}).get('hr') and result['data'].get('RR') == ecgData['data'].get('rr') and result['data'].get('Temp') == ecgData['data'].get('temperature') else '✗数据不一致'} - "
-#                     f"{'✓数据一致' if result['data'].get('HR') == ecgData.get('data', {}).get('hr') and result['data'].get('RR') == ecgData['data'].get('rr') and result['data'].get('Temp') == ecgData['data'].get('temperature') else '✗不一致:' + ''.join([f'HR' if result['data'].get('HR') != ecgData.get('data', {}).get('hr') else '', f',RR' if result['data'].get('RR') != ecgData['data'].get('rr') else '', f',Temp' if result['data'].get('Temp') != ecgData['data'].get('temperature') else '']).lstrip(',')} - "
-#                     f"设备[{ecgData['sensorId']}] 时区:{ecgData['timezone']} 时区名：{ecgData.get('timezoneName', 'N/A')} 路由说明信息：[{result.get('message')}]"
-#                 )
-#                 ecgDataList.append(ecgData)
-#                 # if len(ecgDataList)==9:
-#                 #     break
-#
-#             result = {"ecg": ecgDataList, "recordTime": recordTime}
-#             # print(result)
-#             queue.put(result)
-#             count += 1
-#             record += 6000
-#
-#         else:
-#             t = int((stampEndTime - record) // 1000)
-#             for i in range(count * 30, count * 30 + t):
-#                 recordTime = stampStartTime + (i * 1000)
-#                 R=random.randint(0, 300)
-#
-#                 # 获取accStepTotal
-#                 accStepTotal=AccStep(recordTime,timeZone_offset).get_acc_step_total()
-#
-#                 # 数据路由
-#                 result = data_router.get_data_for_timestamp(recordTime)
-#                 hr, rr, temp = result['data']["HR"], result['data']["RR"], result['data']["Temp"]
-#
-#                 ecgData = assemble_data_ECG(deviceId, recordTime, ecg_list[R], hr, rr,temp,accStepTotal,timeZone_offset,timezoneName,ProjectId,Subjectid)
-#
-#                 # ecgData = assemble_data_ECG(deviceId, recordTime, ecg_list[R], 65, 28)
-#                 record = recordTime
-#
-#                 logger.info(
-#                     # f"数据处理 - 用例[{result.get('Note')}-P{result.get('priority')}] - "
-#                     f"数据处理 - 用例:[{result.get('Note')}] - "
-#                     f"时间戳[{ecgData['recordTime']}]:{'一致' if result.get('timestamp') == ecgData.get('recordTime') else '不一致'} - "
-#                     f"路由→组装: HR({result['data'].get('HR', 'N/A')}→{ecgData.get('data', {}).get('hr', 'N/A')}) | "
-#                     f"RR({result['data'].get('RR', 'N/A')}→{ecgData['data']['rr']}) | "
-#                     f"Temp({result['data'].get('Temp', 'N/A')}→{ecgData['data']['temperature']}) - "
-#                     # f"{'✓数据一致' if result['data'].get('HR') == ecgData.get('data', {}).get('hr') and result['data'].get('RR') == ecgData['data'].get('rr') and result['data'].get('Temp') == ecgData['data'].get('temperature') else '✗数据不一致'} - "
-#                     f"{'✓数据一致' if result['data'].get('HR') == ecgData.get('data', {}).get('hr') and result['data'].get('RR') == ecgData['data'].get('rr') and result['data'].get('Temp') == ecgData['data'].get('temperature') else '✗不一致:' + ''.join([f'HR' if result['data'].get('HR') != ecgData.get('data', {}).get('hr') else '', f',RR' if result['data'].get('RR') != ecgData['data'].get('rr') else '', f',Temp' if result['data'].get('Temp') != ecgData['data'].get('temperature') else '']).lstrip(',')} - "
-#                     f"设备[{ecgData['sensorId']}] 时区:{ecgData['timezone']} 时区名：{ecgData.get('timezoneName', 'N/A')} 路由说明信息：[{result.get('message')}]"
-#                 )
-#                 ecgDataList.append(ecgData)
-#
-#             result = {"ecg": ecgDataList, "recordTime": recordTime}
-#             queue.put(result)
-#             break
-#     return  True
-
-
 def assembly_data(count, deviceId, record, stampEndTime, stampStartTime, timeZone_offset, timezoneName, ProjectId,
                   Subjectid, data_router):
+
+    # 统计数据
+    total_data_points = 0
+
+    # point=(stampEndTime-stampStartTime)/1000
+    # logger.info(point)
     # 定义常量
     DATA_POINTS_PER_BATCH = 30
     MS_PER_DATA_POINT = 1000
     BATCH_DURATION_MS = DATA_POINTS_PER_BATCH * MS_PER_DATA_POINT
 
     ecg_list, hr_list, rr_list = getEcgData()
+    logger.info(f"入参->开始时间: {stampStartTime} 结束时间：{stampEndTime}")
 
-    # 确保随机数范围不超过ecg_list长度
     max_ecg_index = len(ecg_list) - 1
 
-    while True:
-        if record + BATCH_DURATION_MS <= stampEndTime:
-            ecgDataList = []
-            for i in range(count * DATA_POINTS_PER_BATCH, count * DATA_POINTS_PER_BATCH + DATA_POINTS_PER_BATCH):
-                recordTime = stampStartTime + (i * MS_PER_DATA_POINT)
+    # 使用while循环处理所有批次
+    while record < stampEndTime:
+        ecgDataList = []
+        batch_start_time = record if record != 0 else stampStartTime
+
+        # 检查当前批次是否会超过结束时间
+        if batch_start_time + BATCH_DURATION_MS > stampEndTime:
+            # 处理最后一个不完整的批次
+            remaining_points = (stampEndTime - batch_start_time) // MS_PER_DATA_POINT
+
+            # logger.info(f"000{remaining_points}--{stampEndTime}--{batch_start_time}--{MS_PER_DATA_POINT}")
+            if remaining_points <= 0:
+                break
+
+            for i in range(remaining_points):
+                recordTime = batch_start_time + (i * MS_PER_DATA_POINT)
 
                 # 确保随机索引在有效范围内
                 R = random.randint(0, min(169, max_ecg_index))
@@ -577,11 +483,8 @@ def assembly_data(count, deviceId, record, stampEndTime, stampStartTime, timeZon
                                             accStepTotal=accStepTotal, timeZone_offset=timeZone_offset,
                                             timezoneName=timezoneName, ProjectId=ProjectId, Subjectid=Subjectid)
 
-                # 处理timezoneName字段
                 if not timezoneName:
                     ecgData.pop("timezoneName", None)
-
-                record = recordTime
 
                 logger.info(
                     # f"数据处理 - 用例[{result.get('Note')}-P{result.get('priority')}] - "
@@ -595,34 +498,77 @@ def assembly_data(count, deviceId, record, stampEndTime, stampStartTime, timeZon
                     f"{'✓数据一致' if result['data'].get('HR') == ecgData.get('data', {}).get('hr') and result['data'].get('RR') == ecgData['data'].get('rr') and result['data'].get('Temp') == ecgData['data'].get('temperature') else '✗不一致:' + ''.join([f'HR' if result['data'].get('HR') != ecgData.get('data', {}).get('hr') else '', f',RR' if result['data'].get('RR') != ecgData['data'].get('rr') else '', f',Temp' if result['data'].get('Temp') != ecgData['data'].get('temperature') else '']).lstrip(',')} - "
                     f"设备[{ecgData['sensorId']}] 时区:{ecgData['timezone']} 时区名：{ecgData.get('timezoneName', 'N/A')} 路由说明信息：[{result.get('message')}]"
                 )
+
                 ecgDataList.append(ecgData)
+            total_data_points += remaining_points
 
-            result = {"ecg": ecgDataList, "recordTime": recordTime}
-            queue.put(result)
-            count += 1
-            record += BATCH_DURATION_MS
-
-        else:
-            # 处理剩余数据
-            remaining_points = int((stampEndTime - record) // MS_PER_DATA_POINT)
-            if remaining_points <= 0:
-                break
-
-            ecgDataList = []
-            for i in range(count * DATA_POINTS_PER_BATCH, count * DATA_POINTS_PER_BATCH + remaining_points):
-                recordTime = stampStartTime + (i * MS_PER_DATA_POINT)
-
-                # 确保随机索引在有效范围内
-                R = random.randint(0, min(300, max_ecg_index))
-
-                # 数据路由和数据处理逻辑...
-                # ...（与主循环相同的逻辑）
-
-            result = {"ecg": ecgDataList, "recordTime": recordTime}
+            # 更新record并放入队列
+            record = stampEndTime
+            result = {"ecg": ecgDataList, "recordTime": record}
             queue.put(result)
             break
 
-    return True
+        else:
+            # 处理完整的批次
+            for i in range(DATA_POINTS_PER_BATCH):
+
+                recordTime = batch_start_time + (i * MS_PER_DATA_POINT)
+
+                # 确保随机索引在有效范围内
+                R = random.randint(0, min(169, max_ecg_index))
+
+                # 数据路由
+                result = data_router.get_data_for_timestamp(recordTime)
+                hr, rr, temp = result['data']["HR"], result['data']["RR"], result['data']["Temp"]
+
+                # 获取accStepTotal
+                accStepTotal = AccStep(recordTime, timeZone_offset).get_acc_step_total()
+
+                # 组装数据
+                ecgData = assemble_data_ECG(deviceId, recordTime, ecg_list[R], HR=hr, RR=rr, Temp=temp,
+                                            accStepTotal=accStepTotal, timeZone_offset=timeZone_offset,
+                                            timezoneName=timezoneName, ProjectId=ProjectId, Subjectid=Subjectid)
+
+                if not timezoneName:
+                    ecgData.pop("timezoneName", None)
+
+                # logger.info(f"ECG数据处理 - 用例[{result.get('Note')}-第{result.get('second')}秒] - "
+                #             f"时间戳[{ecgData['recordTime']}]:{'一致' if result.get('timestamp') == ecgData.get('recordTime') else '不一致'}")
+                logger.info(
+                    # f"数据处理 - 用例[{result.get('Note')}-P{result.get('priority')}] - "
+                    # f"数据处理 - 用例:[{result.get('Note')}] - "
+                    f"ECG数据处理 - 用例[{result.get('Note')}-第{result.get('second')}秒] - "
+                    f"时间戳[{ecgData['recordTime']}]:{'一致' if result.get('timestamp') == ecgData.get('recordTime') else '不一致'} - "
+                    f"路由→组装: HR({result['data'].get('HR', 'N/A')}→{ecgData.get('data', {}).get('hr', 'N/A')}) | "
+                    f"RR({result['data'].get('RR', 'N/A')}→{ecgData['data']['rr']}) | "
+                    f"Temp({result['data'].get('Temp', 'N/A')}→{ecgData['data']['temperature']}) - "
+                    # f"{'✓数据一致' if result['data'].get('HR') == ecgData.get('data', {}).get('hr') and result['data'].get('RR') == ecgData['data'].get('rr') and result['data'].get('Temp') == ecgData['data'].get('temperature') else '✗数据不一致'} - "
+                    f"{'✓数据一致' if result['data'].get('HR') == ecgData.get('data', {}).get('hr') and result['data'].get('RR') == ecgData['data'].get('rr') and result['data'].get('Temp') == ecgData['data'].get('temperature') else '✗不一致:' + ''.join([f'HR' if result['data'].get('HR') != ecgData.get('data', {}).get('hr') else '', f',RR' if result['data'].get('RR') != ecgData['data'].get('rr') else '', f',Temp' if result['data'].get('Temp') != ecgData['data'].get('temperature') else '']).lstrip(',')} - "
+                    f"设备[{ecgData['sensorId']}] 时区:{ecgData['timezone']} 时区名：{ecgData.get('timezoneName', 'N/A')} 路由说明信息：[{result.get('message')}]"
+                )
+
+                ecgDataList.append(ecgData)
+
+            # logger.info(f"{DATA_POINTS_PER_BATCH}")
+            total_data_points += DATA_POINTS_PER_BATCH  # 累加数据点数量
+
+            # 更新record并放入队列
+            record = batch_start_time + BATCH_DURATION_MS
+
+
+            result = {"ecg": ecgDataList, "recordTime": record,"total_data": len(ecgDataList)}
+            queue.put(result)
+            data_list = ecgDataList
+            count += 1  # 只在完整批次处理时递增count
+            # logger.info(f"处理第：{count}个批次({DATA_POINTS_PER_BATCH}条/批)，总计：{total_data_points} 条数据")
+
+    logger.info(f"入参->开始时间: {stampStartTime} 结束时间：{stampEndTime} 总计：{total_data_points} 条数据")
+
+
+
+    return True, total_data_points
+
+
 
 
 async def send():
@@ -793,6 +739,8 @@ if __name__ == '__main__':
         ]
     }
 
+
+
     # 上传病人信息
     Patient_Profile = {
         "ProjectId": "Test_310",
@@ -834,11 +782,11 @@ if __name__ == '__main__':
 
             start_time = ModifyTime(modify_Time, hours=0, minutes=00, seconds=0).date_plus()
 
-            end_time = ModifyTime(start_time, hours=23, minutes=59, seconds=59).date_plus()
+            end_time = ModifyTime(start_time, hours=00, minutes=1, seconds=1).date_plus()
 
             logger.info(f"{a}↓↓↓ 发送Device：{device}  {start_time}-->{end_time} 的数据 ↓↓↓{a}")
 
-            main(P["StartTime"], end_time, device, P["TimeZoneOffset"], P["TimeZoneName"], P["ProjectId"],
+            main(start_time, end_time, device, P["TimeZoneOffset"], P["TimeZoneName"], P["ProjectId"],
                  P["SubjectId"], P["Data_Config"], ret_lock)
 
             logger.info(f"{a}↑↑↑ Device：{device}  {start_time}->{end_time} 数据发送完成 ↑↑↑{a}\n")
