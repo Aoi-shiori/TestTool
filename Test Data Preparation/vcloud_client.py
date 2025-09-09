@@ -2,7 +2,7 @@ import requests
 import json
 import logging
 from typing import Dict, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # 添加 timedelta 导入
 
 
 class VCloudClient:
@@ -21,10 +21,10 @@ class VCloudClient:
         if self.token and not force_refresh:
             # 检查token是否过期
             if self.token_expiry and self.token_expiry > datetime.now():
-                self.logger.info("使用现有的Vcloud token")
+                # self.logger.info("使用现有的Vcloud token")
                 return self.token
 
-        self.logger.info("尝试获取Vcloud认证token")
+        self.logger.info("Token过期,尝试获取Vcloud认证token")
 
         try:
             payload = {
@@ -38,12 +38,12 @@ class VCloudClient:
 
             if response.status_code == 200:
                 data = response.json()
-                self.token = data.get("token")
+                self.token = data.get("data").get("token")
 
                 # 假设token有效期为1小时（根据实际情况调整）
                 self.token_expiry = datetime.now() + timedelta(hours=1)
 
-                self.logger.info("成功获取Vcloud token")
+                self.logger.info(f"成功获取Vcloud token{self.token}，有效期{self.token_expiry}")
                 return self.token
             else:
                 self.logger.error(f"获取Vcloud token失败: HTTP {response.status_code} - {response.text}")

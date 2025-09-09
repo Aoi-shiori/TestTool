@@ -4,7 +4,7 @@ import re
 import logging
 import pandas as pd
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # 确保这里也导入了 timedelta
 from typing import Dict, List, Optional, Tuple, Any
 from enum import Enum
 
@@ -49,7 +49,7 @@ class TestDataManager:
             auth_url="https://vcloud-test.vivalink.com/auth",
             client_id="617070e40daf63ba334ece90d1",
             client_key="@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF",
-            tenant="Test_340"
+            tenant="Test340_V2"
         )
 
         # 初始化目录
@@ -57,6 +57,7 @@ class TestDataManager:
             os.makedirs(self.base_dir)
 
         self.logger.info("TestDataManager初始化完成")
+
 
     def setup_logging(self):
         """配置日志记录"""
@@ -548,6 +549,7 @@ class TestDataManager:
                 try:
                     patients_df = pd.read_excel(self.excel_file, sheet_name='patients')
                     patients = patients_df.to_dict('records')
+                    logging.info(f"{patients}")
                     self.logger.info(f"从Excel读取 {len(patients)} 个病人")
                 except Exception as e:
                     self.logger.warning(f"读取病人数据失败: {str(e)}")
@@ -711,7 +713,7 @@ if __name__ == "__main__":
 
     # 示例3: 绑定设备
     bind_config = {
-        "options": ["read_patients", "base_data.xlsx"]
+        "options": ["read_patients", "read_devices"]
     }
 
     manager.execute_operation(OperationMode.BIND, bind_config)

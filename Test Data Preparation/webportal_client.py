@@ -2,7 +2,7 @@ import requests
 import json
 import logging
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta  # 添加 timedelta 导入
 
 
 class WebPortalClient:
@@ -20,10 +20,10 @@ class WebPortalClient:
         if self.token and not force_refresh:
             # 检查token是否过期
             if self.token_expiry and self.token_expiry > datetime.now():
-                self.logger.info("使用现有的WebPortal token")
+                # self.logger.info("使用现有的WebPortal token")
                 return self.token
 
-        self.logger.info("尝试获取WebPortal认证token")
+        self.logger.info("Token过期，尝试获取WebPortal认证token")
 
         try:
             payload = {

@@ -40,8 +40,8 @@ logs
 log
 
 #所有包含 test temp的文件
-*[tT][eE][sS][tT]*
-*[tT][eE][mM][pP]*
+#*[tT][eE][sS][tT]*
+#*[tT][eE][mM][pP]*
 
 #other
 *.idea

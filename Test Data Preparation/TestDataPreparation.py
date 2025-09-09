@@ -8,6 +8,20 @@ from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Any
 from enum import Enum
 
+import requests
+import json
+import re
+import logging
+import pandas as pd
+import os
+from datetime import datetime, timedelta  # 确保这里也导入了 timedelta
+from typing import Dict, List, Optional, Tuple, Any
+from enum import Enum
+
+# 导入客户端
+from webportal_client import WebPortalClient
+from vcloud_client import VCloudClient
+
 
 class OperationMode(Enum):
     """操作模式枚举"""
@@ -31,30 +45,29 @@ class TestDataManager:
         self.device_file = self.base_dir + "devices.json"
         self.patient_device_file = self.base_dir + "patient_devices.json"
         self.excel_file = self.base_dir + "base_data.xlsx"
-        self.webportal_token = None
-        self.vcloud_token = None
-        self.token_expiry = {}  # 存储token过期时间
 
-        # WebPortal配置
-        self.webportal_base_url = "https://webportal-dev.vivalink.com/api/backend"
-        self.webportal_auth_url = f"{self.webportal_base_url}/authentication"
-        self.webportal_email = "jun@vivalink.com.cn"
-        self.webportal_password = "Jun@1234"
+        # 初始化客户端
+        self.webportal_client = WebPortalClient(
+            base_url="https://webportal-dev.vivalink.com/api/backend",
+            auth_url="https://webportal-dev.vivalink.com/api/backend/authentication",
+            email="jun@vivalink.com.cn",
+            password="Jun@1234"
+        )
 
-        # Vcloud配置
-        self.vcloud_base_url = "https://vcloud-test.vivalink.com"
-        self.vcloud_auth_url = f"{self.vcloud_base_url}/auth"
-        self.vcloud_id = "617070e40daf63ba334ece90d1"
-        self.vcloud_key = "@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF"
-
-        # 租户信息
-        self.tenant = "Test_340"
+        self.vcloud_client = VCloudClient(
+            base_url="https://vcloud-test.vivalink.com",
+            auth_url="https://vcloud-test.vivalink.com/auth",
+            client_id="617070e40daf63ba334ece90d1",
+            client_key="@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF",
+            tenant="Test340_V2"
+        )
 
         # 初始化目录
         if not os.path.exists(self.base_dir):
             os.makedirs(self.base_dir)
 
         self.logger.info("TestDataManager初始化完成")
+
 
     def setup_logging(self):
         """配置日志记录"""
@@ -678,30 +691,6 @@ class TestDataManager:
 if __name__ == "__main__":
     manager = TestDataManager()
 
-    # 示例1: 创建设备
-    device_config = {
-        "device_rules": [
-            {"type": "ECG", "pattern": "ECGRec_202509/JD00{index}"},
-            {"type": "BP", "pattern": "BP5C_J20250906{index}"}
-        ],
-        "count": 5
-    }
-    manager.execute_operation(OperationMode.CREATE_DEVICES, device_config)
-
-    # 示例2: 创建病人
-    patient_config = {
-        "patient_rules": {
-            "internalId_pattern": "J20250905_ECG_{index}",
-            "firstName_pattern": "J20250905_ECG_{index}",
-            "lastName_pattern": "J20250905_ECG_{index}",
-            "birthDate": "1990/01/01",
-            "gender": "Male",
-            "height": 170,
-            "weight": 70
-        },
-        "count": 5
-    }
-    manager.execute_operation(OperationMode.CREATE_PATIENTS, patient_config)
 
     # 示例3: 绑定设备
     bind_config = {
@@ -709,20 +698,53 @@ if __name__ == "__main__":
     }
     manager.execute_operation(OperationMode.BIND, bind_config)
 
-    # 示例4: 查询绑定信息
-    query_config = {
-        "options": ["read_patients", "read_devices"]
-    }
-    manager.execute_operation(OperationMode.QUERY_INFO, query_config)
 
-    # 示例5: 解绑设备
-    unbind_config = {
-        "options": ["read_patients", "read_devices"]
-    }
-    manager.execute_operation(OperationMode.UNBIND, unbind_config)
 
-    # 示例6: 删除资源
-    delete_config = {
-        "options": ["read_patients", "read_devices"]
-    }
-    manager.execute_operation(OperationMode.DELETE, delete_config)
+    # # 示例1: 创建设备
+    # device_config = {
+    #     "device_rules": [
+    #         {"type": "ECG", "pattern": "ECGRec_202509/JD00{index}"},
+    #         {"type": "BP", "pattern": "BP5C_J20250906{index}"}
+    #     ],
+    #     "count": 5
+    # }
+    # manager.execute_operation(OperationMode.CREATE_DEVICES, device_config)
+    #
+    # # 示例2: 创建病人
+    # patient_config = {
+    #     "patient_rules": {
+    #         "internalId_pattern": "J20250905_ECG_{index}",
+    #         "firstName_pattern": "J20250905_ECG_{index}",
+    #         "lastName_pattern": "J20250905_ECG_{index}",
+    #         "birthDate": "1990/01/01",
+    #         "gender": "Male",
+    #         "height": 170,
+    #         "weight": 70
+    #     },
+    #     "count": 5
+    # }
+    # manager.execute_operation(OperationMode.CREATE_PATIENTS, patient_config)
+    #
+    # # 示例3: 绑定设备
+    # bind_config = {
+    #     "options": ["read_patients", "read_devices"]
+    # }
+    # manager.execute_operation(OperationMode.BIND, bind_config)
+    #
+    # # 示例4: 查询绑定信息
+    # query_config = {
+    #     "options": ["read_patients", "read_devices"]
+    # }
+    # manager.execute_operation(OperationMode.QUERY_INFO, query_config)
+    #
+    # # 示例5: 解绑设备
+    # unbind_config = {
+    #     "options": ["read_patients", "read_devices"]
+    # }
+    # manager.execute_operation(OperationMode.UNBIND, unbind_config)
+    #
+    # # 示例6: 删除资源
+    # delete_config = {
+    #     "options": ["read_patients", "read_devices"]
+    # }
+    # manager.execute_operation(OperationMode.DELETE, delete_config)

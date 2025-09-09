@@ -1,0 +1,496 @@
+[
+  {
+    "patientName": "None None",
+    "patient_id": "68be8bc8043c784b283220e1",
+    "internalId": "0908",
+    "device_list": [
+      "ECGRec_202327/E111859"
+    ]
+  },
+  {
+    "patientName": "10410 bug",
+    "patient_id": "68be8b4f5c345aa6f36417db",
+    "internalId": "9-8-03",
+    "device_list": [
+      "BP5C_J2025091552"
+    ]
+  },
+  {
+    "patientName": "Test3 Test3",
+    "patient_id": "68bd253ec7153f435d3bc22f",
+    "internalId": "Test3",
+    "device_list": []
+  },
+  {
+    "patientName": "Test2 Test2",
+    "patient_id": "68bd239d41c240ec2c87a346",
+    "internalId": "Test2",
+    "device_list": []
+  },
+  {
+    "patientName": "MV BP",
+    "patient_id": "68bd2173c7153f435d3bc220",
+    "internalId": "9-7-06",
+    "device_list": []
+  },
+  {
+    "patientName": "no-name Study",
+    "patient_id": "68bcf0dcc7153f435d3bc13e",
+    "internalId": "9-7-05",
+    "device_list": [
+      "ECGRec_202420/E311003"
+    ]
+  },
+  {
+    "patientName": "Temp study",
+    "patient_id": "68bce85bb9414492d0b419ca",
+    "internalId": "9-7-04",
+    "device_list": [
+      "F25.25091002"
+    ]
+  },
+  {
+    "patientName": "SPO2 study",
+    "patient_id": "68bce83fb9414492d0b419c8",
+    "internalId": "9-7-03",
+    "device_list": [
+      "O2 25JD091002"
+    ]
+  },
+  {
+    "patientName": "BP study",
+    "patient_id": "68bce82ab9414492d0b419c6",
+    "internalId": "9-7-02",
+    "device_list": [
+      "BP5C_J2025091002"
+    ]
+  },
+  {
+    "patientName": "ECG study",
+    "patient_id": "68bce7b1b9414492d0b419c3",
+    "internalId": "9-7-01",
+    "device_list": [
+      "ECGRec_202420/E311002"
+    ]
+  },
+  {
+    "patientName": "dong xia",
+    "patient_id": "68bc12743937e017e48e3dc0",
+    "internalId": "9-6-02",
+    "device_list": [
+      "ECGRec_202420/E311852"
+    ]
+  },
+  {
+    "patientName": "J20250905_SPO2_05 J20250905_SPO2_05",
+    "patient_id": "68bbe9f73d7b4b5632bebace",
+    "internalId": "J20250905_SPO2_05",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_SPO2_04 J20250905_SPO2_04",
+    "patient_id": "68bbe9f73d7b4b5632bebacc",
+    "internalId": "J20250905_SPO2_04",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_SPO2_03 J20250905_SPO2_03",
+    "patient_id": "68bbe9f73d7b4b5632bebaca",
+    "internalId": "J20250905_SPO2_03",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_SPO2_02 J20250905_SPO2_02",
+    "patient_id": "68bbe9f73d7b4b5632bebac8",
+    "internalId": "J20250905_SPO2_02",
+    "device_list": [
+      "ECGRec_202509/JD0001",
+      "O2 25JD090502"
+    ]
+  },
+  {
+    "patientName": "J20250905_SPO2_01 J20250905_SPO2_01",
+    "patient_id": "68bbe9f73d7b4b5632bebac6",
+    "internalId": "J20250905_SPO2_01",
+    "device_list": [
+      "O2 25JD090501"
+    ]
+  },
+  {
+    "patientName": "J20250905_TEMP_05 J20250905_TEMP_05",
+    "patient_id": "68bbe9f73d7b4b5632bebac4",
+    "internalId": "J20250905_TEMP_05",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_TEMP_04 J20250905_TEMP_04",
+    "patient_id": "68bbe9f73d7b4b5632bebac2",
+    "internalId": "J20250905_TEMP_04",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_TEMP_03 J20250905_TEMP_03",
+    "patient_id": "68bbe9f73d7b4b5632bebac0",
+    "internalId": "J20250905_TEMP_03",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_TEMP_02 J20250905_TEMP_02",
+    "patient_id": "68bbe9f73d7b4b5632bebabe",
+    "internalId": "J20250905_TEMP_02",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_TEMP_01 J20250905_TEMP_01",
+    "patient_id": "68bbe9f73d7b4b5632bebabc",
+    "internalId": "J20250905_TEMP_01",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_ECG_05 J20250905_ECG_05",
+    "patient_id": "68bbe9f73d7b4b5632bebaba",
+    "internalId": "J20250905_ECG_05",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_ECG_04 J20250905_ECG_04",
+    "patient_id": "68bbe9f73d7b4b5632bebab8",
+    "internalId": "J20250905_ECG_04",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_ECG_03 J20250905_ECG_03",
+    "patient_id": "68bbe9f73d7b4b5632bebab6",
+    "internalId": "J20250905_ECG_03",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_ECG_02 J20250905_ECG_02",
+    "patient_id": "68bbe9f73d7b4b5632bebab4",
+    "internalId": "J20250905_ECG_02",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_ECG_01 J20250905_ECG_01",
+    "patient_id": "68bbe9f73d7b4b5632bebab2",
+    "internalId": "J20250905_ECG_01",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_PRO_05 J20250905_PRO_05",
+    "patient_id": "68bbe9f73d7b4b5632bebab0",
+    "internalId": "J20250905_PRO_05",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_PRO_04 J20250905_PRO_04",
+    "patient_id": "68bbe9f73d7b4b5632bebaae",
+    "internalId": "J20250905_PRO_04",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_PRO_03 J20250905_PRO_03",
+    "patient_id": "68bbe9f73d7b4b5632bebaac",
+    "internalId": "J20250905_PRO_03",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_PRO_02 J20250905_PRO_02",
+    "patient_id": "68bbe9f73d7b4b5632bebaaa",
+    "internalId": "J20250905_PRO_02",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_PRO_01 J20250905_PRO_01",
+    "patient_id": "68bbe9f73d7b4b5632bebaa8",
+    "internalId": "J20250905_PRO_01",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_BP_05 J20250905_BP_05",
+    "patient_id": "68bbe9f73d7b4b5632bebaa6",
+    "internalId": "J20250905_BP_05",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_BP_04 J20250905_BP_04",
+    "patient_id": "68bbe9f73d7b4b5632bebaa4",
+    "internalId": "J20250905_BP_04",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_BP_03 J20250905_BP_03",
+    "patient_id": "68bbe9f73d7b4b5632bebaa2",
+    "internalId": "J20250905_BP_03",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_BP_02 J20250905_BP_02",
+    "patient_id": "68bbe9f73d7b4b5632bebaa0",
+    "internalId": "J20250905_BP_02",
+    "device_list": []
+  },
+  {
+    "patientName": "J20250905_BP_01 J20250905_BP_01",
+    "patient_id": "68bbe9f73d7b4b5632beba9e",
+    "internalId": "J20250905_BP_01",
+    "device_list": []
+  },
+  {
+    "patientName": "dong xai",
+    "patient_id": "68bbe272647f03c996707ad1",
+    "internalId": "JJ",
+    "device_list": [
+      "ECGRec_202509/NI090529"
+    ]
+  },
+  {
+    "patientName": "R 10",
+    "patient_id": "68bbcde06141cb7dab0ee09f",
+    "internalId": "R-010",
+    "device_list": []
+  },
+  {
+    "patientName": "R 9",
+    "patient_id": "68bbcde06141cb7dab0ee09d",
+    "internalId": "R-009",
+    "device_list": []
+  },
+  {
+    "patientName": "R 8",
+    "patient_id": "68bbcde06141cb7dab0ee09b",
+    "internalId": "R-008",
+    "device_list": []
+  },
+  {
+    "patientName": "R 7",
+    "patient_id": "68bbcde06141cb7dab0ee099",
+    "internalId": "R-007",
+    "device_list": []
+  },
+  {
+    "patientName": "R 6",
+    "patient_id": "68bbcde06141cb7dab0ee097",
+    "internalId": "R-006",
+    "device_list": []
+  },
+  {
+    "patientName": "R 5",
+    "patient_id": "68bbcde06141cb7dab0ee095",
+    "internalId": "R-005",
+    "device_list": [
+      "ECGRec_200001/C000005"
+    ]
+  },
+  {
+    "patientName": "R 4",
+    "patient_id": "68bbcde06141cb7dab0ee093",
+    "internalId": "R-004",
+    "device_list": [
+      "ECGRec_200001/C000004"
+    ]
+  },
+  {
+    "patientName": "R 3",
+    "patient_id": "68bbcde06141cb7dab0ee091",
+    "internalId": "R-003",
+    "device_list": [
+      "BP5S_004D32010003",
+      "ECGRec_200001/C000003"
+    ]
+  },
+  {
+    "patientName": "R 2",
+    "patient_id": "68bbcde06141cb7dab0ee08f",
+    "internalId": "R-002",
+    "device_list": [
+      "BP5S_004D32010002",
+      "ECGRec_200001/C000002"
+    ]
+  },
+  {
+    "patientName": "R 1",
+    "patient_id": "68bbcde06141cb7dab0ee08d",
+    "internalId": "R-001",
+    "device_list": [
+      "BP5S_004D32010001",
+      "ECGRec_200001/C000001"
+    ]
+  },
+  {
+    "patientName": "20 T",
+    "patient_id": "68bb9a92a5aec21badd2f293",
+    "internalId": "Patient20",
+    "device_list": []
+  },
+  {
+    "patientName": "19 S",
+    "patient_id": "68bb9a92a5aec21badd2f291",
+    "internalId": "Patient19",
+    "device_list": []
+  },
+  {
+    "patientName": "18 R",
+    "patient_id": "68bb9a92a5aec21badd2f28f",
+    "internalId": "Patient18",
+    "device_list": []
+  },
+  {
+    "patientName": "17 Q",
+    "patient_id": "68bb9a92a5aec21badd2f28d",
+    "internalId": "Patient17",
+    "device_list": []
+  },
+  {
+    "patientName": "16 P",
+    "patient_id": "68bb9a92a5aec21badd2f28b",
+    "internalId": "Patient16",
+    "device_list": []
+  },
+  {
+    "patientName": "15 O",
+    "patient_id": "68bb9a92a5aec21badd2f289",
+    "internalId": "Patient15",
+    "device_list": []
+  },
+  {
+    "patientName": "14 N",
+    "patient_id": "68bb9a92a5aec21badd2f287",
+    "internalId": "Patient14",
+    "device_list": []
+  },
+  {
+    "patientName": "13 M",
+    "patient_id": "68bb9a92a5aec21badd2f285",
+    "internalId": "Patient13",
+    "device_list": []
+  },
+  {
+    "patientName": "12 H",
+    "patient_id": "68bb9a92a5aec21badd2f283",
+    "internalId": "Patient12",
+    "device_list": []
+  },
+  {
+    "patientName": "11 K",
+    "patient_id": "68bb9a92a5aec21badd2f281",
+    "internalId": "Patient11",
+    "device_list": []
+  },
+  {
+    "patientName": "10 J",
+    "patient_id": "68bb9a92a5aec21badd2f27f",
+    "internalId": "Patient10",
+    "device_list": [
+      "ECGRec_202509/NI090510",
+      "O2 25NI090510",
+      "BP5C_Ab2025090510",
+      "F25.25090510"
+    ]
+  },
+  {
+    "patientName": "9 I",
+    "patient_id": "68bb9a92a5aec21badd2f27d",
+    "internalId": "Patient9",
+    "device_list": [
+      "ECGRec_202509/NI090509",
+      "O2 25NI090509",
+      "BP5C_Ab2025090509",
+      "F25.25090509"
+    ]
+  },
+  {
+    "patientName": "8 H",
+    "patient_id": "68bb9a92a5aec21badd2f27b",
+    "internalId": "Patient8",
+    "device_list": [
+      "ECGRec_202509/NI090508",
+      "O2 25NI090508",
+      "BP5C_Ab2025090508",
+      "F25.25090508"
+    ]
+  },
+  {
+    "patientName": "7 G",
+    "patient_id": "68bb9a92a5aec21badd2f279",
+    "internalId": "Patient7",
+    "device_list": [
+      "ECGRec_202509/NI090507",
+      "O2 25NI090507",
+      "BP5C_Ab2025090507",
+      "F25.25090507"
+    ]
+  },
+  {
+    "patientName": "6 F",
+    "patient_id": "68bb9a92a5aec21badd2f277",
+    "internalId": "Patient6",
+    "device_list": [
+      "ECGRec_202509/NI090506",
+      "O2 25NI090506",
+      "BP5C_Ab2025090506",
+      "F25.25090506"
+    ]
+  },
+  {
+    "patientName": "5 E",
+    "patient_id": "68bb9a92a5aec21badd2f275",
+    "internalId": "Patient5",
+    "device_list": [
+      "ECGRec_202509/NI090505",
+      "O2 25NI090505",
+      "BP5C_Ab2025090505",
+      "F25.25090505"
+    ]
+  },
+  {
+    "patientName": "4 D",
+    "patient_id": "68bb9a92a5aec21badd2f273",
+    "internalId": "Patient4",
+    "device_list": [
+      "ECGRec_202509/NI090504",
+      "O2 25NI090504",
+      "BP5C_Ab2025090504",
+      "F25.25090504"
+    ]
+  },
+  {
+    "patientName": "3 C",
+    "patient_id": "68bb9a92a5aec21badd2f271",
+    "internalId": "Patient3",
+    "device_list": [
+      "ECGRec_202509/NI090503",
+      "O2 25NI090503",
+      "BP5C_Ab2025090503",
+      "F25.25090503"
+    ]
+  },
+  {
+    "patientName": "2 B",
+    "patient_id": "68bb9a92a5aec21badd2f26f",
+    "internalId": "Patient2",
+    "device_list": [
+      "ECGRec_202509/NI090502",
+      "O2 25NI090502",
+      "BP5C_Ab2025090502",
+      "F25.25090502"
+    ]
+  },
+  {
+    "patientName": "1 A",
+    "patient_id": "68bb9a92a5aec21badd2f26d",
+    "internalId": "Patient1",
+    "device_list": [
+      "ECGRec_202509/NI090501",
+      "O2 25NI090501",
+      "F25.25090501",
+      "BP5C_Ab2025090501"
+    ]
+  },
+  {
+    "patientName": "J20250904_BP01 J20250904_BP01",
+    "patient_id": "68b92725e47e769a5374c9f5",
+    "internalId": "J20250904_BP01",
+    "device_list": []
+  }
+]
