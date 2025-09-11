@@ -15,6 +15,9 @@ v2.0-20250906:
 1、更新可以自定义每秒数据上传，暂时只支持 ECG 数据
 v2.0-20250907:
 1、assembly_datah函数：修复循环问题导致数据为空的 bug.
+v2.0-20250911:
+1、增加根据数据时间，自动设置偏移量的功能.
+
 
 """
 
@@ -25,6 +28,9 @@ import time
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Thread
+
+from pandas.core.methods.selectn import SelectNSeries
+
 from getEcgData import *
 import requests
 from queue import Queue
@@ -130,7 +136,20 @@ def get_app_token():
 
 
 def assemble_data_ECG(deviceId, recordTime, ecgData, HR, RR, Temp, accStepTotal, timeZone_offset, timezoneName,
-                      ProjectId, Subjectid):
+                      ProjectId, Subjectid,is_get_timezone_offset):
+
+    global offset_seconds
+    offset_seconds=0
+    if is_get_timezone_offset == True and timezoneName != "":
+        try:
+            offset_str, offset_seconds = get_timezone_offset(timezone_name=timezoneName, unix_timestamp=recordTime/1000)
+        except Exception as e:
+            logger.info(f"输入的时区名不正确，请检查时区名！！")
+        timeZone_offset = offset_seconds
+    else:
+        # logger.info(f"没有时区名，使用偏移量！！")
+        pass
+
     dict = {
         "app_id": "com.vivalnk.vitalsmonitor.bms",
         "category": "N/A",
@@ -314,13 +333,22 @@ async def sendDataToVCloud(payload, recordTime, token):
 
 
 def single_assembly_data(count, deviceId, record, stampEndTime, stampStartTime, timeZone_offset, timezoneName,
-                         ProjectId, Subjectid, data_router):
-    global recordTime, ecgDataList
+                         ProjectId, Subjectid, data_router,is_get_timezone_offset):
+    global recordTime, ecgDataList, offset_seconds
     ecg_list, hr_list, rr_list = getEcgData1()
     ecgDataList = []
 
     recordTime = stampStartTime
 
+    if is_get_timezone_offset == True and timezoneName != "":
+        try:
+            offset_str, offset_seconds = get_timezone_offset(timezone_name=timezoneName, unix_timestamp=timeZone_offset)
+        except Exception as e:
+            logger.info(f"输入的时区名不正确，请检查时区名！！")
+        timeZone_offset = offset_seconds
+    else:
+        # logger.info(f"没有时区名，使用偏移量！！")
+        pass
     # 获取accStepTotal
     accStepTotal = AccStep(recordTime, timeZone_offset).get_acc_step_total()
 
@@ -355,7 +383,7 @@ def single_assembly_data(count, deviceId, record, stampEndTime, stampStartTime, 
 
     ecgData = assemble_data_ECG(deviceId, recordTime, ecg_list[0], HR=hr, RR=rr, TEMP=temp, accStepTotal=accStepTotal,
                                 timeZone_offset=timeZone_offset, timezoneName=timezoneName, ProjectId=ProjectId,
-                                Subjectid=Subjectid)
+                                Subjectid=Subjectid,is_get_timezone_offset=is_get_timezone_offset)
 
     # timezoneName为空时候删除timezoneName字段
     if timezoneName == "" or timezoneName == None:
@@ -370,7 +398,9 @@ def single_assembly_data(count, deviceId, record, stampEndTime, stampStartTime, 
     return True
 
 
-def main(startTime, endTime, deviceId, timeZone_offset, timezoneName, ProjectId, Subjectid, DATE_CONFIG, ret_lock):
+def main(startTime, endTime, deviceId, timeZone_offset, timezoneName, ProjectId, Subjectid, DATE_CONFIG,is_get_timezone_offset):
+    # 是否自动获取偏移量
+    is_get_timezone_offset=is_get_timezone_offset
     logger.info(f'{a} 正在组装数据... {a}')
 
     arrayStartTime = time.strptime(startTime, "%Y-%m-%d %H:%M:%S")
@@ -408,7 +438,7 @@ def main(startTime, endTime, deviceId, timeZone_offset, timezoneName, ProjectId,
         # stampStartTime=stampStartTime-2
         # logger.info(f'单数据零时减2毫秒：{stampStartTime}')
         status = single_assembly_data(count, deviceId, record, stampEndTime, stampStartTime, timeZone_offset,
-                                      timezoneName, ProjectId, Subjectid, data_router)
+                                      timezoneName, ProjectId, Subjectid, data_router,is_get_timezone_offset)
         if status:
             logger.info(f' {a} 数据组装完毕,准备发送数据... {a}')
 
@@ -421,7 +451,7 @@ def main(startTime, endTime, deviceId, timeZone_offset, timezoneName, ProjectId,
             logger.error(f'{a} 数据组装失败... {a}')
     else:
         status = assembly_data(count, deviceId, record, stampEndTime, stampStartTime,timeZone_offset, timezoneName,
-                               ProjectId, Subjectid, data_router)
+                               ProjectId, Subjectid, data_router,is_get_timezone_offset)
         if status:
             logger.info(f' {a} 数据组装完毕,准备发送数据... {a}')
             time.sleep(3)
@@ -434,7 +464,7 @@ def main(startTime, endTime, deviceId, timeZone_offset, timezoneName, ProjectId,
 
 
 def assembly_data(count, deviceId, record, stampEndTime, stampStartTime, timeZone_offset, timezoneName, ProjectId,
-                  Subjectid, data_router):
+                  Subjectid, data_router, is_get_timezone_offset):
 
     # 统计数据
     total_data_points = 0
@@ -481,7 +511,7 @@ def assembly_data(count, deviceId, record, stampEndTime, stampStartTime, timeZon
                 # 组装数据
                 ecgData = assemble_data_ECG(deviceId, recordTime, ecg_list[R], HR=hr, RR=rr, Temp=temp,
                                             accStepTotal=accStepTotal, timeZone_offset=timeZone_offset,
-                                            timezoneName=timezoneName, ProjectId=ProjectId, Subjectid=Subjectid)
+                                            timezoneName=timezoneName, ProjectId=ProjectId, Subjectid=Subjectid, is_get_timezone_offset=is_get_timezone_offset)
 
                 if not timezoneName:
                     ecgData.pop("timezoneName", None)
@@ -527,7 +557,7 @@ def assembly_data(count, deviceId, record, stampEndTime, stampStartTime, timeZon
                 # 组装数据
                 ecgData = assemble_data_ECG(deviceId, recordTime, ecg_list[R], HR=hr, RR=rr, Temp=temp,
                                             accStepTotal=accStepTotal, timeZone_offset=timeZone_offset,
-                                            timezoneName=timezoneName, ProjectId=ProjectId, Subjectid=Subjectid)
+                                            timezoneName=timezoneName, ProjectId=ProjectId, Subjectid=Subjectid,is_get_timezone_offset=is_get_timezone_offset)
 
                 if not timezoneName:
                     ecgData.pop("timezoneName", None)
@@ -699,6 +729,52 @@ class TimestampDataRouter:
         }
 
 
+import pytz
+from datetime import datetime, timezone
+
+
+def get_timezone_offset(timezone_name, unix_timestamp):
+    """
+    根据时区名和Unix时间戳获取时区偏移量
+
+    参数:
+    timezone_name (str): 时区名称，例如 'America/New_York'
+    unix_timestamp (int/float): Unix时间戳
+
+    返回:
+    str: 格式化的时区偏移量（例如 "+08:00"）
+    int: 以秒为单位的偏移量
+    """
+    try:
+        # 使用现代方法创建带时区信息的UTC时间
+        utc_time = datetime.fromtimestamp(unix_timestamp, timezone.utc)
+
+        # 获取指定时区
+        tz = pytz.timezone(timezone_name)
+
+        # 将UTC时间转换为指定时区的时间
+        local_time = utc_time.astimezone(tz)
+
+        # 计算总偏移秒数
+        total_seconds = local_time.utcoffset().total_seconds()
+
+        # 将秒数转换为小时和分钟格式
+        hours = int(total_seconds // 3600)
+        minutes = int((total_seconds % 3600) // 60)
+
+        # 格式化偏移量字符串
+        sign = '+' if hours >= 0 else '-'
+        offset_str = f"{sign}{abs(hours):02d}:{minutes:02d}"
+
+        return offset_str, int(total_seconds)
+
+    except pytz.UnknownTimeZoneError:
+        raise ValueError(f"未知的时区名称: {timezone_name}")
+    except Exception as e:
+        raise ValueError(f"错误: {str(e)}")
+
+
+
 if __name__ == '__main__':
 
     ret_lock = threading.Lock()
@@ -747,11 +823,13 @@ if __name__ == '__main__':
         "SubjectId": "J250317005",
         "DeviceId": ["ECGRec_202511/JUN0005"],
         "Data_Config": DEFAULT_CONFIG,
-        "TimeZoneName": "",  # TimeZoneName为“”，不传TimeZoneName字段
+        "TimeZoneName": "America/New_York",  # TimeZoneName为“”，不传TimeZoneName字段
         "TimeZoneOffset": 28800,
-        "StartTime": "2025-03-19 00:00:00",
+        "StartTime": "2025-10-09 00:00:00",
         # "StartTime": "2025-03-17 23:59:59",
+        "is_get_timezone_offset": True, #如果为 True，TimeZoneOffset设置的就会无效
         "Days": 1
+
 
     }
 
@@ -782,12 +860,12 @@ if __name__ == '__main__':
 
             start_time = ModifyTime(modify_Time, hours=0, minutes=00, seconds=0).date_plus()
 
-            end_time = ModifyTime(start_time, hours=00, minutes=1, seconds=1).date_plus()
+            end_time = ModifyTime(start_time, hours=3, minutes=0, seconds=0).date_plus()
 
             logger.info(f"{a}↓↓↓ 发送Device：{device}  {start_time}-->{end_time} 的数据 ↓↓↓{a}")
 
             main(start_time, end_time, device, P["TimeZoneOffset"], P["TimeZoneName"], P["ProjectId"],
-                 P["SubjectId"], P["Data_Config"], ret_lock)
+                 P["SubjectId"], P["Data_Config"],P["is_get_timezone_offset"])
 
             logger.info(f"{a}↑↑↑ Device：{device}  {start_time}->{end_time} 数据发送完成 ↑↑↑{a}\n")
 
