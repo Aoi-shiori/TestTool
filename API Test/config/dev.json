@@ -1,0 +1,10 @@
+{
+  "base_url": "https://api-dev.example.com",
+  "auth_token": "dev_token_here",
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "user": "dev_user",
+    "password": "dev_password"
+  }
+}

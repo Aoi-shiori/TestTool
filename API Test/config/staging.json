@@ -1,0 +1,10 @@
+{
+  "base_url": "https://api-staging.example.com",
+  "auth_token": "staging_token_here",
+  "database": {
+    "host": "staging-db.example.com",
+    "port": 3306,
+    "user": "staging_user",
+    "password": "staging_password"
+  }
+}

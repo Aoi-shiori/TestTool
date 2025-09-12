@@ -1,0 +1,11 @@
+base_url: http://dev.api.example.com
+timeout: 30
+headers:
+  Content-Type: application/json
+  Accept: application/json
+database:
+  host: localhost
+  port: 3306
+  username: dev_user
+  password: dev_pass
+  database: dev_db

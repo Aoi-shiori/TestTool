@@ -1,0 +1,11 @@
+base_url: https://api.example.com
+timeout: 30
+headers:
+  Content-Type: application/json
+  Accept: application/json
+database:
+  host: prod.db.example.com
+  port: 3306
+  username: prod_user
+  password: prod_pass
+  database: prod_db

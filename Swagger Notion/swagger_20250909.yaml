@@ -1,0 +1,3970 @@
+basePath: /
+definitions:
+  api.AgpDataItem:
+    properties:
+      percentile25Value:
+        type: number
+      percentile50Value:
+        type: number
+      percentile5Value:
+        type: number
+      percentile75Value:
+        type: number
+      percentile95Value:
+        type: number
+      x:
+        type: string
+    type: object
+  api.AgpReturnData:
+    properties:
+      data:
+        description: 绘图原始数据
+        items:
+          $ref: '#/definitions/api.AgpDataItem'
+        type: array
+      dataTimeZoneOffset:
+        description: 数据时区偏移量,分钟
+        type: integer
+      endTime:
+        description: 图表下方X轴的结束时间
+        type: string
+      percentileData:
+        description: 百分位位置数据
+        items:
+          type: number
+        type: array
+      percentileSourceData:
+        description: 百分位位置数据（原始点）
+        items:
+          type: number
+        type: array
+      startTime:
+        description: 图表下方X轴的开始时间
+        type: string
+    type: object
+  api.DgpDataItem:
+    properties:
+      x:
+        type: string
+      "y":
+        type: integer
+      y0:
+        type: integer
+      y1:
+        type: integer
+    type: object
+  api.DgpDayNumber:
+    properties:
+      number:
+        type: integer
+      x:
+        type: string
+    type: object
+  api.DgpReturnData:
+    properties:
+      dataTimeZoneName:
+        description: 数据时区名称
+        type: string
+      dataTimeZoneOffset:
+        description: 数据时区偏移量,分钟
+        type: integer
+      dayNumber1:
+        items:
+          $ref: '#/definitions/api.DgpDayNumber'
+        type: array
+      dayNumber2:
+        items:
+          $ref: '#/definitions/api.DgpDayNumber'
+        type: array
+      endTime1:
+        description: 前7天数据结束时间
+        type: string
+      endTime2:
+        description: 后7天数据结束时间
+        type: string
+      shadingData1:
+        description: 前7绘图原始阴影数据
+        items:
+          $ref: '#/definitions/api.DgpShadingChartData'
+        type: array
+      shadingData2:
+        description: 后7绘图原始阴影数据
+        items:
+          $ref: '#/definitions/api.DgpShadingChartData'
+        type: array
+      startTime1:
+        description: 前7天数据开始时间
+        type: string
+      startTime2:
+        description: 后7天数据开始时间
+        type: string
+      timeWeek:
+        description: 日期周对转数据
+        items:
+          $ref: '#/definitions/api.DgpTimeWeek'
+        type: array
+    type: object
+  api.DgpShadingChartData:
+    properties:
+      dataBottom:
+        items:
+          $ref: '#/definitions/api.DgpDataItem'
+        type: array
+      dataCenter:
+        items:
+          $ref: '#/definitions/api.DgpDataItem'
+        type: array
+      dataTop:
+        items:
+          $ref: '#/definitions/api.DgpDataItem'
+        type: array
+    type: object
+  api.DgpTimeWeek:
+    properties:
+      week:
+        type: string
+      x:
+        type: string
+    type: object
+  api.EcgAnnotation:
+    type: object
+  api.GtdChartItem:
+    properties:
+      high:
+        type: number
+      highSum:
+        type: number
+      low:
+        type: number
+      lowSum:
+        type: number
+      target:
+        type: number
+      veryHigh:
+        type: number
+      veryLow:
+        type: number
+    type: object
+  api.GtdGlucoseMetricsData:
+    properties:
+      averageGlucose:
+        description: 平均葡萄糖值
+        type: number
+      glucoseManagementIndicator:
+        description: 血糖管理指标 GMI
+        type: number
+      glucoseVariability:
+        description: 葡萄糖变异性
+        type: number
+    type: object
+  api.GtdReturnData:
+    properties:
+      activeTimeRatio:
+        description: 活跃数据时间占比
+        type: number
+      colors:
+        description: color
+        items:
+          type: string
+        type: array
+      data:
+        allOf:
+        - $ref: '#/definitions/api.GtdChartItem'
+        description: 绘图原始数据
+      dataDay:
+        description: 数据有多少天
+        type: integer
+      dataEndTime:
+        description: 数据结束时间
+        type: string
+      dataStartTime:
+        description: 数据开始时间
+        type: string
+      dataTimeZoneOffset:
+        description: 数据时区偏移量,分钟
+        type: integer
+      gtdGlucoseMetricsData:
+        allOf:
+        - $ref: '#/definitions/api.GtdGlucoseMetricsData'
+        description: 葡萄糖指标
+      keys:
+        description: key
+        items:
+          type: string
+        type: array
+      patientBirthday:
+        description: 病人生日
+        type: string
+      patientName:
+        description: 病人名称
+        type: string
+    type: object
+  api.PatientReturnData:
+    properties:
+      _id:
+        type: string
+      birthDate:
+        type: string
+      clinic:
+        type: string
+      clinicCustomStatus:
+        description: clinic监控协议状态
+        type: boolean
+      codes:
+        items:
+          type: string
+        type: array
+      createdAt:
+        description: 创建时间
+        type: string
+      deviceMismatch:
+        description: 设备不匹配
+        type: boolean
+      deviceOnLine:
+        type: boolean
+      deviceTypeCodes:
+        items:
+          type: integer
+        type: array
+      devices:
+        items:
+          type: string
+        type: array
+      firstName:
+        type: string
+      gender:
+        type: string
+      height:
+        type: number
+      id:
+        type: string
+      internalId:
+        type: string
+      isOpenPrescribingPhysician:
+        type: boolean
+      isRpm:
+        description: 是否标记为RPM病人
+        type: boolean
+      job:
+        type: string
+      lastName:
+        type: string
+      monitoringDuration:
+        description: 天数
+        type: integer
+      monitoringProtocol:
+        properties:
+          _id:
+            type: string
+          name:
+            type: string
+          type:
+            $ref: '#/definitions/enums.MonitoringProtocolType'
+        type: object
+      monitoringProtocolCustomStatus:
+        description: 父级监控协议状态
+        type: boolean
+      monitoringType:
+        $ref: '#/definitions/enums.MonitoringProtocolType'
+      mpLastDataTime:
+        description: 监控最新数据时间
+        type: string
+      mpLastDataTimeZoneInfo:
+        $ref: '#/definitions/model.TimeZoneInfoReturnData'
+      mpStartTime:
+        description: 监控开始时间
+        type: string
+      mpStartTimeZoneInfo:
+        $ref: '#/definitions/model.TimeZoneInfoReturnData'
+      nowMonitoringProtocolId:
+        type: string
+      phoneNo:
+        type: string
+      physician:
+        $ref: '#/definitions/api.commonpPhysician'
+      prescribingPhysicianName:
+        type: string
+      rpmGroupIds:
+        description: RPM Group
+        items:
+          type: string
+        type: array
+      rpmGroups:
+        description: RPM Group
+        items:
+          $ref: '#/definitions/api.rpmGroupData'
+        type: array
+      selfDefinedProtocol:
+        description: 自定义协议
+        type: boolean
+      site:
+        type: string
+      siteName:
+        type: string
+      studiesList:
+        items:
+          $ref: '#/definitions/api.studiesData'
+        type: array
+      subjectId:
+        type: string
+      thirdPartyNotification:
+        description: 第三方通知邮箱
+        items:
+          $ref: '#/definitions/api.thirdPartyNotification'
+        type: array
+      timeZoneName:
+        description: 时区名称,IANA时区数据库,例:Asia/Shanghai
+        type: string
+      timeZoneOffset:
+        description: 所在时区（秒）
+        type: integer
+      timezoneLastUpdated:
+        description: 时区最近一次修改时间
+        type: string
+      weight:
+        type: number
+    type: object
+  api.UserReturnData:
+    properties:
+      _id:
+        type: string
+      active:
+        type: string
+      clinic:
+        $ref: '#/definitions/app_model.Clinic'
+      createdAt:
+        type: integer
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastLoggedAt:
+        type: integer
+      lastName:
+        type: string
+      phone:
+        type: string
+      position:
+        type: string
+      roleNames:
+        type: string
+      site:
+        type: string
+      siteName:
+        type: string
+      status:
+        type: string
+    type: object
+  api.authParam:
+    properties:
+      email:
+        description: 登录邮箱
+        example: user@example.com
+        type: string
+      ip:
+        description: 客户端 IP（自动填充）
+        example: 127.0.0.1
+        type: string
+      password:
+        description: 登录密码
+        example: "123456"
+        type: string
+      request:
+        description: 请求来源（可选，例：web、mobile）
+        example: web
+        type: string
+    type: object
+  api.authReturnData:
+    properties:
+      accessToken:
+        description: 访问令牌
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      callback:
+        description: 登录后跳转地址
+        example: /dashboard
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/api.userInfoReturnData'
+        description: 用户信息
+    type: object
+  api.bpData:
+    properties:
+      createdAt:
+        description: 创建时间
+        type: string
+      diastolic:
+        type: integer
+      id:
+        type: string
+      patient:
+        type: string
+      recordTime:
+        type: string
+      systolic:
+        type: integer
+      timeZoneInfo:
+        allOf:
+        - $ref: '#/definitions/model.TimeZoneInfoReturnData'
+        description: 当天参考时区信息
+      updatedAt:
+        description: 更新时间
+        type: string
+    type: object
+  api.bpDataPostParam:
+    properties:
+      diastolic:
+        description: 舒张压（mmHg）
+        example: 80
+        type: integer
+      patient:
+        description: 患者ID（ObjectId 字符串）
+        example: 665f0f1a2c3d4e5f6a7b8c9d
+        type: string
+      recordTime:
+        description: 记录时间戳（毫秒，13位）
+        example: 1730611200000
+        type: integer
+      systolic:
+        description: 收缩压（mmHg）
+        example: 120
+        type: integer
+      timeZoneName:
+        description: 可选：记录时所在时区名称（IANA）
+        example: America/Los_Angeles
+        type: string
+    type: object
+  api.commonpPhysician:
+    properties:
+      _id:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+    type: object
+  api.monitoringHistory:
+    properties:
+      device:
+        type: string
+      duration:
+        type: string
+      endTime:
+        type: string
+      endTimeZoneInfo:
+        $ref: '#/definitions/model.TimeZoneInfoReturnData'
+      id:
+        type: string
+      monitoringProtocol:
+        type: string
+      patient:
+        $ref: '#/definitions/api.monitoringHistoryPatient'
+      period:
+        type: string
+      startTime:
+        type: string
+      startTimeZoneInfo:
+        $ref: '#/definitions/model.TimeZoneInfoReturnData'
+      status:
+        type: string
+      statusColor:
+        type: string
+      type:
+        type: string
+    type: object
+  api.monitoringHistoryPatient:
+    properties:
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+      physician:
+        $ref: '#/definitions/api.commonpPhysician'
+      site:
+        type: string
+      siteName:
+        type: string
+      subjectId:
+        type: string
+    type: object
+  api.patientStudieDayData:
+    properties:
+      day:
+        description: 天（YYYY-MM-DD）
+        example: "2025-07-04"
+        type: string
+      dayEndTime:
+        description: 当天结束时间（UTC/RFC3339）
+        example: "2025-07-04T23:59:59Z"
+        type: string
+      dayStartTime:
+        description: 当天开始时间（UTC/RFC3339）
+        example: "2025-07-04T00:00:00Z"
+        type: string
+      endTime:
+        description: 有效结束时间（UTC/RFC3339）
+        example: "2025-07-04T22:55:00Z"
+        type: string
+      endTimeZoneInfo:
+        allOf:
+        - $ref: '#/definitions/model.TimeZoneInfoReturnData'
+        description: 结束参考时区信息
+      id:
+        description: 记录ID
+        example: 66a1b2c3d4e5f60718293a4b
+        type: string
+      startTime:
+        description: 有效起始时间（UTC/RFC3339）
+        example: "2025-07-04T00:05:00Z"
+        type: string
+      startTimeZoneInfo:
+        allOf:
+        - $ref: '#/definitions/model.TimeZoneInfoReturnData'
+        description: 起始参考时区信息
+      timeZoneDescription:
+        description: 时区描述
+        example: (UTC-07:00)
+        type: string
+      timeZoneInfo:
+        allOf:
+        - $ref: '#/definitions/model.TimeZoneInfoReturnData'
+        description: 当天参考时区信息
+      timeZoneName:
+        description: 时区名称
+        example: America/Los_Angeles
+        type: string
+      timeZoneOffset:
+        description: 时区偏移量（分钟）
+        example: -420
+        type: integer
+    type: object
+  api.patientStudieListData:
+    properties:
+      annotationCount:
+        description: 标注数量
+        example: 3
+        type: integer
+      day:
+        description: 天（YYYY-MM-DD）
+        example: "2025-07-04"
+        type: string
+      dayEndTime:
+        description: 当天结束时间（UTC/RFC3339）
+        example: "2025-07-04T23:59:59Z"
+        type: string
+      dayStartTime:
+        description: 当天开始时间（UTC/RFC3339）
+        example: "2025-07-04T00:00:00Z"
+        type: string
+      endTime:
+        description: 有效结束时间（UTC/RFC3339）
+        example: "2025-07-04T22:55:00Z"
+        type: string
+      endTimeZoneInfo:
+        allOf:
+        - $ref: '#/definitions/model.TimeZoneInfoReturnData'
+        description: 结束参考时区信息
+      eventCount:
+        description: 事件数量
+        example: 12
+        type: integer
+      id:
+        description: 记录ID
+        example: 66a1b2c3d4e5f60718293a4b
+        type: string
+      patient:
+        properties:
+          firstName:
+            description: 名
+            example: John
+            type: string
+          id:
+            description: 患者ID（ObjectId）
+            example: 665f0f1a2c3d4e5f6a7b8c9d
+            type: string
+          lastName:
+            description: 姓
+            example: Doe
+            type: string
+          subjectId:
+            description: 受试者编号
+            example: SUBJ-001
+            type: string
+        type: object
+      startTime:
+        description: 有效起始时间（UTC/RFC3339）
+        example: "2025-07-04T00:05:00Z"
+        type: string
+      startTimeZoneInfo:
+        allOf:
+        - $ref: '#/definitions/model.TimeZoneInfoReturnData'
+        description: 起始参考时区信息
+      timeZoneDescription:
+        description: 时区描述
+        example: (UTC-07:00)
+        type: string
+      timeZoneInfo:
+        allOf:
+        - $ref: '#/definitions/model.TimeZoneInfoReturnData'
+        description: 当天参考时区信息
+      timeZoneName:
+        description: 时区名称
+        example: America/Los_Angeles
+        type: string
+      timeZoneOffset:
+        description: 时区偏移量（分钟）
+        example: -420
+        type: integer
+    type: object
+  api.rpmGroupData:
+    properties:
+      id:
+        type: string
+      name:
+        description: 分组名称
+        type: string
+      tagColor:
+        description: tag颜色
+        type: string
+    type: object
+  api.studiesData:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  api.thirdPartyNotification:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      note:
+        description: 描述信息
+        type: string
+      phone:
+        description: 手机号
+        type: string
+    type: object
+  api.timeZoneReturnData:
+    properties:
+      timeZoneDescription:
+        description: 描述信息 (UTC-11:00) Samoa Standard Time - Midway
+        type: string
+      timeZoneDstEndTime:
+        description: 时区夏令时结束时间
+        type: string
+      timeZoneDstStartTime:
+        description: 时区夏令时开始时间
+        type: string
+      timeZoneIsDst:
+        description: 时区是不是夏令时
+        type: boolean
+      timeZoneName:
+        description: 时区名称
+        type: string
+      timeZoneOffset:
+        description: 时区偏移值（分钟）
+        type: integer
+      timeZoneShortDescription:
+        description: 简短描述信息 UTC-11:00/SST
+        type: string
+    type: object
+  api.userInfoReturnData:
+    properties:
+      _id:
+        description: 用户 ID
+        example: 66a1b2c3d4e5f60718293a4b
+        type: string
+      clinic:
+        allOf:
+        - $ref: '#/definitions/app_model.Clinic'
+        description: 诊所信息（对象，定义见 model.Clinic）
+      email:
+        description: 邮箱
+        example: user@example.com
+        type: string
+      firstName:
+        description: 名
+        example: John
+        type: string
+      isAudio:
+        description: 是否开启声音提醒
+        example: false
+        type: boolean
+      language:
+        description: 偏好语言
+        example: en
+        type: string
+      lastName:
+        description: 姓
+        example: Doe
+        type: string
+      phone:
+        description: 电话号码
+        example: +1-202-555-0199
+        type: string
+      roles:
+        description: 角色列表
+        items:
+          $ref: '#/definitions/model.Role'
+        type: array
+      signature:
+        description: 签名（Base64 或 URL）
+        example: /9j/4AAQSkZJRgABAQ...
+        type: string
+      signatureAuthorize:
+        description: 是否启用签名
+        example: true
+        type: boolean
+      site:
+        description: 站点 ID
+        example: 665f0f1a2c3d4e5f6a7b8c9d
+        type: string
+      siteName:
+        description: 站点名称
+        example: Main Site
+        type: string
+      webVersionInfo:
+        allOf:
+        - $ref: '#/definitions/api.webVersionInfo'
+        description: Web 前端版本信息
+    type: object
+  api.webVersionInfo:
+    properties:
+      readStatus:
+        description: Web 版本信息读取状态
+        example: true
+        type: boolean
+      time:
+        description: 更新时间 (ISO8601)
+        example: "2025-09-01T12:30:00Z"
+        type: string
+      url:
+        description: 版本对应的下载或访问 URL
+        example: https://example.com/app/v1.2.3
+        type: string
+      version:
+        description: 版本号
+        example: 1.2.3
+        type: string
+    type: object
+  app_api_chart_ecg.afibAndPvcAndPacCountChartDataReturnData:
+    properties:
+      afibCount:
+        description: AFIB 计数
+        example: 3
+        type: number
+      dateTime:
+        description: 时间点（RFC3339）
+        example: "2025-07-04T08:00:00Z"
+        type: string
+      pacCount:
+        description: PAC 计数
+        example: 2
+        type: number
+      pvcCount:
+        description: PVC 计数
+        example: 5
+        type: number
+    type: object
+  app_api_chart_ecg.eventCountChartData:
+    properties:
+      color:
+        description: 建议渲染颜色（十六进制）
+        example: '#FF0000'
+        type: string
+      count:
+        description: 事件数量
+        example: 12
+        type: integer
+      name:
+        description: 事件名称
+        example: AFib
+        type: string
+    type: object
+  app_api_chart_ecg.eventCountChartDataReturnData:
+    properties:
+      dateTime:
+        description: 时间点（RFC3339）
+        example: "2025-07-04T08:00:00Z"
+        type: string
+      eventData:
+        description: 事件计数明细
+        items:
+          $ref: '#/definitions/app_api_chart_ecg.eventCountChartData'
+        type: array
+      patientStudiesId:
+        description: 关联的 patientStudies 文档ID
+        example: 66a1b2c3d4e5f60718293a4b
+        type: string
+    type: object
+  app_api_report.cgmReturnData:
+    properties:
+      agpChartData:
+        $ref: '#/definitions/api.AgpReturnData'
+      dgpChartData:
+        $ref: '#/definitions/api.DgpReturnData'
+      events:
+        items:
+          $ref: '#/definitions/app_api_report.reportReturnDataMvDataEvent'
+        type: array
+      gtdChartData:
+        $ref: '#/definitions/api.GtdReturnData'
+    type: object
+  app_api_report.reportReturnDataMvDataEvent:
+    properties:
+      _id:
+        type: string
+      annotationData:
+        items:
+          $ref: '#/definitions/api.EcgAnnotation'
+        type: array
+      annotations:
+        properties:
+          all:
+            type: integer
+          reviewed:
+            type: integer
+          unreviewed:
+            type: integer
+        type: object
+      clinic:
+        description: 诊所id
+        type: string
+      color:
+        type: string
+      createdAt:
+        description: 创建时间
+        type: string
+      dataChunk:
+        type: string
+      deleteDate:
+        type: string
+      deleted:
+        type: boolean
+      description:
+        type: string
+      device:
+        type: string
+      deviceType:
+        type: string
+      duration:
+        type: integer
+      eventType:
+        properties:
+          name:
+            type: string
+        type: object
+      finish:
+        type: string
+      finish_:
+        type: string
+      finishPos:
+        type: integer
+      flag:
+        type: boolean
+      jumpFinish:
+        type: string
+      jumpStart:
+        type: string
+      latestECGFinish:
+        type: string
+      latestECGStart:
+        type: string
+      matchesRule:
+        type: boolean
+      model:
+        type: string
+      monitoringProtocol:
+        type: string
+      patient:
+        type: string
+      pointsAmount:
+        type: integer
+      start:
+        type: string
+      start_:
+        type: string
+      startPos:
+        type: integer
+      updatedAt:
+        description: 更新时间
+        type: string
+      value:
+        type: number
+    type: object
+  app_model.Clinic:
+    properties:
+      _id:
+        example: 66a1b2c3d4e5f60718293a4b
+        type: string
+      activeDataRetentionPeriod:
+        description: 活跃数据保留期（月），为空表示不设置
+        example: 6
+        type: integer
+      cgmStatus:
+        description: 是否打开 CGM 血糖检测
+        example: true
+        type: boolean
+      clinicalTrialCoordinatorStatus:
+        description: 是否启用 CTC 角色
+        example: false
+        type: boolean
+      customConfig:
+        allOf:
+        - $ref: '#/definitions/model.CustomConfig'
+        description: 自定义配置
+      customStatus:
+        description: 是否打开自定义监控协议
+        example: false
+        type: boolean
+      dataAnalytics:
+        allOf:
+        - $ref: '#/definitions/model.dataAnalytics'
+        description: Data Analytics 菜单可见配置
+      dataUnavailableTime:
+        description: 数据不可用时间（服务器时间减归档天数）
+        example: "2025-09-01T00:00:00Z"
+        type: string
+      dateSelectionType:
+        description: 日期选择类型（如：range/single）
+        example: range
+        type: string
+      dct:
+        description: 是否启用 DCT 功能
+        example: false
+        type: boolean
+      domain:
+        description: 诊所域名/租户域
+        example: acmehealth.com
+        type: string
+      h5Admin:
+        description: H5 admin userId
+        example: 64f0f1a2c3d4e5f6a7b8c9d0
+        type: string
+      isD2P:
+        description: 是否 D2P（Doctor to Patient）模式
+        example: false
+        type: boolean
+      kitIdStatus:
+        description: 是否启用 KIT ID
+        example: false
+        type: boolean
+      loginTimeout:
+        description: 登录超时时间（分钟）
+        example: 30
+        type: integer
+      pageViewStatus:
+        description: 是否打开 Page View
+        example: false
+        type: boolean
+      patientConfig:
+        allOf:
+        - $ref: '#/definitions/model.PatientConfig'
+        description: 患者字段显示/禁用配置
+      patientMenuType:
+        description: 病人菜单类型 1 表示 合并菜单，2 表示 独立菜单
+        type: integer
+      patientTriageStatus:
+        description: 是否打开 Patient Triage
+        example: true
+        type: boolean
+      prosStatus:
+        description: 是否打开 PROs
+        example: true
+        type: boolean
+      reportType:
+        description: 报告类型（如：standard/custom/medpace）
+        example: standard
+        type: string
+      researcherRoleStatus:
+        description: 是否启用研究员角色
+        example: false
+        type: boolean
+      rpmAlertStatus:
+        description: 是否打开 RPM Alert
+        example: true
+        type: boolean
+      rpmConfig:
+        allOf:
+        - $ref: '#/definitions/db.ClinicRpmConfigType'
+        description: RPM 配置对象
+      rpmStatus:
+        description: 是否打开 RPM
+        example: true
+        type: boolean
+      sitesStatus:
+        description: 是否启用站点功能
+        example: true
+        type: boolean
+      ssoNewUserBlocked:
+        description: 新用户是否被 SSO 拦截（需管理员审核）
+        example: true
+        type: boolean
+      ssoOrganization:
+        description: SSO 组织标识
+        example: acme-org
+        type: string
+      ssoRedirect:
+        description: SSO 重定向地址
+        example: https://sso.example.com/login
+        type: string
+      status:
+        description: 状态（如：active/disabled）
+        example: active
+        type: string
+      studiesStatus:
+        description: 是否启用研究功能
+        example: true
+        type: boolean
+      subjectIdStatus:
+        description: 是否启用 SubjectID（以 patient internalId 代替 patient name）
+        example: true
+        type: boolean
+      temperatureUnit:
+        description: 体温单位（F/C）
+        example: F
+        type: string
+      tenantId:
+        description: 租户 ID
+        example: tenant-acme-001
+        type: string
+      timeZoneVersionMedpace:
+        description: 标识时区版本信息 Medpace
+        example: false
+        type: boolean
+      timeZoneVersionV1:
+        description: 标识时区版本信息 V1
+        example: false
+        type: boolean
+      timeZoneVersionV2:
+        description: 标识时区版本信息 V2
+        example: true
+        type: boolean
+      title:
+        description: 诊所名称
+        example: Acme Health LA
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/enums.ClinicType'
+        description: 诊所类型
+        example: 0
+        x-enum-varnames: '[Default,Medpace]'
+    type: object
+  app_model.H:
+    additionalProperties: true
+    type: object
+  clinic.ClinicGetOneResponse:
+    properties:
+      _id:
+        example: 66a1b2c3d4e5f60718293a4b
+        type: string
+      activeDataRetentionPeriod:
+        description: 月
+        example: 6
+        type: integer
+      address:
+        example: 123 Main St, Los Angeles, CA
+        type: string
+      cgmStatus:
+        description: 是否打开CGM
+        example: true
+        type: boolean
+      clinicalTrialCoordinatorStatus:
+        description: 是否启用 CTC
+        example: false
+        type: boolean
+      countryCode:
+        example: US
+        type: string
+      dataAnalytics:
+        allOf:
+        - $ref: '#/definitions/clinic.dataAnalytics'
+        description: Data Analytics 菜单可见配置
+      demoStatus:
+        description: Vivalink Demo Clinic
+        example: false
+        type: boolean
+      domain:
+        example: acmehealth.com
+        type: string
+      kitIdStatus:
+        description: 是否启用KIT ID
+        example: false
+        type: boolean
+      loginTimeout:
+        description: 超时时间
+        example: 30
+        type: integer
+      loginTimeoutType:
+        description: Min/Hour
+        example: Min
+        type: string
+      maxFailedLockMinutes:
+        example: 15
+        type: integer
+      maxFailedLogins:
+        example: 5
+        type: integer
+      orderOperationsEmails:
+        example:
+        - support@acme.com
+        - ops@acme.com
+        items:
+          type: string
+        type: array
+      pageViewStatus:
+        description: 是否打开Page View
+        example: false
+        type: boolean
+      patientConfig:
+        allOf:
+        - $ref: '#/definitions/clinic.patientConfig'
+        description: 之前你定义的 PatientConfig
+      patientMenuType:
+        type: integer
+      phone:
+        example: +1-202-555-0123
+        type: string
+      productOrService:
+        description: 多行字符串
+        example: |-
+          RPM
+          CGM
+        type: string
+      prosStatus:
+        description: 是否打开PROs
+        example: true
+        type: boolean
+      researcherRoleStatus:
+        description: 是否启用研究员角色
+        example: false
+        type: boolean
+      rpmStatus:
+        description: 是否打开RPM
+        example: true
+        type: boolean
+      sitesStatus:
+        description: 是否启用站点功能
+        example: true
+        type: boolean
+      ssoNewUserBlocked:
+        example: true
+        type: boolean
+      ssoOrganization:
+        example: acme-org
+        type: string
+      ssoRedirect:
+        example: https://sso.example.com/login
+        type: string
+      status:
+        description: 状态
+        example: active
+        type: string
+      studiesStatus:
+        description: 是否启用研究功能
+        example: true
+        type: boolean
+      subjectIdStatus:
+        description: 是否启用SubjectID
+        example: true
+        type: boolean
+      temperatureUnit:
+        example: F
+        type: string
+      tenantId:
+        example: tenant-acme-001
+        type: string
+      tenantKey:
+        example: tk_abc123
+        type: string
+      timeZoneVersion:
+        description: 时区版本（例如 V1/V2/Medpace）
+        example: V2
+        type: string
+      title:
+        example: Acme Health LA
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/enums.ClinicType'
+        description: 类型
+        example: 0
+        x-enum-varnames: '[Default,Medpace,Other]'
+      vcloudDomain:
+        example: https://vcloud.example.com
+        type: string
+    type: object
+  clinic.accountParam:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      patientMenuType:
+        description: 病人菜单类型 1 表示 合并菜单，2 表示 独立菜单
+        type: integer
+    type: object
+  clinic.clinicAddParam:
+    properties:
+      activeDataRetentionPeriod:
+        description: 默认单位为month
+        type: integer
+      address:
+        type: string
+      cgmStatus:
+        description: 是否打开CGM血糖检测
+        type: boolean
+      clinicalTrialCoordinatorStatus:
+        type: boolean
+      countryCode:
+        type: string
+      dataAnalytics:
+        allOf:
+        - $ref: '#/definitions/clinic.dataAnalytics'
+        description: 控制当前Clinic下[Data Analytics]菜单对哪些角色可见
+      demoStatus:
+        type: boolean
+      domain:
+        type: string
+      kitIdStatus:
+        type: boolean
+      loginTimeout:
+        description: 超时时间
+        type: integer
+      loginTimeoutType:
+        description: 超时时间类型 Min/Hour
+        type: string
+      maxFailedLockMinutes:
+        type: integer
+      maxFailedLogins:
+        type: integer
+      orderOperationsEmails:
+        type: string
+      pageViewStatus:
+        description: 是否打开Page View
+        type: boolean
+      patientConfig:
+        $ref: '#/definitions/clinic.patientConfig'
+      patientMenuType:
+        description: 病人菜单类型 1 表示 合并菜单，2 表示 独立菜单
+        type: integer
+      phone:
+        type: string
+      pmAccount:
+        allOf:
+        - $ref: '#/definitions/clinic.accountParam'
+        description: TestSetupStatus = true时使用, 初始化pm账号
+      productOrService:
+        type: string
+      prosStatus:
+        description: 是否打开PROs
+        type: boolean
+      researcherRoleStatus:
+        type: boolean
+      rpmStatus:
+        description: 是否打开RPM
+        type: boolean
+      sitesStatus:
+        type: boolean
+      ssoNewUserBlocked:
+        type: boolean
+      ssoOrganization:
+        type: string
+      ssoRedirect:
+        type: string
+      studiesStatus:
+        type: boolean
+      subjectIdStatus:
+        type: boolean
+      temperatureUnit:
+        type: string
+      tenantId:
+        type: string
+      tenantKey:
+        type: string
+      testSetupStatus:
+        description: 是否执行测试所需要的资源初始化步骤
+        type: boolean
+      title:
+        type: string
+      type:
+        description: 类型
+        type: integer
+      vcloudDomain:
+        type: string
+    type: object
+  clinic.dataAnalytics:
+    properties:
+      adminStatus:
+        type: boolean
+      physicianStatus:
+        type: boolean
+      programManagerStatus:
+        type: boolean
+      researcherStatus:
+        type: boolean
+      technicianStatus:
+        type: boolean
+    type: object
+  clinic.patientConfig:
+    properties:
+      disabledFields:
+        $ref: '#/definitions/clinic.patientConfigDisabledField'
+      hiddenFields:
+        $ref: '#/definitions/clinic.patientConfigHiddenField'
+    type: object
+  clinic.patientConfigDisabledField:
+    properties:
+      firstName:
+        type: boolean
+      lastName:
+        type: boolean
+      patientId:
+        type: boolean
+      subjectId:
+        type: boolean
+    type: object
+  clinic.patientConfigHiddenField:
+    properties:
+      birthday:
+        type: boolean
+      firstName:
+        type: boolean
+      lastName:
+        type: boolean
+    type: object
+  data.ReturnData:
+    properties:
+      code:
+        description: 错误码；v1 API 使用 status.go；OpenAPI 使用 ErrorCode（见 error.go）
+        example: 0
+        type: integer
+      data:
+        description: 返回数据（任意对象）
+        type: object
+      errCode:
+        description: 详细错误码；使用 apperrors.ErrorCode（建议在 apperrors 中补枚举说明）
+        example: 0
+        type: integer
+      message:
+        description: 信息说明
+        example: success
+        type: string
+    type: object
+  data.ReturnPageData:
+    properties:
+      code:
+        description: 错误码
+        example: 0
+        type: integer
+      data:
+        description: 返回数据（建议各接口用专用响应体替代 interface{}，便于 Swagger 展开）
+        type: object
+      limit:
+        description: 每页数据量
+        example: 20
+        type: integer
+      message:
+        description: 信息说明
+        example: success
+        type: string
+      skip:
+        description: 分页数据偏移量
+        example: 0
+        type: integer
+      total:
+        description: 总数据量
+        example: 123
+        type: integer
+    type: object
+  db.ClinicRpmConfigFallType:
+    properties:
+      dataSourceType:
+        $ref: '#/definitions/model.FallSleepDeviceType'
+    type: object
+  db.ClinicRpmConfigSleepStageType:
+    properties:
+      dataSourceType:
+        $ref: '#/definitions/model.FallSleepDeviceType'
+    type: object
+  db.ClinicRpmConfigSleepType:
+    properties:
+      dataSourceType:
+        $ref: '#/definitions/model.FallSleepDeviceType'
+    type: object
+  db.ClinicRpmConfigType:
+    properties:
+      fall:
+        $ref: '#/definitions/db.ClinicRpmConfigFallType'
+      sleep:
+        $ref: '#/definitions/db.ClinicRpmConfigSleepType'
+      sleepStage:
+        $ref: '#/definitions/db.ClinicRpmConfigSleepStageType'
+    type: object
+  enums.ClinicType:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - ClinicTypeOther
+    - ClinicTypeDct
+    - ClinicTypeD2p
+  enums.MonitoringProtocolType:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - NotSpecified
+    - MCT
+    - Holter
+  model.CustomConfig:
+    properties:
+      isAROX:
+        description: AROX 模式（补充 json tag）
+        example: false
+        type: boolean
+      isMedpace:
+        description: Medpace 模式
+        example: false
+        type: boolean
+    type: object
+  model.FallSleepDeviceType:
+    enum:
+    - Vivalink
+    - Samsung
+    - MANUAL
+    type: string
+    x-enum-varnames:
+    - FallDeviceTypeVivalink
+    - FallDeviceTypeSamsung
+    - FallDeviceTypeManual
+  model.PatientConfig:
+    properties:
+      disabledFields:
+        allOf:
+        - $ref: '#/definitions/model.disabledField'
+        description: 禁用字段
+      hiddenFields:
+        allOf:
+        - $ref: '#/definitions/model.hiddenField'
+        description: 隐藏字段
+    type: object
+  model.Role:
+    properties:
+      _id:
+        type: string
+      name:
+        description: 名称
+        type: string
+      permissions:
+        description: 权限
+        items:
+          type: string
+        type: array
+    type: object
+  model.SnsMessage:
+    properties:
+      Message:
+        type: string
+      MessageAttributes:
+        additionalProperties: true
+        type: object
+      MessageId:
+        type: string
+      Signature:
+        type: string
+      SignatureVersion:
+        type: string
+      SigningCertURL:
+        type: string
+      Subject:
+        type: string
+      SubscribeURL:
+        type: string
+      Timestamp:
+        type: string
+      Token:
+        description: if Type is SubscriptionConfirmation, this field is available.
+          aws sns token, not vcloud token.
+        type: string
+      TopicArn:
+        type: string
+      Type:
+        type: string
+      UnsubscribeUrl:
+        type: string
+    type: object
+  model.TimeZoneInfoReturnData:
+    properties:
+      dstEndTime:
+        description: 夏令时结束时间
+        type: string
+      dstStartTime:
+        description: 夏令时开始时间
+        type: string
+      dstStr:
+        description: 夏令时简称
+        type: string
+      estStr:
+        description: 标准时简称
+        type: string
+      hasDST:
+        description: 是否存在夏令时
+        type: boolean
+      isDst:
+        description: 是否是夏令时
+        type: boolean
+      timeZoneName:
+        description: 时区名
+        type: string
+      timeZoneOffsetSeconds:
+        description: 时区偏移量，以秒为单位
+        type: integer
+      timeZoneOffsetStr:
+        description: 时区偏移量描述信息，例如：UTC+00:00
+        type: string
+      timeZoneTime:
+        description: 获取时区信息时的时间
+        type: string
+    type: object
+  model.dataAnalytics:
+    properties:
+      adminStatus:
+        description: 管理员可见
+        example: true
+        type: boolean
+      physicianStatus:
+        description: 医师可见
+        example: true
+        type: boolean
+      programManagerStatus:
+        description: 项目经理可见
+        example: true
+        type: boolean
+      researcherStatus:
+        description: 研究员可见
+        example: false
+        type: boolean
+      technicianStatus:
+        description: 技师可见
+        example: false
+        type: boolean
+    type: object
+  model.disabledField:
+    properties:
+      firstName:
+        description: 是否禁用 名
+        example: false
+        type: boolean
+      lastName:
+        description: 是否禁用 姓
+        example: false
+        type: boolean
+      patientId:
+        description: 是否禁用 PatientId
+        example: true
+        type: boolean
+      subjectId:
+        description: 是否禁用 SubjectId 字段
+        example: false
+        type: boolean
+    type: object
+  model.hiddenField:
+    properties:
+      birthday:
+        description: 是否隐藏 出生日期
+        example: true
+        type: boolean
+      firstName:
+        description: 是否隐藏 名
+        example: false
+        type: boolean
+      lastName:
+        description: 是否隐藏 姓
+        example: false
+        type: boolean
+    type: object
+  pro.ProDataPostResponse:
+    properties:
+      patientStudieId:
+        description: 创建/归属到的 patientStudie 文档ID（若找到相应天数据）
+        example: 66a1b2c3d4e5f60718293a4b
+        type: string
+    type: object
+  pro.proData:
+    properties:
+      annotationCount:
+        description: 注解数量
+        type: integer
+      app:
+        description: MVM app同步
+        type: boolean
+      createdAt:
+        description: 创建时间
+        type: string
+      description:
+        description: 描述
+        type: string
+      endTime:
+        description: 结束时间
+        type: string
+      id:
+        type: string
+      mark:
+        type: boolean
+      messageId:
+        description: 消息id
+        type: string
+      patient:
+        type: string
+      read:
+        description: 是否已读
+        type: boolean
+      startTime:
+        description: 开始时间
+        type: string
+      timeZoneName:
+        type: string
+      title:
+        description: 标题
+        type: string
+      updatedAt:
+        description: 更新时间
+        type: string
+    type: object
+  pro.proDataPostParam:
+    properties:
+      description:
+        description: 描述（可选）
+        example: Felt mild chest discomfort in the evening.
+        type: string
+      endTime:
+        description: 结束时间戳（毫秒，13位，可选）
+        example: 1730618400000
+        type: integer
+      patient:
+        description: 患者ID（ObjectId 字符串）
+        example: 665f0f1a2c3d4e5f6a7b8c9d
+        type: string
+      startTime:
+        description: 开始时间戳（毫秒，13位）
+        example: 1730611200000
+        type: integer
+      timeZoneName:
+        description: 记录时所在时区名称（IANA）。Clinic 为 TimeZoneVersionV2 时必填
+        example: America/Los_Angeles
+        type: string
+      title:
+        description: 标题（可选）
+        example: Daily Symptoms
+        type: string
+    type: object
+  pro.prosAnnotationPostParam:
+    properties:
+      description:
+        type: string
+      proId:
+        type: string
+    type: object
+  report.CommonOption:
+    properties:
+      chart:
+        type: boolean
+      event:
+        type: boolean
+    type: object
+  report.CreateReportParam:
+    properties:
+      dateSelectionType:
+        description: date、monitoringRecord和freeSelection
+        type: string
+      findings:
+        type: string
+      finish:
+        type: string
+      option:
+        $ref: '#/definitions/report.Option'
+      patient:
+        type: string
+      preliminaryFindings:
+        type: string
+      reportId:
+        type: integer
+      start:
+        type: string
+      type:
+        description: '"ecg、mv、day"'
+        type: string
+    type: object
+  report.EcgHealthAdvice:
+    properties:
+      healthAdvice:
+        type: string
+      warning:
+        type: string
+    type: object
+  report.EcgOption:
+    properties:
+      alsoIncludeAutomatedEcgStrips:
+        description: 包含最长事件图表
+        type: boolean
+      ecgAnalysis:
+        type: boolean
+      heartRateTrend:
+        type: boolean
+      hr:
+        type: boolean
+      pacAndPvc:
+        type: boolean
+      rr:
+        type: boolean
+      stripIndex:
+        type: boolean
+    type: object
+  report.MvOption:
+    properties:
+      bp:
+        type: boolean
+      fall:
+        type: boolean
+      sleep:
+        type: boolean
+      spo2:
+        type: boolean
+      step:
+        type: boolean
+      temperature:
+        type: boolean
+    type: object
+  report.Option:
+    properties:
+      bp:
+        $ref: '#/definitions/report.CommonOption'
+      cgm:
+        $ref: '#/definitions/report.CommonOption'
+      ecg:
+        $ref: '#/definitions/report.EcgOption'
+      mv:
+        $ref: '#/definitions/report.MvOption'
+      rpm:
+        $ref: '#/definitions/report.RpmOption'
+      spo2:
+        $ref: '#/definitions/report.CommonOption'
+      temperature:
+        $ref: '#/definitions/report.CommonOption'
+    type: object
+  report.ReportEventCountChartData:
+    properties:
+      dateTime:
+        type: string
+      eventData:
+        items:
+          $ref: '#/definitions/report.ReportEventCountChartDataEventData'
+        type: array
+      patientStudiesId:
+        type: string
+    type: object
+  report.ReportEventCountChartDataEventData:
+    properties:
+      color:
+        type: string
+      count:
+        type: integer
+      name:
+        type: string
+    type: object
+  report.RpmOption:
+    properties:
+      alert:
+        type: boolean
+      alsoIncludeRpmSnapshots:
+        description: 生成报告时是否附加患者实时监测相关的截图（billing/reimbursement purpose）
+        type: boolean
+      rpm:
+        type: boolean
+    type: object
+  report.reportHeaderData:
+    properties:
+      deviceInfo:
+        type: string
+      patientInfo:
+        type: string
+      patientName:
+        type: string
+    type: object
+  report.reportParamPatch:
+    properties:
+      archive:
+        type: boolean
+      bpData:
+        $ref: '#/definitions/report.reportReturnDataMvData'
+      cgmData:
+        $ref: '#/definitions/app_api_report.cgmReturnData'
+      ecgAnnotationEvents:
+        items:
+          $ref: '#/definitions/report.reportReturnDataEcgData'
+        type: array
+      ecgDataSummary:
+        $ref: '#/definitions/report.reportReturnDataEcgDataSummary'
+      ecgEvents:
+        items:
+          $ref: '#/definitions/report.reportReturnDataEcgData'
+        type: array
+      ecgHighlightEventChartData:
+        items:
+          $ref: '#/definitions/report.returnDataReportEcgChartType'
+        type: array
+      ecgHighlightEvents:
+        items:
+          $ref: '#/definitions/report.reportReturnDataEcgData'
+        type: array
+      ecgOtherEventChartData:
+        items:
+          $ref: '#/definitions/report.returnDataReportEcgChartType'
+        type: array
+      ecgOtherEvents:
+        items:
+          $ref: '#/definitions/report.reportReturnDataEcgData'
+        type: array
+      eventCountData:
+        description: 事件统计
+        items:
+          $ref: '#/definitions/report.ReportEventCountChartData'
+        type: array
+      findings:
+        type: string
+      id:
+        type: string
+      rpmData:
+        items:
+          $ref: '#/definitions/report.rpmReturnData'
+        type: array
+      spo2Data:
+        $ref: '#/definitions/report.reportReturnDataMvData'
+      temperatureData:
+        $ref: '#/definitions/report.reportReturnDataMvData'
+      templateSetting:
+        $ref: '#/definitions/report.reportParamPatchTemplateSetting'
+    type: object
+  report.reportParamPatchTemplateSetting:
+    properties:
+      ecg:
+        $ref: '#/definitions/report.reportParamPatchTemplateSettingEcg'
+    type: object
+  report.reportParamPatchTemplateSettingEcg:
+    properties:
+      enrollmentPeriod:
+        properties:
+          duration:
+            type: boolean
+          startOrEnd:
+            type: boolean
+        type: object
+      header:
+        properties:
+          deviceInfo:
+            type: boolean
+          patientInfo:
+            type: boolean
+        type: object
+      heartRate:
+        properties:
+          enableEditHr:
+            type: boolean
+        type: object
+      heartRateTrend:
+        type: boolean
+      monitoringSummary:
+        properties:
+          analysisTime:
+            type: boolean
+          monitoringPeriod:
+            type: boolean
+          monitoringTime:
+            type: boolean
+          noise:
+            type: boolean
+        type: object
+      pacAndPvc:
+        type: boolean
+      patientInfo:
+        properties:
+          dateOfBirth:
+            type: boolean
+          gender:
+            type: boolean
+          heightOrWeight:
+            type: boolean
+          monitoringProtocol:
+            type: boolean
+          occupation:
+            type: boolean
+          patientName:
+            type: boolean
+          physician:
+            type: boolean
+          prescribingPhysician:
+            type: boolean
+          subjectId:
+            type: boolean
+          timezone:
+            type: boolean
+        type: object
+      preliminaryFindings:
+        properties:
+          automatedSummary:
+            type: boolean
+          signature:
+            type: boolean
+          title:
+            type: string
+        type: object
+      respiratoryRate:
+        properties:
+          enableEditRr:
+            type: boolean
+        type: object
+      stripIndex:
+        type: boolean
+      title:
+        type: string
+    type: object
+  report.reportReturnData:
+    properties:
+      _id:
+        type: string
+      analysisTime:
+        description: 分析时长
+        type: string
+      bpData:
+        $ref: '#/definitions/report.reportReturnDataMvData'
+      cgmData:
+        $ref: '#/definitions/app_api_report.cgmReturnData'
+      clinic:
+        description: 诊所id
+        type: string
+      createdAt:
+        description: 创建时间
+        type: string
+      deleteDate:
+        type: string
+      deviceNames:
+        items:
+          type: string
+        type: array
+      draft:
+        type: boolean
+      ecgAnnotationEvents:
+        items:
+          $ref: '#/definitions/report.reportReturnDataEcgData'
+        type: array
+      ecgDataSummary:
+        $ref: '#/definitions/report.reportReturnDataEcgDataSummary'
+      ecgEvents:
+        items:
+          $ref: '#/definitions/report.reportReturnDataEcgData'
+        type: array
+      ecgHighlightEventChartData:
+        items:
+          $ref: '#/definitions/report.returnDataReportEcgChartType'
+        type: array
+      ecgHighlightEvents:
+        items:
+          $ref: '#/definitions/report.reportReturnDataEcgData'
+        type: array
+      ecgHrChartData:
+        $ref: '#/definitions/report.returnDataReportEcgHrChartType'
+      ecgOtherEventChartData:
+        items:
+          $ref: '#/definitions/report.returnDataReportEcgChartType'
+        type: array
+      ecgOtherEvents:
+        items:
+          $ref: '#/definitions/report.reportReturnDataEcgData'
+        type: array
+      ecgPacChartData:
+        $ref: '#/definitions/report.returnDataReportEcgPacPvcChartType'
+      ecgPvcChartData:
+        $ref: '#/definitions/report.returnDataReportEcgPacPvcChartType'
+      enrollmentEnd:
+        type: string
+      enrollmentStart:
+        type: string
+      enrollmentTime:
+        type: string
+      eventCountData:
+        description: 事件统计
+        items:
+          $ref: '#/definitions/report.ReportEventCountChartData'
+        type: array
+      findings:
+        type: string
+      header:
+        $ref: '#/definitions/report.reportHeaderData'
+      healthAdvice:
+        $ref: '#/definitions/report.EcgHealthAdvice'
+      id:
+        type: string
+      isAbnormal:
+        description: 是否异常
+        type: boolean
+      isHaveCsvData:
+        type: boolean
+      isOpenPrescribingPhysician:
+        description: 是否开启配方医生
+        type: boolean
+      monitoringPeriodEnd:
+        description: 监测日程结束时间
+        type: string
+      monitoringPeriodStart:
+        description: 监测日程开始时间
+        type: string
+      monitoringProtocols:
+        type: string
+      monitoringTime:
+        description: 监测时长
+        type: string
+      name:
+        type: string
+      nextId:
+        type: string
+      noiseTime:
+        description: 噪声时长
+        type: string
+      patient:
+        type: string
+      patientBirth:
+        description: 病人生日
+        type: string
+      patientFirstName:
+        type: string
+      patientGender:
+        type: string
+      patientHeight:
+        type: number
+      patientInternalId:
+        type: string
+      patientJob:
+        type: string
+      patientLastName:
+        type: string
+      patientSubjectId:
+        type: string
+      patientTimeZoneName:
+        type: string
+      patientTimeZoneOffset:
+        type: integer
+      patientWeight:
+        type: number
+      pdfFilePath:
+        description: PDF 文件路径
+        type: string
+      physicianName:
+        type: string
+      preliminaryFindings:
+        type: string
+      prescribingPhysicianName:
+        description: 处方医生
+        type: string
+      previousId:
+        type: string
+      rpmData:
+        items:
+          $ref: '#/definitions/report.rpmReturnData'
+        type: array
+      site:
+        type: string
+      spo2Data:
+        $ref: '#/definitions/report.reportReturnDataMvData'
+      status:
+        description: 报告状态 （0:创建中 1:创建失败 2:创建成功 3:已归档） version=3时生效暂时
+        type: integer
+      temperatureData:
+        $ref: '#/definitions/report.reportReturnDataMvData'
+      templateSetting:
+        $ref: '#/definitions/report.reportTemplateSettingData'
+      timeZoneDescription:
+        description: 时区描述 UTC-08:00
+        type: string
+      updatedAt:
+        description: 更新时间
+        type: string
+      version:
+        type: integer
+    type: object
+  report.reportReturnDataEcgData:
+    properties:
+      dayIndexOfEvent:
+        type: integer
+      dayOfEvent:
+        type: string
+      events:
+        items:
+          properties:
+            _id:
+              type: string
+            annotation:
+              items:
+                $ref: '#/definitions/report.reportReturnDataEcgDataAnnotation'
+              type: array
+            chartPath:
+              type: string
+            color:
+              type: string
+            finish:
+              type: string
+            start:
+              type: string
+            title:
+              type: string
+          type: object
+        type: array
+      eventsSum:
+        type: integer
+    type: object
+  report.reportReturnDataEcgDataAnnotation:
+    properties:
+      _id:
+        type: string
+      clinic:
+        description: 诊所id
+        type: string
+      coords:
+        properties:
+          height:
+            type: number
+          hr:
+            type: number
+          width:
+            type: number
+          x:
+            type: number
+          "y":
+            type: number
+        type: object
+      createdAt:
+        description: 创建时间
+        type: string
+      creator:
+        type: string
+      description:
+        type: string
+      ecgEvent:
+        type: string
+      finish:
+        type: string
+      maxMv:
+        description: 最大毫伏
+        type: number
+      minMv:
+        description: 最小毫伏
+        type: number
+      patient:
+        type: string
+      start:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        description: 更新时间
+        type: string
+    type: object
+  report.reportReturnDataEcgDataSummary:
+    properties:
+      hrData:
+        $ref: '#/definitions/report.reportReturnDataEcgDataSummaryHrData'
+      hrvData:
+        $ref: '#/definitions/report.reportReturnDataEcgDataSummaryHrvData'
+      longestEventData:
+        type: string
+      pacBurdenData:
+        type: string
+      pvcBurdenData:
+        type: string
+      rrData:
+        $ref: '#/definitions/report.reportReturnDataEcgDataSummaryHrData'
+      summary1LeftData:
+        items:
+          type: string
+        type: array
+      summary1RightData:
+        items:
+          type: string
+        type: array
+      summary2LeftData:
+        items:
+          type: string
+        type: array
+      summary2RightData:
+        items:
+          type: string
+        type: array
+      summary3LeftData:
+        items:
+          type: string
+        type: array
+      summary3RightData:
+        items:
+          type: string
+        type: array
+      summaryData:
+        items:
+          $ref: '#/definitions/report.reportReturnDataEcgDataSummaryData'
+        type: array
+    type: object
+  report.reportReturnDataEcgDataSummaryData:
+    properties:
+      count:
+        type: integer
+      durationRatio:
+        type: number
+      durationSumStr:
+        type: string
+      name:
+        type: string
+    type: object
+  report.reportReturnDataEcgDataSummaryHrData:
+    properties:
+      avg:
+        type: integer
+      max:
+        type: integer
+      maxRecordTime:
+        type: string
+      min:
+        type: integer
+      minRecordTime:
+        type: string
+    type: object
+  report.reportReturnDataEcgDataSummaryHrvData:
+    properties:
+      pnn50:
+        type: number
+      rmssd:
+        type: number
+      sdnn:
+        type: number
+    type: object
+  report.reportReturnDataMvData:
+    properties:
+      annotations:
+        items:
+          $ref: '#/definitions/report.reportReturnDataMvDataAnnotation'
+        type: array
+      chart:
+        type: boolean
+      events:
+        items:
+          $ref: '#/definitions/app_api_report.reportReturnDataMvDataEvent'
+        type: array
+    type: object
+  report.reportReturnDataMvDataAnnotation:
+    properties:
+      clinic:
+        description: 诊所id
+        type: string
+      createdAt:
+        description: 创建时间
+        type: string
+      description:
+        type: string
+      deviceType:
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+        type: object
+      endTime:
+        type: string
+      id:
+        type: string
+      patient:
+        type: string
+      readStatus:
+        type: boolean
+      startTime:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        description: 更新时间
+        type: string
+    type: object
+  report.reportTemplateSettingData:
+    properties:
+      ecg:
+        properties:
+          enrollmentPeriod:
+            properties:
+              duration:
+                type: boolean
+              startOrEnd:
+                type: boolean
+            type: object
+          header:
+            properties:
+              deviceInfo:
+                type: boolean
+              patientInfo:
+                type: boolean
+            type: object
+          heartRate:
+            properties:
+              enableEditHr:
+                type: boolean
+            type: object
+          heartRateTrend:
+            type: boolean
+          monitoringSummary:
+            properties:
+              analysisTime:
+                type: boolean
+              monitoringPeriod:
+                type: boolean
+              monitoringTime:
+                type: boolean
+              noise:
+                type: boolean
+            type: object
+          pacAndPvc:
+            type: boolean
+          patientInfo:
+            properties:
+              dateOfBirth:
+                type: boolean
+              gender:
+                type: boolean
+              heightOrWeight:
+                type: boolean
+              monitoringProtocol:
+                type: boolean
+              occupation:
+                type: boolean
+              patientName:
+                type: boolean
+              physician:
+                type: boolean
+              prescribingPhysician:
+                type: boolean
+              subjectId:
+                type: boolean
+              timezone:
+                type: boolean
+            type: object
+          preliminaryFindings:
+            properties:
+              automatedSummary:
+                type: boolean
+              signature:
+                type: boolean
+              title:
+                type: string
+            type: object
+          respiratoryRate:
+            properties:
+              enableEditRr:
+                type: boolean
+            type: object
+          stripIndex:
+            type: boolean
+          title:
+            type: string
+        type: object
+    type: object
+  report.returnDataReportEcgChartType:
+    properties:
+      annotationCount:
+        type: integer
+      avgHr:
+        type: number
+      chartImage:
+        type: string
+      chartImageHeight:
+        type: integer
+      chartImageWidth:
+        type: integer
+      color:
+        type: string
+      eventEndTime:
+        type: string
+      eventStartTime:
+        type: string
+      info:
+        type: string
+      label:
+        type: string
+      maxHr:
+        type: integer
+      minHr:
+        type: integer
+    type: object
+  report.returnDataReportEcgHrChartType:
+    properties:
+      chartImages:
+        items:
+          type: string
+        type: array
+      hrGt100:
+        type: number
+      hrLt40:
+        type: number
+      hrMax:
+        type: integer
+      hrMin:
+        type: integer
+    type: object
+  report.returnDataReportEcgPacPvcChartType:
+    properties:
+      chartImages:
+        items:
+          type: string
+        type: array
+    type: object
+  report.rpmReturnData:
+    properties:
+      snapshotTime:
+        description: 快照截图时间
+        type: string
+      url:
+        description: 快照截图地址
+        type: string
+    type: object
+info:
+  contact: {}
+  description: vivalink API接口文档
+  termsOfService: http://webportal.vivalink.com
+  title: vivalink API接口文档
+  version: "1.0"
+paths:
+  /authentication:
+    post:
+      consumes:
+      - application/json
+      description: 使用邮箱和密码进行认证，返回 accessToken 与用户信息
+      parameters:
+      - description: 登录参数
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/api.authParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功，返回 Token 与用户信息
+          schema:
+            $ref: '#/definitions/api.authReturnData'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: 服务器内部错误
+          schema:
+            type: string
+      summary: 用户登录
+      tags:
+      - User
+  /bpData:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取指定患者的血压数据，支持按输入类型筛选，返回数据包含时区信息
+      parameters:
+      - description: 跳过记录数（分页）
+        example: 0
+        in: query
+        name: $skip
+        type: integer
+      - description: 每页记录数（分页）
+        example: 20
+        in: query
+        name: $limit
+        type: integer
+      - description: 患者ID（ObjectId字符串）
+        example: 665f0f1a2c3d4e5f6a7b8c9d
+        in: query
+        name: patient
+        required: true
+        type: string
+      - description: 是否仅显示手动输入的数据（可选）
+        example: true
+        in: query
+        name: input
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功，返回分页血压数据
+          schema:
+            allOf:
+            - $ref: '#/definitions/data.ReturnPageData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/api.bpData'
+                  type: array
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取血压数据列表
+      tags:
+      - BP
+    post:
+      consumes:
+      - application/json
+      description: 写入一条血压记录（单位：mmHg；recordTime 为 13 位毫秒时间戳）。可通过请求头 timeZone 指定时区（IANA
+        名称）。
+      parameters:
+      - description: 时区名称（IANA，例如 America/Los_Angeles）
+        example: America/Los_Angeles
+        in: header
+        name: timeZone
+        type: string
+      - description: 血压数据参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.bpDataPostParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功（message=success）
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "400":
+          description: 参数或业务校验失败
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 新增血压数据
+      tags:
+      - BP
+  /bpData/delete:
+    post:
+      consumes:
+      - application/json
+      description: 根据ID列表批量删除血压记录
+      parameters:
+      - description: 删除参数，包含ids数组
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            ids:
+              items:
+                type: string
+              type: array
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功（message=success）
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "400":
+          description: 参数错误或操作失败
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 批量删除血压数据
+      tags:
+      - BP
+  /chartData:
+    get:
+      consumes:
+      - multipart/form-data
+      description: 查询各种类型的chartData信息, 根据type类型不同，传入不同参数进行不同类型数据的查询，type为ecg时，Parameter只需设置eventId
+      parameters:
+      - default: ""
+        description: 类型可为ECG、HR、RR、HRV、ACTIVITY、TEMPERATURE、SPO2、BP
+        in: query
+        name: type
+        required: true
+        type: string
+      - default: ""
+        description: patient ID
+        in: query
+        name: patient
+        required: true
+        type: string
+      - default: ""
+        description: patient Studies Id start
+        in: query
+        name: startPatientStudiesId
+        type: string
+      - default: ""
+        description: patient Studies Id end
+        in: query
+        name: endPatientStudiesId
+        type: string
+      - description: query start timestamp
+        in: query
+        name: startTime
+        type: integer
+      - description: query end timestamp
+        in: query
+        name: endTime
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      security:
+      - token: []
+      tags:
+      - chartData
+  /chartData/bpm:
+    get:
+      consumes:
+      - multipart/form-data
+      description: 获取BPM信息，Page View界面数据展示使用
+      parameters:
+      - default: ""
+        description: patient ID
+        in: query
+        name: patient
+        required: true
+        type: string
+      - description: query start timestamp
+        in: query
+        name: startTime
+        required: true
+        type: integer
+      - description: query end timestamp
+        in: query
+        name: endTime
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      security:
+      - token: []
+      tags:
+      - BPM
+  /chartData/bpm/ecg:
+    get:
+      consumes:
+      - multipart/form-data
+      description: 获取BPM Ecg信息，Focused View图表界面数据展示使用
+      parameters:
+      - default: ""
+        description: patient ID
+        in: query
+        name: patient
+        required: true
+        type: string
+      - description: query start timestamp
+        in: query
+        name: startTime
+        required: true
+        type: integer
+      - description: query end timestamp
+        in: query
+        name: endTime
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      security:
+      - token: []
+      tags:
+      - BPM
+  /chartData/ecg/event/count:
+    get:
+      consumes:
+      - application/json
+      description: 返回所选时间范围内的多个时间点上，各类事件的计数（含颜色与 patientStudiesId 关联）。
+      parameters:
+      - description: 患者ID（ObjectId）
+        in: query
+        name: patientId
+        required: true
+        type: string
+      - description: 起始时间戳（毫秒，13位）
+        example: 1730611200000
+        format: int64
+        in: query
+        name: startTime
+        type: integer
+      - description: 结束时间戳（毫秒，13位）
+        example: 1730697600000
+        format: int64
+        in: query
+        name: endTime
+        type: integer
+      - description: 时区名称（IANA，如 America/Los_Angeles）
+        example: America/Los_Angeles
+        in: query
+        name: timeZoneName
+        type: string
+      - description: 时区偏移量（分钟，如 -420）
+        example: -420
+        in: query
+        name: timeZoneOffset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功（data 为时间序列数组）
+          schema:
+            $ref: '#/definitions/app_api_chart_ecg.eventCountChartDataReturnData'
+        "400":
+          description: 参数或校验错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: ECG 事件计数（分时间点）
+      tags:
+      - ECG Charts
+  /clinics:
+    get:
+      consumes:
+      - multipart/form-data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      security:
+      - token: []
+      tags:
+      - clinic
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的诊所，包括基本信息、功能开关、登录配置等
+      parameters:
+      - description: 诊所信息
+        in: body
+        name: clinic
+        required: true
+        schema:
+          $ref: '#/definitions/clinic.clinicAddParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: 服务器内部错误
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 创建新诊所
+      tags:
+      - Clinic
+  /clinics/{id}:
+    get:
+      description: 根据 ID 获取诊所的配置信息、能力开关、登录与安全配置等
+      parameters:
+      - description: Clinic ID
+        example: '"66a1b2c3d4e5f60718293a4b"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/clinic.ClinicGetOneResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "404":
+          description: 未找到
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: 服务器内部错误
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取诊所详情
+      tags:
+      - Clinic
+  /currentUserInfo/{id}:
+    get:
+      description: 返回当前登录用户的详细资料（含诊所、角色、Web 版本信息等）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/api.userInfoReturnData'
+        "401":
+          description: 未认证或 Token 失效
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: 服务器内部错误
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取当前用户信息
+      tags:
+      - User
+    patch:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - default: ""
+        description: userId
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      security:
+      - token: []
+      tags:
+      - user
+  /ecg/charts/afib-pvc-pac:
+    get:
+      consumes:
+      - application/json
+      description: 返回所选时间范围内在多个时间点上的 AFIB / PVC / PAC 三类事件计数。
+      parameters:
+      - description: 患者ID（ObjectId）
+        in: query
+        name: patientId
+        required: true
+        type: string
+      - description: 起始时间戳（毫秒，13位）
+        example: 1730611200000
+        format: int64
+        in: query
+        name: startTime
+        type: integer
+      - description: 结束时间戳（毫秒，13位）
+        example: 1730697600000
+        format: int64
+        in: query
+        name: endTime
+        type: integer
+      - description: 时区名称（IANA，如 America/Los_Angeles）
+        example: America/Los_Angeles
+        in: query
+        name: timeZoneName
+        type: string
+      - description: 时区偏移量（分钟，如 -420）
+        example: -420
+        in: query
+        name: timeZoneOffset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功（data 为时间序列数组）
+          schema:
+            $ref: '#/definitions/app_api_chart_ecg.afibAndPvcAndPacCountChartDataReturnData'
+        "400":
+          description: 参数或校验错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: AFIB / PVC / PAC 三类事件计数（分时间点）
+      tags:
+      - ECG Charts
+  /ecgDataChunks:
+    get:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - default: ""
+        description: appid
+        in: query
+        name: appid
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      security:
+      - token: []
+      tags:
+      - EcgDataChunk
+  /ecgReports:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取ECG报告列表，支持多种筛选条件和排序，包括患者姓名、Subject ID、医生、报告时间段等
+      parameters:
+      - description: 跳过记录数（分页）
+        example: 0
+        in: query
+        name: $skip
+        type: integer
+      - description: 每页记录数（分页）
+        example: 20
+        in: query
+        name: $limit
+        type: integer
+      - description: 搜索关键词（患者姓名/Subject ID/医生）
+        example: '"John"'
+        in: query
+        name: s
+        type: string
+      - description: 搜索关键词（患者姓名/Subject ID）
+        example: '"Smith"'
+        in: query
+        name: search
+        type: string
+      - description: 医生ID筛选
+        example: '"665f0f1a2c3d4e5f6a7b8c9d"'
+        in: query
+        name: physicianId
+        type: string
+      - collectionFormat: csv
+        description: Subject ID筛选（多选）
+        example: '"SUBJ001"'
+        in: query
+        items:
+          type: string
+        name: filterSubjectId[]
+        type: array
+      - collectionFormat: csv
+        description: 患者名字筛选（多选）
+        example: '"John"'
+        in: query
+        items:
+          type: string
+        name: filterFirstName[]
+        type: array
+      - collectionFormat: csv
+        description: 患者姓氏筛选（多选）
+        example: '"Smith"'
+        in: query
+        items:
+          type: string
+        name: filterLastName[]
+        type: array
+      - collectionFormat: csv
+        description: 医生ID筛选（多选）
+        example: '"665f0f1a2c3d4e5f6a7b8c9d"'
+        in: query
+        items:
+          type: string
+        name: filterPhysicianId[]
+        type: array
+      - description: 报告时间段开始（毫秒时间戳）
+        example: 1730611200000
+        format: int64
+        in: query
+        name: filterReportPeriodStart
+        type: integer
+      - description: 报告时间段结束（毫秒时间戳）
+        example: 1730618400000
+        format: int64
+        in: query
+        name: filterReportPeriodEnd
+        type: integer
+      - description: 生成时间开始（毫秒时间戳）
+        example: 1730611200000
+        format: int64
+        in: query
+        name: filterGenerateTimeStart
+        type: integer
+      - description: 生成时间结束（毫秒时间戳）
+        example: 1730618400000
+        format: int64
+        in: query
+        name: filterGenerateTimeEnd
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功，返回分页ECG报告列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/data.ReturnPageData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/report.reportReturnData'
+                  type: array
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取ECG报告列表
+      tags:
+      - Report
+    post:
+      consumes:
+      - application/json
+      description: 根据指定参数创建新的ECG报告，包括患者ID、时间范围、分析选项等
+      parameters:
+      - description: 报告创建参数
+        in: body
+        name: report
+        required: true
+        schema:
+          $ref: '#/definitions/report.CreateReportParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功，返回报告ID
+          schema:
+            allOf:
+            - $ref: '#/definitions/app_model.H'
+            - properties:
+                _id:
+                  type: string
+              type: object
+        "400":
+          description: 参数错误或创建失败
+          schema:
+            $ref: '#/definitions/app_model.H'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建ECG报告
+      tags:
+      - Report
+  /ecgReports/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取指定的ECG报告详细信息，包含患者信息、心电数据、事件统计、图表数据等完整报告内容
+      parameters:
+      - description: 报告ID（ObjectId字符串）
+        example: '"665f0f1a2c3d4e5f6a7b8c9d"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功，返回完整的ECG报告数据
+          schema:
+            $ref: '#/definitions/report.reportReturnData'
+        "400":
+          description: 参数错误或报告不存在
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取单个ECG报告详情
+      tags:
+      - Report
+    patch:
+      consumes:
+      - application/json
+      description: 更新指定ECG报告的内容，包括心率数据、呼吸率数据、事件数据、模板设置等，支持部分字段更新
+      parameters:
+      - description: 报告ID（ObjectId字符串）
+        example: '"665f0f1a2c3d4e5f6a7b8c9d"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 报告更新参数
+        in: body
+        name: report
+        required: true
+        schema:
+          $ref: '#/definitions/report.reportParamPatch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "400":
+          description: 参数错误或更新失败
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新ECG报告
+      tags:
+      - Report
+  /export/patient/template:
+    get:
+      description: 生成并下载患者导入模板的Excel文件，包含示例数据和数据验证
+      produces:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses:
+        "200":
+          description: Excel文件
+          schema:
+            type: file
+        "400":
+          description: 生成文件失败
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 导出患者模板Excel文件
+      tags:
+      - Export
+  /import:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传并解析Excel文件，支持患者和设备两种类型的批量导入。文件大小限制10MB，仅支持.xlsx格式
+      parameters:
+      - description: 导入类型
+        enum:
+        - patient
+        - device
+        example: patient
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: Excel文件（.xlsx格式）
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 导入成功，返回成功和失败的行号
+          schema:
+            allOf:
+            - $ref: '#/definitions/data.ReturnData'
+            - properties:
+                data:
+                  properties:
+                    failureRows:
+                      items:
+                        type: integer
+                      type: array
+                    successRows:
+                      items:
+                        type: integer
+                      type: array
+                  type: object
+              type: object
+        "400":
+          description: 参数错误或文件格式错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 导入Excel文件
+      tags:
+      - Import
+  /monitoringHistory:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取指定患者的监测历史记录，返回数据包含时区信息
+      parameters:
+      - description: 跳过记录数（分页）
+        example: 0
+        in: query
+        name: $skip
+        type: integer
+      - description: 每页记录数（分页）
+        example: 20
+        in: query
+        name: $limit
+        type: integer
+      - description: 患者ID（ObjectId字符串）
+        example: 665f0f1a2c3d4e5f6a7b8c9d
+        in: query
+        name: patientId
+        required: true
+        type: string
+      - description: 查询值（模糊查询）
+        example: monitoring
+        in: query
+        name: queryValue
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功，返回分页监测历史数据
+          schema:
+            allOf:
+            - $ref: '#/definitions/data.ReturnPageData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/api.monitoringHistory'
+                  type: array
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取监测历史列表
+      tags:
+      - MonitoringHistory
+  /patientStudies:
+    get:
+      consumes:
+      - application/json
+      description: 按条件获取患者研究日列表；可按 day/startTime/endTime 排序；支持日期关键字筛选（s=MM-DD-YYYY）
+      parameters:
+      - description: 偏移量（分页起始）
+        example: 0
+        in: query
+        name: $skip
+        type: integer
+      - description: 分页大小
+        example: 20
+        in: query
+        name: $limit
+        type: integer
+      - description: 患者ID（ObjectId 字符串）
+        in: query
+        name: patientId
+        type: string
+      - description: 按 day 排序（1 升序，-1 降序）
+        enum:
+        - 1
+        - -1
+        in: query
+        name: $sort[day]
+        type: integer
+      - description: 按 startTime 排序（1/-1）
+        enum:
+        - 1
+        - -1
+        in: query
+        name: $sort[startTime]
+        type: integer
+      - description: 按 endTime 排序（1/-1）
+        enum:
+        - 1
+        - -1
+        in: query
+        name: $sort[endTime]
+        type: integer
+      - description: 日期筛选（格式：MM-DD-YYYY），匹配 day 落在该日的记录
+        example: 07-04-2025
+        in: query
+        name: s
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回分页列表
+          schema:
+            $ref: '#/definitions/api.patientStudieListData'
+        "400":
+          description: 参数或权限错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: List patient studies
+      tags:
+      - PatientStudies
+  /patientStudies/{id}:
+    get:
+      description: 根据 ID 获取单条 patientStudy 的天数据，包含起止时间与时区信息
+      parameters:
+      - description: PatientStudy ID（ObjectId 字符串）
+        example: '"66a1b2c3d4e5f60718293a4b"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 单条数据
+          schema:
+            $ref: '#/definitions/api.patientStudieDayData'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a patient study by ID
+      tags:
+      - PatientStudies
+  /patientStudies/day:
+    get:
+      consumes:
+      - application/json
+      description: 按患者与数据类型（ecg|mv|cgm|pv|pro）返回有数据的“天”维度条目，带时区信息
+      parameters:
+      - description: 偏移量
+        example: 0
+        in: query
+        name: $skip
+        type: integer
+      - description: 分页大小
+        example: 30
+        in: query
+        name: $limit
+        type: integer
+      - description: 患者ID（ObjectId 字符串）
+        in: query
+        name: patientId
+        required: true
+        type: string
+      - description: 数据类型
+        enum:
+        - ecg
+        - mv
+        - cgm
+        - pv
+        - pro
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回分页 Day 列表
+          schema:
+            $ref: '#/definitions/api.patientStudieDayData'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: Get patient study days
+      tags:
+      - PatientStudies
+  /patientStudies/getByTime:
+    get:
+      consumes:
+      - application/json
+      description: 传入 patientId 与事件时间戳（毫秒，13位），返回该日期对应的 patientStudy ID；若无精确匹配，则回退返回该患者最近的一天
+      parameters:
+      - description: 患者ID（ObjectId 字符串）
+        in: query
+        name: patientId
+        required: true
+        type: string
+      - description: 事件时间戳（毫秒，13位）
+        example: 1730611200000
+        format: int64
+        in: query
+        name: eventTime
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '返回 { id: string }，为空字符串表示未找到'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: Locate patientStudy by event time
+      tags:
+      - PatientStudies
+  /patients:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取患者列表，支持多种筛选条件（姓名、受试者编号、站点、医生、监测协议等），返回数据包含时区信息
+      parameters:
+      - description: 跳过记录数（分页）
+        example: 0
+        in: query
+        name: $skip
+        type: integer
+      - description: 每页记录数（分页）
+        example: 20
+        in: query
+        name: $limit
+        type: integer
+      - description: 名（模糊查询）
+        example: John
+        in: query
+        name: firstName
+        type: string
+      - description: 姓（模糊查询）
+        example: Doe
+        in: query
+        name: lastName
+        type: string
+      - description: 受试者编号（模糊查询）
+        example: SUBJ-001
+        in: query
+        name: subjectId
+        type: string
+      - description: 站点ID（ObjectId字符串）
+        example: 665f0f1a2c3d4e5f6a7b8c9d
+        in: query
+        name: site
+        type: string
+      - description: 医生ID（ObjectId字符串）
+        example: 665f0f1a2c3d4e5f6a7b8c9d
+        in: query
+        name: physician
+        type: string
+      - description: 监测协议ID（ObjectId字符串）
+        example: 665f0f1a2c3d4e5f6a7b8c9d
+        in: query
+        name: monitoringProtocol
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功，返回分页患者数据
+          schema:
+            allOf:
+            - $ref: '#/definitions/data.ReturnPageData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/api.PatientReturnData'
+                  type: array
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取患者列表
+      tags:
+      - Patient
+  /pro/annotations:
+    post:
+      consumes:
+      - application/json
+      description: 为指定的PRO数据创建新的注解，并发送相关通知
+      parameters:
+      - description: 注解信息
+        in: body
+        name: annotation
+        required: true
+        schema:
+          $ref: '#/definitions/pro.prosAnnotationPostParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建PRO注解
+      tags:
+      - PRO
+  /proData:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取指定患者的PRO（Patient Reported Outcomes）数据，支持时间范围筛选和排序
+      parameters:
+      - description: 跳过记录数（分页）
+        example: 0
+        in: query
+        name: $skip
+        type: integer
+      - description: 每页记录数（分页）
+        example: 20
+        in: query
+        name: $limit
+        type: integer
+      - description: 患者ID（ObjectId字符串）
+        example: 665f0f1a2c3d4e5f6a7b8c9d
+        in: query
+        name: patient
+        required: true
+        type: string
+      - description: 开始时间戳（毫秒，13位）
+        example: 1730611200000
+        format: int64
+        in: query
+        name: startTime
+        type: integer
+      - description: 结束时间戳（毫秒，13位）
+        example: 1730618400000
+        format: int64
+        in: query
+        name: endTime
+        type: integer
+      - description: 排序字段（如startTime）
+        example: startTime
+        in: query
+        name: sortField
+        type: string
+      - description: 排序方向（1升序，-1降序）
+        example: -1
+        in: query
+        name: sortOrder
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功，返回分页PRO数据
+          schema:
+            allOf:
+            - $ref: '#/definitions/data.ReturnPageData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/pro.proData'
+                  type: array
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取PRO数据列表
+      tags:
+      - PRO
+    post:
+      consumes:
+      - application/json
+      description: 写入一条 PRO 记录；时间单位为毫秒（13位）。当 Clinic 为 TimeZoneVersionV2 时，必须提供 timeZoneName（IANA）。也可通过请求头
+        timeZone 传入时区名。
+      parameters:
+      - description: 时区名称（IANA，例如 America/Los_Angeles）
+        example: America/Los_Angeles
+        in: header
+        name: timeZone
+        type: string
+      - description: PRO 数据参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/pro.proDataPostParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功（返回 patientStudieId；若无则字段可能为空）
+          schema:
+            $ref: '#/definitions/pro.ProDataPostResponse'
+        "400":
+          description: 参数或业务校验失败（message 提示原因）
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 新增 PRO 数据
+      tags:
+      - PRO
+  /proData/{id}:
+    get:
+      description: 根据ID获取指定的PRO（Patient Reported Outcomes）数据详情
+      parameters:
+      - description: PRO数据ID（ObjectId字符串）
+        example: '"665f0f1a2c3d4e5f6a7b8c9d"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功，返回PRO数据详情
+          schema:
+            $ref: '#/definitions/pro.proData'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取单个PRO数据
+      tags:
+      - PRO
+  /quickPatients:
+    post:
+      consumes:
+      - application/json
+      description: 订阅 sns topic
+      parameters:
+      - description: 参数
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/model.SnsMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      summary: 快速病人分配
+      tags:
+      - PatientDevice
+  /report/batchExport/{type}:
+    post:
+      consumes:
+      - application/json
+      description: 批量导出指定的ECG报告，支持PDF和CSV两种格式。导出任务将异步处理，完成后通过消息通知用户
+      parameters:
+      - description: 导出类型
+        enum:
+        - pdf
+        - csv
+        example: '"pdf"'
+        in: path
+        name: type
+        required: true
+        type: string
+      - description: 报告ID列表
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            ids:
+              items:
+                type: string
+              type: array
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 导出任务创建成功
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "400":
+          description: 参数错误或导出失败
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 批量导出报告
+      tags:
+      - Report
+  /roles:
+    get:
+      consumes:
+      - multipart/form-data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      security:
+      - token: []
+      tags:
+      - clinic
+  /timezone:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有可用的时区列表信息，包括时区名称、偏移量、夏令时信息等
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/api.timeZoneReturnData'
+            type: array
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: 服务器内部错误
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取时区列表
+      tags:
+      - TimeZone
+  /user/{id}:
+    get:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - default: ""
+        description: userId
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      security:
+      - token: []
+      tags:
+      - user
+  /users:
+    get:
+      consumes:
+      - multipart/form-data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      security:
+      - token: []
+      tags:
+      - user
+  /users/{id}:
+    patch:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - default: ""
+        description: userId
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: "500"
+          schema:
+            type: string
+      security:
+      - token: []
+      tags:
+      - user
+  /v2/timezone/info:
+    get:
+      consumes:
+      - application/json
+      description: 根据时间戳和时区名称或偏移量获取详细的时区信息，包括夏令时状态
+      parameters:
+      - description: 时间戳（13位毫秒）
+        format: int64
+        in: query
+        name: timestamp
+        required: true
+        type: integer
+      - description: 时区名称
+        in: query
+        name: timeZoneName
+        type: string
+      - description: 时区偏移值（秒）
+        in: query
+        name: timeZoneOffset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/data.ReturnData'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TimeZoneInfoReturnData'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "500":
+          description: 服务器内部错误
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取时区信息V2
+      tags:
+      - TimeZone
+  /vcloud/events/subscribe:
+    post:
+      consumes:
+      - application/json
+      description: 接收并处理来自AWS SNS的各种事件消息，包括设备绑定/解绑、报告创建、血压数据、PRO事件、睡眠数据、跌倒检测等
+      parameters:
+      - description: SNS消息体
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/model.SnsMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 处理成功
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+        "400":
+          description: 参数错误或处理失败
+          schema:
+            $ref: '#/definitions/data.ReturnData'
+      security:
+      - ApiKeyAuth: []
+      summary: 处理SNS订阅消息
+      tags:
+      - SNS
+securityDefinitions:
+  publicToken:
+    in: header
+    name: token
+    type: apiKey
+  token:
+    in: header
+    name: authorization
+    type: apiKey
+swagger: "2.0"
