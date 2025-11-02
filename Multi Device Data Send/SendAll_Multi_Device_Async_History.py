@@ -399,6 +399,8 @@ def single_assembly_data(count, deviceId, record, stampEndTime, stampStartTime, 
 
 
 def main(startTime, endTime, deviceId, timeZone_offset, timezoneName, ProjectId, Subjectid, DATE_CONFIG,is_get_timezone_offset):
+    # 数据统计
+    total_list_summary={}
     # 是否自动获取偏移量
     is_get_timezone_offset=is_get_timezone_offset
     logger.info(f'{a} 正在组装数据... {a}')
@@ -450,8 +452,19 @@ def main(startTime, endTime, deviceId, timeZone_offset, timezoneName, ProjectId,
         else:
             logger.error(f'{a} 数据组装失败... {a}')
     else:
-        status = assembly_data(count, deviceId, record, stampEndTime, stampStartTime,timeZone_offset, timezoneName,
+        status,total_count = assembly_data(count, deviceId, record, stampEndTime, stampStartTime,timeZone_offset, timezoneName,
                                ProjectId, Subjectid, data_router,is_get_timezone_offset)
+
+        # 转换为datetime对象
+        dt = datetime.fromtimestamp(stampEndTime/1000)
+
+        _date=dt.strftime("%Y-%m-%d")
+
+
+        total_list_summary["数据日期"]= _date
+        total_list_summary["数据条数"] = total_count
+
+        logger.info(f"日期:{total_list_summary.get("数据日期")}日共创建：{total_list_summary.get("数据条数")}条数据。")
         if status:
             logger.info(f' {a} 数据组装完毕,准备发送数据... {a}')
             time.sleep(3)
@@ -487,7 +500,7 @@ def assembly_data(count, deviceId, record, stampEndTime, stampStartTime, timeZon
         batch_start_time = record if record != 0 else stampStartTime
 
         # 检查当前批次是否会超过结束时间
-        if batch_start_time + BATCH_DURATION_MS > stampEndTime:
+        if batch_start_time + BATCH_DURATION_MS >= stampEndTime:
             # 处理最后一个不完整的批次
             remaining_points = (stampEndTime - batch_start_time) // MS_PER_DATA_POINT
 
@@ -860,7 +873,7 @@ if __name__ == '__main__':
 
             start_time = ModifyTime(modify_Time, hours=0, minutes=00, seconds=0).date_plus()
 
-            end_time = ModifyTime(start_time, hours=3, minutes=0, seconds=0).date_plus()
+            end_time = ModifyTime(start_time, hours=23, minutes=59, seconds=59).date_plus()
 
             logger.info(f"{a}↓↓↓ 发送Device：{device}  {start_time}-->{end_time} 的数据 ↓↓↓{a}")
 
@@ -873,5 +886,9 @@ if __name__ == '__main__':
     end_time1 = time.time()
     count_time = end_time1 - start_time1
     count_time = round(count_time, 4)
+    logger.info(f'{"&" * 50}')
+    logger.info("单次数据量统计")
+
+    logger.info(f'总计发送')
     logger.info(f'{a}本次发送数据耗时：{count_time}秒 {a}')
     logger.info(f'{"@" * 200}')
