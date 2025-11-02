@@ -4,6 +4,7 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from pathlib import Path
 from datetime import datetime
+import urllib.parse
 
 
 @dataclass
@@ -47,7 +48,7 @@ class SchemaProperty:
     example: Any = None
     enum: List[Any] = None
     required: bool = False
-    default: Any = None  # 添加 default 属性
+    default: Any = None
 
 
 @dataclass
@@ -98,7 +99,7 @@ class SwaggerParser:
                         example=prop_info.get('example'),
                         enum=prop_info.get('enum'),
                         required=prop_name in required_fields,
-                        default=prop_info.get('default')  # 添加 default 值
+                        default=prop_info.get('default')
                     )
                     properties.append(prop)
 
@@ -208,7 +209,7 @@ class SwaggerParser:
                                 required=prop.required,
                                 example=prop.example,
                                 enum=prop.enum,
-                                default=prop.default  # 添加 default 值
+                                default=prop.default
                             )
                             result.append(body_param)
 
@@ -229,7 +230,7 @@ class SwaggerParser:
                                     required=prop.required,
                                     example=prop.example,
                                     enum=prop.enum,
-                                    default=prop.default  # 添加 default 值
+                                    default=prop.default
                                 )
                                 result.append(body_param)
 
@@ -265,7 +266,7 @@ class SwaggerParser:
         return result
 
     def generate_request_example(self, endpoint: EndpointInfo) -> str:
-        """生成请求示例代码"""
+        """生成cURL请求示例"""
         lines = []
 
         # 确定内容类型
@@ -273,8 +274,11 @@ class SwaggerParser:
         if endpoint.consumes:
             content_type = endpoint.consumes[0]
 
-        # 构建URL
-        url = endpoint.path
+        # 构建基础URL
+        base_url = "https://your-api-domain.com"  # 这里应该替换为实际的API域名
+        url = base_url + endpoint.path
+
+        # 处理路径参数和查询参数
         query_params = []
         path_params = []
         body_params = []
@@ -305,10 +309,11 @@ class SwaggerParser:
         if query_params:
             url += "?" + "&".join(query_params)
 
-        # 构建headers
-        headers = {
-            "Content-Type": content_type
-        }
+        # 构建cURL命令
+        curl_cmd = f"curl -X {endpoint.method}"
+
+        # 添加Content-Type头
+        curl_cmd += f" -H 'Content-Type: {content_type}'"
 
         # 添加认证头
         if endpoint.security:
@@ -317,14 +322,14 @@ class SwaggerParser:
                     if sec_name in self.security_definitions:
                         auth_def = self.security_definitions[sec_name]
                         if auth_def['type'] == 'apiKey' and auth_def['in'] == 'header':
-                            headers[auth_def['name']] = f"Bearer [token]"
+                            curl_cmd += f" -H '{auth_def['name']}: Bearer YOUR_TOKEN_HERE'"
 
         # 添加其他header参数
         for param in header_params:
             if param.example is not None:
-                headers[param.name] = str(param.example)
+                curl_cmd += f" -H '{param.name}: {param.example}'"
             elif param.default is not None:
-                headers[param.name] = str(param.default)
+                curl_cmd += f" -H '{param.name}: {param.default}'"
 
         # 构建请求体
         request_body = {}
@@ -334,52 +339,38 @@ class SwaggerParser:
             elif param.default is not None:
                 request_body[param.name] = param.default
 
-        # 生成JavaScript代码
-        lines.append("// 请求")
-        lines.append(f"fetch('{url}', {{")
-        lines.append(f"  method: '{endpoint.method}',")
-
-        # 添加headers
-        lines.append("  headers: {")
-        for key, value in headers.items():
-            lines.append(f"    '{key}': '{value}',")
-        lines.append("  },")
-
         # 添加请求体（如果不是GET或HEAD）
         if endpoint.method not in ['GET', 'HEAD'] and request_body:
-            lines.append("  body: JSON.stringify({")
-            for key, value in request_body.items():
-                lines.append(f"    '{key}': {json.dumps(value, ensure_ascii=False)},")
-            lines.append("  })")
+            # 将请求体转换为JSON字符串并转义
+            body_json = json.dumps(request_body, ensure_ascii=False)
+            # 转义单引号以便在shell中使用
+            body_json_escaped = body_json.replace("'", "'\\''")
+            curl_cmd += f" -d '{body_json_escaped}'"
 
-        lines.append("})")
+        # 添加URL
+        curl_cmd += f" '{url}'"
 
-        # 添加响应处理
+        lines.append(curl_cmd)
         lines.append("")
-        lines.append("// 响应处理")
-        lines.append(".then(response => response.json())")
-        lines.append(".then(data => {")
-        lines.append("  if (data.code === 0) {")
-        lines.append("    // 处理成功响应")
-        lines.append("    console.log('成功:', data.data);")
 
-        # 特殊处理认证接口
-        if endpoint.path == '/authentication' and endpoint.method == 'POST':
-            lines.append("    // 保存token")
-            lines.append("    localStorage.setItem('token', data.data.accessToken);")
-            lines.append("    // 跳转到首页")
-            lines.append("    window.location.href = data.data.callback || '/dashboard';")
+        # 添加说明
+        lines.append("# 说明:")
+        lines.append(f"# -X {endpoint.method}: 指定HTTP方法")
+        lines.append(f"# -H 'Content-Type: {content_type}': 指定内容类型")
 
-        lines.append("  } else {")
-        lines.append("    // 处理错误响应")
-        lines.append("    console.error('错误:', data.message);")
-        lines.append("    alert('操作失败: ' + data.message);")
-        lines.append("  }")
-        lines.append("})")
-        lines.append(".catch(error => {")
-        lines.append("  console.error('请求失败:', error);")
-        lines.append("  alert('网络错误，请稍后重试');")
-        lines.append("});")
+        if endpoint.security:
+            for sec in endpoint.security:
+                for sec_name in sec:
+                    if sec_name in self.security_definitions:
+                        auth_def = self.security_definitions[sec_name]
+                        if auth_def['type'] == 'apiKey' and auth_def['in'] == 'header':
+                            lines.append(
+                                f"# -H '{auth_def['name']}: Bearer YOUR_TOKEN_HERE': 认证令牌，请替换为实际令牌")
+
+        if endpoint.method not in ['GET', 'HEAD'] and request_body:
+            lines.append("# -d '...': 请求体数据")
+
+        lines.append(f"# '{url}': 请求URL")
 
         return "\n".join(lines)
 
@@ -550,7 +541,7 @@ class SwaggerParser:
                 # 请求示例
                 md_content.append("**请求示例**:")
                 md_content.append("")
-                md_content.append("```javascript")
+                md_content.append("```bash")
                 md_content.append(self.generate_request_example(endpoint))
                 md_content.append("```")
                 md_content.append("")
