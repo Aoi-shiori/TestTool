@@ -1,0 +1,17 @@
+[{
+		"env": "测试环境",
+		"Patient": "J20251104001",
+		"patientId": "690996aca2f53d41adf6df20",
+		"sheetname": "ecgDataChunks",
+		"appkey": {
+			"id": "617070e40daf63ba334ece90d1",
+			"key": "@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF"
+		},
+		"baseurl": "webportal-dev.vivalink.com",
+		"deviceId": "ECGRec_202511/J1104004",
+		"sessionId": "6909ce54fa643b3cfb843089",
+		"excle": "./数据文件夹/ecgDataChunks_20251104_dev.xlsx",
+        "describe": "测试环境，Test340_Medpace"
+	}
+
+]

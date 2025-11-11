@@ -1,0 +1,31 @@
+[{
+		"env": "压测环境",
+		"Patient": "UAT-001",
+		"PatientID": "676e6307d52ea079df83b607",
+		"sheetname": "104-001",
+		"appkey": {
+			"id": "617070e40daf63ba334ece90d1",
+			"key": "@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF"
+		},
+		"baseurl": "webportal-test.vivalink.com",
+		"deviceId": "ECGRec_202450/MT00001",
+		"sessionId": "676e816109c8c495c36d5e8f",
+		"excle": "medepace_patient_data_压测.xlsx"
+
+	},
+	{
+		"env": "压测环境",
+		"Patient": "UAT-002",
+		"PatientID": "676e63a4c0e7ead253ece345",
+		"sheetname": "104-002",
+		"appkey": {
+			"id": "617070e40daf63ba334ece90d1",
+			"key": "@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF"
+		},
+		"baseurl": "webportal-test.vivalink.com",
+		"deviceId": "ECGRec_202450/MT00002",
+		"sessionId": "676e81df09c8c495c36d5e91",
+		"excle": "medepace_patient_data_压测.xlsx"
+
+	}
+]
