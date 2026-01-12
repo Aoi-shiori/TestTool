@@ -116,28 +116,86 @@ class Statistics:
         return result
 
 @dataclass
+@dataclass
 class SummaryResult:
     """分析结果汇总"""
-    total_capture_rate: float
-    day_capture_rate: float
-    night_capture_rate: float
-    day_measurements: float
-    night_measurements: int
-    expected_day_measurements: int
-    expected_night_measurements: int
-    sbp_distribution: BPDistribution
-    dbp_distribution: BPDistribution
-    period: TimePeriod
-    sbp_stats: Statistics
-    dbp_stats: Statistics
-    mbp_stats: Statistics
-    pr_stats: Statistics
-    pulse_pressure_stats: Statistics
-    total_records: int
+    qc_results: List[Dict] = None
+    total_capture_rate: float = 0.0
+    day_capture_rate: float = 0.0
+    night_capture_rate: float = 0.0
+    day_measurements: float = 0.0
+    night_measurements: int = 0
+    expected_day_measurements: int = 0
+    expected_night_measurements: int = 0
+    sbp_distribution: BPDistribution = None
+    dbp_distribution: BPDistribution = None
+    period: TimePeriod = None
+    sbp_stats: Statistics = None
+    dbp_stats: Statistics = None
+    mbp_stats: Statistics = None
+    pr_stats: Statistics = None
+    pulse_pressure_stats: Statistics = None
+    total_records: int = 0
     above_limits_sbp: Optional[float] = None
     above_limits_dbp: Optional[float] = None
     nocturnal_fall_sbp: Optional[float] = None
     nocturnal_fall_dbp: Optional[float] = None
+
+    def __post_init__(self):
+        """初始化默认值"""
+        if self.qc_results is None:
+            self.qc_results = [{"result":"fail","day":0, "Night":0,"total":0}]
+        if self.sbp_distribution is None:
+            self.sbp_distribution = BPDistribution()
+        if self.dbp_distribution is None:
+            self.dbp_distribution = BPDistribution()
+        if self.period is None:
+            self.period = TimePeriod.TOTAL
+        if self.sbp_stats is None:
+            self.sbp_stats = Statistics(
+                min_val=0,
+                max_val=0,
+                avg=0.0,
+                std=0.0,
+                cv=0.0,
+                data=[]
+            )
+        if self.dbp_stats is None:
+            self.dbp_stats = Statistics(
+                min_val=0,
+                max_val=0,
+                avg=0.0,
+                std=0.0,
+                cv=0.0,
+                data=[]
+            )
+        if self.mbp_stats is None:
+            self.mbp_stats = Statistics(
+                min_val=0,
+                max_val=0,
+                avg=0.0,
+                std=0.0,
+                cv=0.0,
+                data=[]
+            )
+        if self.pr_stats is None:
+            self.pr_stats = Statistics(
+                min_val=0,
+                max_val=0,
+                avg=0.0,
+                std=0.0,
+                cv=0.0,
+                data=[]
+            )
+        if self.pulse_pressure_stats is None:
+            self.pulse_pressure_stats = Statistics(
+                min_val=0,
+                max_val=0,
+                avg=0.0,
+                std=0.0,
+                cv=0.0,
+                data=[]
+            )
 
     def to_dict(self) -> Dict:
         """转换为字典"""
@@ -465,6 +523,7 @@ class BPDataAnalyzer:
             dbp_distribution = self.calculate_bp_distribution(data_list, 'dbp')
 
             result = SummaryResult(
+                qc_results=[] ,
                 total_capture_rate=0,# 由外部计算
                 day_capture_rate=0,
                 night_capture_rate=0,
@@ -555,56 +614,6 @@ class BPDataAnalyzer:
         if not data_list:
             self.logger.warning("数据列表为空")
             return SummaryResult(
-            total_capture_rate=0.0,
-            day_capture_rate=0.0,
-            night_capture_rate=0.0,
-            day_measurements=0,
-            night_measurements=0,
-            expected_day_measurements=0,
-            expected_night_measurements=0,
-            period=TimePeriod.TOTAL,
-            sbp_distribution=BPDistribution(),
-            dbp_distribution=BPDistribution(),
-            sbp_stats=Statistics(
-                min_val=0,
-                max_val=0,
-                avg=0.0,
-                std=0.0,
-                cv=0.0,
-                data=[]
-            ),
-            dbp_stats=Statistics(
-                min_val=0,
-                max_val=0,
-                avg=0.0,
-                std=0.0,
-                cv=0.0,
-                data=[]
-            ),
-            mbp_stats=Statistics(
-                min_val=0,
-                max_val=0,
-                avg=0.0,
-                std=0.0,
-                cv=0.0,
-                data=[]
-            ),
-            pr_stats=Statistics(
-                min_val=0,
-                max_val=0,
-                avg=0.0,
-                std=0.0,
-                cv=0.0,
-                data=[]
-            ),
-            pulse_pressure_stats=Statistics(
-                    min_val=0,
-                    max_val=0,
-                    avg=0.0,
-                    std=0.0,
-                    cv=0.0,
-                    data=[]
-            ),
             total_records=len(data_list)
         )
 
@@ -614,56 +623,6 @@ class BPDataAnalyzer:
         if not measurement_plan.enabled:
             self.logger.warning("测量计划未启用")
             return SummaryResult(
-                total_capture_rate=0.0,
-                day_capture_rate=0.0,
-                night_capture_rate=0.0,
-                day_measurements=0,
-                night_measurements=0,
-                expected_day_measurements=0,
-                expected_night_measurements=0,
-                period=TimePeriod.TOTAL,
-                sbp_distribution=BPDistribution(),
-                dbp_distribution=BPDistribution(),
-                sbp_stats=Statistics(
-                    min_val=0,
-                    max_val=0,
-                    avg=0.0,
-                    std=0.0,
-                    cv=0.0,
-                    data=[]
-                ),
-                dbp_stats=Statistics(
-                    min_val=0,
-                    max_val=0,
-                    avg=0.0,
-                    std=0.0,
-                    cv=0.0,
-                    data=[]
-                ),
-                mbp_stats=Statistics(
-                    min_val=0,
-                    max_val=0,
-                    avg=0.0,
-                    std=0.0,
-                    cv=0.0,
-                    data=[]
-                ),
-                pr_stats=Statistics(
-                    min_val=0,
-                    max_val=0,
-                    avg=0.0,
-                    std=0.0,
-                    cv=0.0,
-                    data=[]
-                ),
-                pulse_pressure_stats=Statistics(
-                    min_val=0,
-                    max_val=0,
-                    avg=0.0,
-                    std=0.0,
-                    cv=0.0,
-                    data=[]
-            ),
                 total_records=len(data_list)
             )
 
@@ -822,50 +781,6 @@ class BPDataAnalyzer:
             night_measurements=night_actual_count,
             expected_day_measurements=day_planned_count,
             expected_night_measurements=night_planned_count,
-            sbp_distribution=BPDistribution(),
-            dbp_distribution=BPDistribution(),
-            period=TimePeriod.TOTAL,
-            sbp_stats=Statistics(
-                min_val=0,
-                max_val=0,
-                avg=0.0,
-                std=0.0,
-                cv=0.0,
-                data=[]
-            ),
-            dbp_stats=Statistics(
-                min_val=0,
-                max_val=0,
-                avg=0.0,
-                std=0.0,
-                cv=0.0,
-                data=[]
-            ),
-            mbp_stats=Statistics(
-                min_val=0,
-                max_val=0,
-                avg=0.0,
-                std=0.0,
-                cv=0.0,
-                data=[]
-            ),
-            pr_stats=Statistics(
-                min_val=0,
-                max_val=0,
-                avg=0.0,
-                std=0.0,
-                cv=0.0,
-                data=[]
-            ),
-            pulse_pressure_stats=Statistics(
-                min_val=0,
-                max_val=0,
-                avg=0.0,
-                std=0.0,
-                cv=0.0,
-                data=[]
-            ),
-
             total_records=len(data_list)
         )
 
@@ -906,6 +821,18 @@ class BPDataAnalyzer:
 
         return result
 
+    # 计算 QC
+    def calculate_qc_result(self, day_data, night_data, capture_rate_reslut: SummaryResult):
+        if len(day_data)>=20 and len(night_data)>=7 and capture_rate_reslut.total_capture_rate>=0.7:
+            qc_result=[{"result": "pass", "day": len(day_data), "Night": len(night_data), "total": capture_rate_reslut.total_capture_rate}]
+        elif len(day_data)<20 or len(night_data)< 7 or capture_rate_reslut.total_capture_rate<0.7:
+            qc_result=[{"result": "fail", "day": len(day_data), "Night": len(night_data), "total": capture_rate_reslut.total_capture_rate}]
+        else:
+            qc_result =[{"result": "fail", "day": 0, "Night": 0, "total": 0}]
+        return  SummaryResult(
+            qc_results=qc_result,
+        )
+
     def calculate_nocturnal_fall(self, day_result: SummaryResult,
                                  night_result: SummaryResult) -> Tuple[float, float]:
         """
@@ -942,10 +869,19 @@ class BPDataAnalyzer:
     # 打印结果
     def log_summary(self, result: SummaryResult):
         """记录分析结果到日志"""
-        period_name = result.period.value.capitalize()
+        # period_name = result.period.value.capitalize()
+
+        # 根据不同的用途显示不同的标题
+        if result.qc_results and result.total_records == 0:  # 这是QC结果
+            title = "QC Summary"
+        elif result.total_records == 0:  # 这是捕获率结果
+            title = "Capture Rate Summary"
+        else:
+            period_name = result.period.value.capitalize()
+            title = f"{period_name} Summary"
 
         self.logger.info(f"{'=' * 80}")
-        self.logger.info(f"{period_name} Summary")
+        self.logger.info(f"{title} Summary")
         self.logger.info(f"{'=' * 80}")
 
         # 格式化时间显示
@@ -1002,10 +938,17 @@ class BPDataAnalyzer:
         self.logger.info(f"    DBP 💚{result.dbp_distribution.bp_distribution[0]} % /🔶{result.dbp_distribution.bp_distribution[1]} %")
 
         # 捕获率指标
-        self.logger.info(f"Total Capture Rate {result.total_capture_rate}%")
-        self.logger.info(f"Day Capture Rate {result.day_capture_rate}%")
-        self.logger.info(f"Night Capture Rate {result.night_capture_rate}%")
+        self.logger.info(f"Total Capture Rate {result.total_capture_rate*100:.2f}%")
+        self.logger.info(f"Day Capture Rate {result.day_capture_rate*100:.2f}%")
+        self.logger.info(f"Night Capture Rate {result.night_capture_rate*100:.2f}%")
 
+        # QC指标
+        self.logger.info(f"QC Indicators")
+        if result.qc_results:
+            self.logger.info(f"    QC Result: {result.qc_results}")
+            # self.logger.info(f"    QC Result: {result.qc_results[0].get("result")}")
+        else:
+            self.logger.info(f"    QC Result:  N/A")
 
 
         # 记录总数
@@ -1034,6 +977,9 @@ class BPDataAnalyzer:
             if result.above_limits_dbp is not None:
                 above_limit = "≥25%" if result.above_limits_dbp >= 25 else "<25%"
                 self.logger.info(f"{threshold_dbp}: {result.above_limits_dbp:.1f}% {above_limit}")
+
+
+
 
 # 数据提取器（BP 原始数据和病人测试计划）
 class DataFetcher:
@@ -1222,6 +1168,13 @@ def parse_raw_data(raw_data: List[Dict], logger: logging.Logger = None) -> List[
             pr = item['vitals'].get('hr', item.get('PR', item.get('pulse', 0)))
             timestamp = item.get('recordTime', item.get('timestamp', 0))
 
+            # 剔除 sbp和 dpb 小于等于 0 的数据
+            if sbp <= 0 or dbp <= 0:
+                logger.warning(f"第{i + 1}条数据为无效读数: {item}")
+                error_count += 1
+                continue
+
+
             # 数据验证
             if not all([sbp, dbp, pr, timestamp]):
                 logger.warning(f"第{i + 1}条数据字段不全: {item}")
@@ -1297,8 +1250,11 @@ def iso_to_timestamp_ms(iso_string: str) -> int:
     timestamp_ms = int(dt.timestamp() * 1000)
     return timestamp_ms
 
-def main_analysis(start_time:int, end_time:int, measurement_plan:MeasurementPlan, data_list: List[Measurement], timezone_name: str, timezone_offset: int = 0, day_start_hour:int=0, night_start_hour:int=0,
-                  logger: logging.Logger = None):
+# 主分析
+def main_analysis(start_time: int, end_time: int, measurement_plan: MeasurementPlan,
+                  data_list: List[Measurement], timezone_name: str,
+                  timezone_offset: int = 0, day_start_hour: int = 0,
+                  night_start_hour: int = 0, logger: logging.Logger = None):
     """主分析函数"""
     logger = logger or LoggerManager.setup_logger('MainAnalysis')
     logger.info(f"开始主分析流程, 数据量: {len(data_list)}, 时区: {timezone_name}")
@@ -1309,14 +1265,19 @@ def main_analysis(start_time:int, end_time:int, measurement_plan:MeasurementPlan
 
     try:
         # 初始化分析器
-        analyzer = BPDataAnalyzer(start_time=start_time, end_time=end_time,measurement_plan=measurement_plan,timezone_name=timezone_name,timezone_offset=timezone_offset,day_start_hour=day_start_hour,night_start_hour=night_start_hour,logger=logger)
+        analyzer = BPDataAnalyzer(
+            start_time=start_time,
+            end_time=end_time,
+            measurement_plan=measurement_plan,
+            timezone_name=timezone_name,
+            timezone_offset=timezone_offset,
+            day_start_hour=day_start_hour,
+            night_start_hour=night_start_hour,
+            logger=logger
+        )
 
         # 分析获取捕获率
-        capture_rate_reslut = analyzer.calculate_capture_rate(data_list)
-        # logger.info(f"获取捕获率: {capture_rate_reslut}")
-        analyzer.log_summary(capture_rate_reslut)
-
-
+        capture_rate_result = analyzer.calculate_capture_rate(data_list)
 
         # 打印原始数据
         logger.info("BP Table:")
@@ -1342,43 +1303,55 @@ def main_analysis(start_time:int, end_time:int, measurement_plan:MeasurementPlan
         night_data = []
 
         for measurement in data_list:
-            if analyzer.classify_day_night(measurement.time,timezone_name) == TimePeriod.DAY:
+            if analyzer.classify_day_night(measurement.time, timezone_name) == TimePeriod.DAY:
                 day_data.append(measurement)
             else:
                 night_data.append(measurement)
 
         logger.info(f"白天数据量: {len(day_data)}, 夜间数据量: {len(night_data)}")
 
+        # 计算 QC result 通过标准：日间≥20，夜间≥7，总体≥70%。
+        qc_result = analyzer.calculate_qc_result(day_data, night_data, capture_rate_result)
+
         # 分析各时间段
         day_result = analyzer.analyze_period(day_data, TimePeriod.DAY)
         night_result = analyzer.analyze_period(night_data, TimePeriod.NIGHT)
         total_result = analyzer.analyze_period(data_list, TimePeriod.TOTAL)
-        # 补充捕获率
-        day_result.total_capture_rate=capture_rate_reslut.total_capture_rate
-        day_result.day_capture_rate=capture_rate_reslut.day_capture_rate
-        day_result.night_capture_rate=capture_rate_reslut.night_capture_rate
-        night_result.total_capture_rate=capture_rate_reslut.total_capture_rate
-        night_result.day_capture_rate=capture_rate_reslut.day_capture_rate
-        night_result.night_capture_rate=capture_rate_reslut.night_capture_rate
-        total_result.total_capture_rate=capture_rate_reslut.total_capture_rate
-        total_result.day_capture_rate=capture_rate_reslut.day_capture_rate
-        total_result.night_capture_rate=capture_rate_reslut.night_capture_rate
-        # 记录结果
+
+
+        # 补充捕获率和QC结果到各个结果中
+        qc_results_data = qc_result.qc_results  # 获取QC结果数据
+        for result in [day_result, night_result, total_result]:
+            result.total_capture_rate = capture_rate_result.total_capture_rate
+            result.day_capture_rate = capture_rate_result.day_capture_rate
+            result.night_capture_rate = capture_rate_result.night_capture_rate
+            result.qc_results = qc_results_data
+
+        # 批量输出所有结果 - 集中处理日志输出
+        logger.info("=" * 80)
+        logger.info("ABPM 分析报告")
+        logger.info("=" * 80)
+
+        # 输出白天分析结果
         analyzer.log_summary(day_result)
+
+        # 输出夜间分析结果
         analyzer.log_summary(night_result)
 
         # 计算夜间血压下降比值
         nocturnal_fall_sbp, nocturnal_fall_dbp = analyzer.calculate_nocturnal_fall(day_result, night_result)
 
-        # 记录总体结果（带夜间下降比值）
-        logger.info(f"{'=' * 80}")
-        logger.info(f"Total Summary ({analyzer.convert_timestamp_to_local(data_list[0].time, True)} - "
-                    f"{analyzer.convert_timestamp_to_local(data_list[-1].time, True)})")
-        logger.info(f"{'=' * 80}")
+        # 输出总体结果（带夜间下降比值）
+        logger.info(f"时间范围: {analyzer.convert_timestamp_to_local(data_list[0].time, True)} - "
+                    f"{analyzer.convert_timestamp_to_local(data_list[-1].time, True)}")
+
+        # 在总结果中添加夜间血压下降信息
+        total_result.nocturnal_fall_sbp = nocturnal_fall_sbp
+        total_result.nocturnal_fall_dbp = nocturnal_fall_dbp
 
         analyzer.log_summary(total_result)
 
-
+        # 输出夜间血压下降比值总结
         """
         # 夜间血压下降比值
         - **类判断逻辑 (Dipper 类型判断)**：
@@ -1407,21 +1380,23 @@ def main_analysis(start_time:int, end_time:int, measurement_plan:MeasurementPlan
         else:
             dipper_status_dbp = "Riser (Reverse Dipper)"
 
-        logger.info(f"Nocturnal BP fall (SBP): {nocturnal_fall_sbp:.1f}% {dipper_status_sbp}")
-        logger.info(f"Nocturnal BP fall (DBP): {nocturnal_fall_dbp:.1f}% {dipper_status_dbp}")
+        logger.info(f"SBP夜间下降: {nocturnal_fall_sbp:.1f}% - {dipper_status_sbp}")
+        logger.info(f"DBP夜间下降: {nocturnal_fall_dbp:.1f}% - {dipper_status_dbp}")
 
         # 记录完整结果到调试日志
         logger.debug(f"完整分析结果 - 白天: {day_result.to_dict()}")
         logger.debug(f"完整分析结果 - 夜间: {night_result.to_dict()}")
         logger.debug(f"完整分析结果 - 总计: {total_result.to_dict()}")
 
-        logger.info("主分析流程完成")
+        logger.info("✅ 主分析流程完成")
 
     except Exception as e:
         logger.error(f"主分析过程中出错: {str(e)}", exc_info=True)
         raise
     finally:
         logger.info("主分析流程所有数据处理完毕")
+
+
 def get_timezone_offset_by_name(timezone_name: str) -> int:
         """
         根据时区名获取当前偏移量（秒）
