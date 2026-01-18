@@ -299,8 +299,9 @@ class BPDataAnalyzer:
         self.MEASUREMENT_PLAN = measurement_plan
         self.logger = logger or LoggerManager.setup_logger('BPDataAnalyzer')
 
-        self.logger.info(f"初始化BPDataAnalyzer, 时区偏移: {timezone_offset}秒")
+        self.logger.info(f"初始化BPDataAnalyzer, 时区名称: {timezone_name}")
 
+    # 时间戳转换
     def convert_timestamp_to_local(self, timestamp_ms: int, include_date: bool = False) -> str:
         """
         将时间戳转换为本地时间字符串
@@ -318,7 +319,8 @@ class BPDataAnalyzer:
 
             # 应用时区偏移
             utc_time = datetime.fromtimestamp(timestamp_sec, tz=ZoneInfo("UTC"))
-            local_time = utc_time + timedelta(seconds=self.TIMEZONE_OFFSET)
+            # 根据时区名转换为当地时间
+            local_time = utc_time.astimezone(ZoneInfo(self.TIMEZONE_NAME))
 
             # 格式化
             if include_date:
@@ -391,8 +393,14 @@ class BPDataAnalyzer:
             avg = np.mean(values)
             std = np.std(values, ddof=1)  # 样本标准差
 
+
+
             # 找到最小值和最大值及其时间
             if value_field in ['sbp', 'dbp', 'pr', 'pulse_pressure']:
+
+                # 处理最小值中x小于等于 0 的值
+                values = [x for x in values if x > 0]
+
                 # 处理最小值
                 min_value = min(values)
                 # 找出所有具有最小值的项目
@@ -523,14 +531,6 @@ class BPDataAnalyzer:
             dbp_distribution = self.calculate_bp_distribution(data_list, 'dbp')
 
             result = SummaryResult(
-                qc_results=[] ,
-                total_capture_rate=0,# 由外部计算
-                day_capture_rate=0,
-                night_capture_rate=0,
-                day_measurements=0,
-                night_measurements=0,
-                expected_day_measurements=0,
-                expected_night_measurements=0,
                 sbp_distribution=sbp_distribution,
                 dbp_distribution=dbp_distribution,
                 period=period,
@@ -542,7 +542,7 @@ class BPDataAnalyzer:
                 total_records=len(data_list)
             )
 
-            # 根据时间段计算特定指标
+            # 根据时间段计算血压负荷
             if period == TimePeriod.DAY:
                 # 白天高于阈值的比例
                 above_sbp = sum(1 for x in data_list if x.sbp > self.DAY_SBP_THRESHOLD)
@@ -560,6 +560,24 @@ class BPDataAnalyzer:
                 result.above_limits_dbp = above_dbp / len(data_list) * 100
                 self.logger.debug(
                     f"夜间阈值超标: SBP={result.above_limits_sbp:.1f}%, DBP={result.above_limits_dbp:.1f}%")
+            elif period == TimePeriod.TOTAL:
+                # 全部阈值超标的比例
+                """
+                BP Load做全天计算时（按 SBP/DBP 分别统计）
+
+                分子：# of readings with SBP ≥ SBP_thr (by day) + # of readings with SBP ≥ SBP_thr (by night)
+                
+                分母：# of valid BP readings in 24h
+
+                """
+                day_above_sbp = sum(1 for x in data_list if x.sbp >= self.DAY_SBP_THRESHOLD and self.classify_day_night(x.time,self.TIMEZONE_NAME)==TimePeriod.DAY)
+                day_above_dbp = sum(1 for x in data_list if x.dbp >= self.DAY_DBP_THRESHOLD and self.classify_day_night(x.time,self.TIMEZONE_NAME)==TimePeriod.DAY)
+                night_above_sbp = sum(1 for x in data_list if x.sbp >= self.NIGHT_SBP_THRESHOLD and self.classify_day_night(x.time,self.TIMEZONE_NAME)==TimePeriod.NIGHT)
+                night_above_dbp = sum(1 for x in data_list if x.dbp >= self.NIGHT_DBP_THRESHOLD and self.classify_day_night(x.time,self.TIMEZONE_NAME)==TimePeriod.NIGHT)
+                result.above_limits_sbp = (day_above_sbp+night_above_sbp) / len(data_list) * 100
+                result.above_limits_dbp = (day_above_dbp+night_above_dbp) / len(data_list) * 100
+                self.logger.debug(
+                    f"全部阈值超标: SBP={result.above_limits_sbp:.1f}%, DBP={result.above_limits_dbp:.1f}%")
 
             self.logger.info(f"{period.value}时间段分析完成, 总记录数={result.total_records}")
             return result
@@ -595,8 +613,10 @@ class BPDataAnalyzer:
             self.logger.error(f"解析时间字符串失败: {time_str}, error={str(e)}")
             return time(12, 0)  # 默认返回中午12点
 
-    # 计算捕获率指标
-    def calculate_capture_rate(self, data_list: List[Measurement])-> SummaryResult:
+    """
+         指标计算：捕获率指标
+    """
+    def calculate_capture_rate(self, data_list: List[Measurement]) -> SummaryResult:
         """
         计算白天和夜间时间段的测量捕获率
 
@@ -608,14 +628,15 @@ class BPDataAnalyzer:
         """
         self.logger.info("开始计算测量数据捕获率")
         self.logger.info(f"输入参数: start_timestamp={self.START_TIME}, end_timestamp={self.END_TIME}")
+
         self.logger.info(
             f"时区: {self.TIMEZONE_NAME}, 白天开始: {self.DAY_START_HOUR}:00, 夜间开始: {self.NIGHT_START_HOUR}:00")
 
         if not data_list:
             self.logger.warning("数据列表为空")
             return SummaryResult(
-            total_records=len(data_list)
-        )
+                total_records=len(data_list)
+            )
 
         measurement_plan = self.MEASUREMENT_PLAN
 
@@ -645,9 +666,9 @@ class BPDataAnalyzer:
         plan_is_overnight = (plan_end_time <= plan_start_time)
 
         if plan_is_overnight:
-            self.logger.info(f"测量计划跨天: {plan_start_time} -> 第二天 {plan_end_time}")
+            self.logger.info(f"测量计划跨天: {plan_start_time} -> 第二天 {plan_end_time} (左闭右开)")
         else:
-            self.logger.info(f"测量计划当天内: {plan_start_time} -> {plan_end_time}")
+            self.logger.info(f"测量计划当天内: {plan_start_time} -> {plan_end_time} (左闭右开)")
 
         # 统计实际测量次数（按白天/夜间分类）
         day_actual_count = 0
@@ -684,75 +705,117 @@ class BPDataAnalyzer:
 
         self.logger.info(f"日期范围: {current_date} 到 {end_date}")
 
-        # 循环处理每一天（考虑跨天情况）
+        # 循环处理每一天
         day_index = 1
         while current_date <= end_date:
             # 创建当天的开始和结束datetime
             day_start = datetime.combine(current_date, time(0, 0, 0)) \
                 .replace(tzinfo=ZoneInfo(self.TIMEZONE_NAME))
-            day_end = datetime.combine(current_date, time(23, 59, 59)) \
+            day_end = datetime.combine(current_date, time(23, 59, 59, 999999)) \
                 .replace(tzinfo=ZoneInfo(self.TIMEZONE_NAME))
 
-            # 计算当天的测量计划时间段
-            # 如果测量计划跨天，需要创建两个时间段：当天部分和第二天部分
+            # 对于跨天测量计划，需要特殊处理
             if plan_is_overnight:
-                # 时间段1: 当天开始时间到当天结束时间（计划开始时间到24:00）
-                plan_start_dt1 = datetime.combine(current_date, plan_start_time) \
+                # 跨天测量计划分为两部分（左闭右开）：
+                # 1. 前一天的计划结束部分（00:00到plan_end_time）注意：不包含plan_end_time
+                # 2. 当天的计划开始部分（plan_start_time到23:59:59.999999）
+
+                # 第一部分：当天00:00到plan_end_time（属于前一天的测量计划）
+                if plan_end_time != time(0, 0, 0):  # 如果结束时间不是00:00
+                    period1_start = datetime.combine(current_date, time(0, 0, 0)) \
+                        .replace(tzinfo=ZoneInfo(self.TIMEZONE_NAME))
+                    period1_end = datetime.combine(current_date, plan_end_time) \
+                        .replace(tzinfo=ZoneInfo(self.TIMEZONE_NAME))
+
+                    # 计算与时间范围的交集
+                    actual_start1 = max(period1_start, start_dt)
+                    actual_end1 = min(period1_end, end_dt)
+
+                    if actual_start1 < actual_end1:
+                        # 计算该时间段内的计划测量次数
+                        duration_minutes1 = (actual_end1 - actual_start1).total_seconds() / 60
+                        planned_in_period1 = math.floor(duration_minutes1 / measurement_plan.interval) + 1
+
+                        # 分配计划测量次数到白天和夜间
+                        current_measurement_time = actual_start1
+                        period_count1 = 0
+
+                        while current_measurement_time < actual_end1 and period_count1 < planned_in_period1:
+                            hour = current_measurement_time.hour
+
+                            # 判断是白天还是夜间
+                            if self.DAY_START_HOUR <= hour < self.NIGHT_START_HOUR:
+                                day_planned_count += 1
+                            else:
+                                night_planned_count += 1
+
+                            # 移动到下一个测量点
+                            current_measurement_time += timedelta(minutes=measurement_plan.interval)
+                            period_count1 += 1
+
+                # 第二部分：当天plan_start_time到23:59:59.999999
+                period2_start = datetime.combine(current_date, plan_start_time) \
                     .replace(tzinfo=ZoneInfo(self.TIMEZONE_NAME))
-                plan_end_dt1 = datetime.combine(current_date, time(23, 59, 59)) \
+                period2_end = datetime.combine(current_date, time(23, 59, 59, 999999)) \
                     .replace(tzinfo=ZoneInfo(self.TIMEZONE_NAME))
 
-                # 时间段2: 第二天0:00到计划结束时间
-                plan_start_dt2 = datetime.combine(current_date + timedelta(days=1), time(0, 0, 0)) \
-                    .replace(tzinfo=ZoneInfo(self.TIMEZONE_NAME))
-                plan_end_dt2 = datetime.combine(current_date + timedelta(days=1), plan_end_time) \
-                    .replace(tzinfo=ZoneInfo(self.TIMEZONE_NAME))
+                # 计算与时间范围的交集
+                actual_start2 = max(period2_start, start_dt)
+                actual_end2 = min(period2_end, end_dt)
 
-                plan_periods = [(plan_start_dt1, plan_end_dt1), (plan_start_dt2, plan_end_dt2)]
+                if actual_start2 < actual_end2:
+                    # 计算该时间段内的计划测量次数
+                    duration_minutes2 = (actual_end2 - actual_start2).total_seconds() / 60
+                    planned_in_period2 = math.floor(duration_minutes2 / measurement_plan.interval) + 1
+
+                    # 分配计划测量次数到白天和夜间
+                    current_measurement_time = actual_start2
+                    period_count2 = 0
+
+                    while current_measurement_time < actual_end2 and period_count2 < planned_in_period2:
+                        hour = current_measurement_time.hour
+
+                        # 判断是白天还是夜间
+                        if self.DAY_START_HOUR <= hour < self.NIGHT_START_HOUR:
+                            day_planned_count += 1
+                        else:
+                            night_planned_count += 1
+
+                        # 移动到下一个测量点
+                        current_measurement_time += timedelta(minutes=measurement_plan.interval)
+                        period_count2 += 1
             else:
-                # 当天内的测量计划
+                # 当天内的测量计划（左闭右开）
                 plan_start_dt = datetime.combine(current_date, plan_start_time) \
                     .replace(tzinfo=ZoneInfo(self.TIMEZONE_NAME))
                 plan_end_dt = datetime.combine(current_date, plan_end_time) \
                     .replace(tzinfo=ZoneInfo(self.TIMEZONE_NAME))
 
-                plan_periods = [(plan_start_dt, plan_end_dt)]
-
-            # 处理每个测量计划时间段
-            for plan_start, plan_end in plan_periods:
                 # 计算与时间范围的交集
-                actual_start = max(plan_start, start_dt)
-                actual_end = min(plan_end, end_dt)
+                actual_start = max(plan_start_dt, start_dt)
+                actual_end = min(plan_end_dt, end_dt)
 
-                if actual_start >= actual_end:
-                    continue
+                if actual_start < actual_end:
+                    # 计算该时间段内的计划测量次数
+                    duration_minutes = (actual_end - actual_start).total_seconds() / 60
+                    planned_in_period = math.floor(duration_minutes / measurement_plan.interval) + 1
 
-                self.logger.debug(f"第{day_index}天计划时间段: {plan_start} 到 {plan_end}")
-                self.logger.debug(f"实际有效时间段: {actual_start} 到 {actual_end}")
+                    # 分配计划测量次数到白天和夜间
+                    current_measurement_time = actual_start
+                    period_count = 0
 
-                # 计算该时间段内的计划测量次数
-                duration_minutes = (actual_end - actual_start).total_seconds() / 60
-                planned_in_period = math.ceil(duration_minutes / measurement_plan.interval)
+                    while current_measurement_time < actual_end and period_count < planned_in_period:
+                        hour = current_measurement_time.hour
 
-                self.logger.debug(f"持续时间: {duration_minutes:.1f}分钟, 计划测量: {planned_in_period}次")
+                        # 判断是白天还是夜间
+                        if self.DAY_START_HOUR <= hour < self.NIGHT_START_HOUR:
+                            day_planned_count += 1
+                        else:
+                            night_planned_count += 1
 
-                # 分配计划测量次数到白天和夜间
-                # 为了更精确，我们创建一个虚拟的时间点序列
-                current_measurement_time = actual_start
-                period_count = 0
-
-                while current_measurement_time <= actual_end and period_count < planned_in_period:
-                    hour = current_measurement_time.hour
-
-                    # 判断是白天还是夜间
-                    if self.DAY_START_HOUR <= hour < self.NIGHT_START_HOUR:
-                        day_planned_count += 1
-                    else:
-                        night_planned_count += 1
-
-                    # 移动到下一个测量点
-                    current_measurement_time += timedelta(minutes=measurement_plan.interval)
-                    period_count += 1
+                        # 移动到下一个测量点
+                        current_measurement_time += timedelta(minutes=measurement_plan.interval)
+                        period_count += 1
 
             # 下一天
             current_date += timedelta(days=1)
@@ -784,45 +847,23 @@ class BPDataAnalyzer:
             total_records=len(data_list)
         )
 
-        # result2 = {
-        #     "total_capture_rate": round(total_capture_rate, 4),
-        #     "day_capture_rate": round(day_capture_rate, 4),
-        #     "night_capture_rate": round(night_capture_rate, 4),
-        #     'day_measurements': day_actual_count,
-        #     'night_measurements': night_actual_count,
-        #     'total_measurements': total_actual_count,
-        #     'expected_day_measurements': day_planned_count,
-        #     'expected_night_measurements': night_planned_count,
-        #     'expected_total_measurements': total_planned_count,
-        #     'plan_interval_minutes': measurement_plan.interval,
-        #     'time_range_days': (end_date - start_dt.date()).days + 1,
-        #     'start_time': start_dt.isoformat(),
-        #     'end_time': end_dt.isoformat(),
-        #     'day_start_hour': self.DAY_START_HOUR,
-        #     'night_start_hour': self.NIGHT_START_HOUR,
-        #     'measurement_plan': {
-        #         'enabled': measurement_plan.enabled,
-        #         'start_time': measurement_plan.start_time,
-        #         'end_time': measurement_plan.end_time,
-        #         'interval': measurement_plan.interval
-        #     }
-        # }
-        # self.logger.info(f"捕获率计算完成：总计划{total_planned_count}次，"
-        #                  f"实际{total_actual_count}次，捕获率{total_capture_rate:.2%}")
-        # self.logger.info(f"白天：计划{day_planned_count}次，实际{day_actual_count}次，"
-        #                  f"捕获率{day_capture_rate:.2%}")
-        # self.logger.info(f"夜间：计划{night_planned_count}次，实际{night_actual_count}次，"
-        #                  f"捕获率{night_capture_rate:.2%}")
-        #
-        # # 计算百分比格式
-        # result2['total_capture_rate_percent'] = f"{total_capture_rate:.2%}"
-        # result2['day_capture_rate_percent'] = f"{day_capture_rate:.2%}" if day_planned_count > 0 else "N/A"
-        # result2['night_capture_rate_percent'] = f"{night_capture_rate:.2%}" if night_planned_count > 0 else "N/A"
+        # 调试信息
+        self.logger.info(f"计算结果: 总捕获率={result.total_capture_rate}, "
+                         f"白天捕获率={result.day_capture_rate}, "
+                         f"夜间捕获率={result.night_capture_rate}")
 
         return result
 
     # 计算 QC
-    def calculate_qc_result(self, day_data, night_data, capture_rate_reslut: SummaryResult):
+    def calculate_qc_result(self,analyzer, data_list: List[Measurement], timezone_name: str, capture_rate_reslut: SummaryResult):
+        day_data = []
+        night_data = []
+
+        for measurement in data_list:
+            if analyzer.classify_day_night(measurement.time, timezone_name) == TimePeriod.DAY:
+                day_data.append(measurement)
+            else:
+                night_data.append(measurement)
         if len(day_data)>=20 and len(night_data)>=7 and capture_rate_reslut.total_capture_rate>=0.7:
             qc_result=[{"result": "pass", "day": len(day_data), "Night": len(night_data), "total": capture_rate_reslut.total_capture_rate}]
         elif len(day_data)<20 or len(night_data)< 7 or capture_rate_reslut.total_capture_rate<0.7:
@@ -907,14 +948,6 @@ class BPDataAnalyzer:
         self.logger.info(f"     Std.Dev.: {result.dbp_stats.std:.1f}")
         self.logger.info(f"     CV: {result.dbp_stats.cv:.2f}")
 
-        # Pulse Pressure(BPM)
-        self.logger.info(f"Pulse Pressure(BPM)  Min: {result.pulse_pressure_stats.min_val} ({format_time(result.pulse_pressure_stats.min_time)})")
-        self.logger.info(f"            Max: {result.pulse_pressure_stats.max_val} ({format_time(result.pulse_pressure_stats.max_time)})")
-        self.logger.info(
-            f"            Average: {Decimal(result.pulse_pressure_stats.avg).quantize(Decimal('0'), rounding=decimal.ROUND_HALF_UP)}")
-        self.logger.info(f"            Std.Dev.: {result.pulse_pressure_stats.std:.1f}")
-        self.logger.info(f"            CV: {result.pulse_pressure_stats.cv:.2f}")
-
         # MBP
         self.logger.info(f"MBP  Min: {round(result.mbp_stats.min_val)}")
 
@@ -924,13 +957,19 @@ class BPDataAnalyzer:
         self.logger.info(f"     Std.Dev.: {result.mbp_stats.std:.1f}")
         self.logger.info(f"     CV: {result.mbp_stats.cv:.2f}")
 
+        # Pulse Pressure(BPM)
+        self.logger.info(f"Pulse Pressure(BPM)  Min: {result.pulse_pressure_stats.min_val} ({format_time(result.pulse_pressure_stats.min_time)})")
+        self.logger.info(f"                     Max: {result.pulse_pressure_stats.max_val} ({format_time(result.pulse_pressure_stats.max_time)})")
+        self.logger.info(f"                     Average: {Decimal(result.pulse_pressure_stats.avg).quantize(Decimal('0'), rounding=decimal.ROUND_HALF_UP)}")
+        self.logger.info(f"                     Std.Dev.: {result.pulse_pressure_stats.std:.1f}")
+        self.logger.info(f"                     CV: {result.pulse_pressure_stats.cv:.2f}")
+
         # Pulse Rate
-        self.logger.info(f"Pulse Rate  Min: {result.pr_stats.min_val} ({format_time(result.pr_stats.min_time)})")
-        self.logger.info(f"            Max: {result.pr_stats.max_val} ({format_time(result.pr_stats.max_time)})")
-        self.logger.info(
-            f"            Average: {Decimal(result.pr_stats.avg).quantize(Decimal('0'), rounding=decimal.ROUND_HALF_UP)}")
-        self.logger.info(f"            Std.Dev.: {result.pr_stats.std:.1f}")
-        self.logger.info(f"            CV: {result.pr_stats.cv:.2f}")
+        self.logger.info(f"Pulse Rate(BPM)  Min: {result.pr_stats.min_val} ({format_time(result.pr_stats.min_time)})")
+        self.logger.info(f"                 Max: {result.pr_stats.max_val} ({format_time(result.pr_stats.max_time)})")
+        self.logger.info(f"                 Average: {Decimal(result.pr_stats.avg).quantize(Decimal('0'), rounding=decimal.ROUND_HALF_UP)}")
+        self.logger.info(f"                 Std.Dev.: {result.pr_stats.std:.1f}")
+        self.logger.info(f"                 CV: {result.pr_stats.cv:.2f}")
 
         # 血压分布
         self.logger.info(f"Blood Pressure Distribution")
@@ -977,6 +1016,11 @@ class BPDataAnalyzer:
             if result.above_limits_dbp is not None:
                 above_limit = "≥25%" if result.above_limits_dbp >= 25 else "<25%"
                 self.logger.info(f"{threshold_dbp}: {result.above_limits_dbp:.1f}% {above_limit}")
+        else:
+            if result.above_limits_sbp is not None:
+                self.logger.info(f"Above limits(SBP): {result.above_limits_sbp:.1f}%")
+            if result.above_limits_dbp is not None:
+                self.logger.info(f"Above limits(DBP): {result.above_limits_dbp:.1f}%")
 
 
 
@@ -1158,8 +1202,9 @@ def parse_raw_data(raw_data: List[Dict], logger: logging.Logger = None) -> List[
     logger.info(f"开始解析原始数据, 记录数: {len(raw_data)}")
 
     measurements = []
+    measurements_raw = []
     error_count = 0
-
+    # 原始数据不去除0 值
     for i, item in enumerate(raw_data):
         try:
             # 根据实际API响应结构调整字段名
@@ -1168,14 +1213,37 @@ def parse_raw_data(raw_data: List[Dict], logger: logging.Logger = None) -> List[
             pr = item['vitals'].get('hr', item.get('PR', item.get('pulse', 0)))
             timestamp = item.get('recordTime', item.get('timestamp', 0))
 
-            # 剔除 sbp和 dpb 小于等于 0 的数据
-            if sbp <= 0 or dbp <= 0:
+            measurement_raw = Measurement(
+                time=int(timestamp),
+                sbp=int(sbp),
+                dbp=int(dbp),
+                pr=int(pr)
+            )
+            measurements_raw.append(measurement_raw)
+
+        except (KeyError, ValueError) as e:
+            logger.warning(f"第{i + 1}条数据解析错误: {e}, 数据: {item}")
+            error_count += 1
+            continue
+
+    # 剔除 sbp 和 dpb 小于等于 0 的数据
+    for i, item in enumerate(raw_data):
+        try:
+            # 根据实际API响应结构调整字段名
+            sbp = item["vitals"].get('sys', item.get('SBP', 0))
+            dbp = item['vitals'].get('dia', item.get('DBP', 0))
+            pr = item['vitals'].get('hr', item.get('PR', item.get('pulse', 0)))
+            timestamp = item.get('recordTime', item.get('timestamp', 0))
+
+            #无效测量值定义：无效测量，应该整条数据都是 0， 剔除 sbp、dpb、pr都小于等于 0 的数据，
+            if sbp <= 0 and dbp <= 0:
                 logger.warning(f"第{i + 1}条数据为无效读数: {item}")
                 error_count += 1
                 continue
 
 
-            # 数据验证
+
+            # 数据验证，
             if not all([sbp, dbp, pr, timestamp]):
                 logger.warning(f"第{i + 1}条数据字段不全: {item}")
                 error_count += 1
@@ -1189,13 +1257,14 @@ def parse_raw_data(raw_data: List[Dict], logger: logging.Logger = None) -> List[
             )
             measurements.append(measurement)
 
+
         except (KeyError, ValueError) as e:
             logger.warning(f"第{i + 1}条数据解析错误: {e}, 数据: {item}")
             error_count += 1
             continue
 
-    logger.info(f"数据解析完成, 成功: {len(measurements)}, 失败: {error_count}")
-    return measurements
+    logger.info(f"数据解析完成, 有效数据: {len(measurements)}, 有问题数据: {error_count}")
+    return  measurements, measurements_raw
 
 
 # 解析计划数据
@@ -1254,7 +1323,7 @@ def iso_to_timestamp_ms(iso_string: str) -> int:
 def main_analysis(start_time: int, end_time: int, measurement_plan: MeasurementPlan,
                   data_list: List[Measurement], timezone_name: str,
                   timezone_offset: int = 0, day_start_hour: int = 0,
-                  night_start_hour: int = 0, logger: logging.Logger = None):
+                  night_start_hour: int = 0,data_list_raw: List[Measurement] = None, logger: logging.Logger = None):
     """主分析函数"""
     logger = logger or LoggerManager.setup_logger('MainAnalysis')
     logger.info(f"开始主分析流程, 数据量: {len(data_list)}, 时区: {timezone_name}")
@@ -1279,12 +1348,19 @@ def main_analysis(start_time: int, end_time: int, measurement_plan: MeasurementP
         # 分析获取捕获率
         capture_rate_result = analyzer.calculate_capture_rate(data_list)
 
-        # 打印原始数据
+        # 打印原始数据 BP table
+        """
+        从结果预期角度，我们这边的理解是：
+        
+        a. ABPM 测量值 = 0 的 BP 数据，不参与任何与血压诊断/趋势相关的数据呈现，仅作为“测量情况”的技术指标，用于判断该次测量是否有效。
+        
+        b. 目前已明确的使用场景包括：capture rate / adequacy note / BP table note，用于标识该条测量为无效。
+        """
         logger.info("BP Table:")
-        logger.info(f"{'时间':<23} {'SBP':<6} {'DBP':<6} {'MBP':<6} {'PR':<6}")
+        logger.info(f"{'No.':<6}{'时间':<23} {'SBP':<6} {'DBP':<6} {'MBP':<6} {'PR':<6}{'Note':<6}")
         logger.info("-" * 60)
 
-        for item in data_list:
+        for item in data_list_raw:
             time_str = analyzer.convert_timestamp_to_local(item.time, include_date=True)
             day_status=analyzer.classify_day_night(item.time,timezone_name)
             if day_status==TimePeriod.DAY:
@@ -1293,9 +1369,14 @@ def main_analysis(start_time: int, end_time: int, measurement_plan: MeasurementP
             else:
                 item.day_status=day_status.value
                 status="🌗"
+            if item.sbp == 0 or item.dbp == 0:
+                is_valid = "Invalid"
+            else:
+                is_valid = ""
 
             # logger.info(f"{time_str} {day_status.value:<6} {item.sbp:<6} {item.dbp:<6} {item.mbp:<6} {item.pr:<6}")
-            logger.info(f"{time_str} {status:<6} {item.sbp:<6} {item.dbp:<6} {item.mbp:<6} {item.pr:<6}")
+            """PR显示兼容历史数据（未存 PR），没有或小于等于 0 显示 NA"""
+            logger.info(f"{data_list_raw.index(item)+1:<6}{time_str} {status:<6} {item.sbp:<6} {item.dbp:<6} {item.mbp:<6} {"NA" if item.pr<=0 or item.pr is None else item.pr:<6}{is_valid:<6}")
 
         # 分割白天和夜间数据
         logger.info("分割白天和夜间数据...")
@@ -1311,7 +1392,7 @@ def main_analysis(start_time: int, end_time: int, measurement_plan: MeasurementP
         logger.info(f"白天数据量: {len(day_data)}, 夜间数据量: {len(night_data)}")
 
         # 计算 QC result 通过标准：日间≥20，夜间≥7，总体≥70%。
-        qc_result = analyzer.calculate_qc_result(day_data, night_data, capture_rate_result)
+        qc_result = analyzer.calculate_qc_result(analyzer,data_list,timezone_name, capture_rate_result)
 
         # 分析各时间段
         day_result = analyzer.analyze_period(day_data, TimePeriod.DAY)
@@ -1422,6 +1503,8 @@ def run_analysis_from_api(tenants: str, subject_id: str, data_type: DataType,
                           auth_id: str, auth_key: str,
                           timezone: str, email: str, password: str, patient_id: str,
                           day_start_hour: int = 8, night_start_hour: int = 20,
+                          vcloud_url: str = "vcloud-test.vivalink.com",
+                          web_url: str = "webportal-dev.vivalink.com",
                           log_file: str = None):
     """从API获取数据并进行分析"""
     # 设置日志
@@ -1445,8 +1528,8 @@ def run_analysis_from_api(tenants: str, subject_id: str, data_type: DataType,
     try:
         # 初始化数据获取器
         fetcher = DataFetcher(
-            auth_url="https://vcloud-test.vivalink.com/auth",
-            data_url="https://vcloud-test.vivalink.com",
+            auth_url=f"https://{vcloud_url}/auth",
+            data_url=f"https://{vcloud_url}",
             logger=logger
         )
 
@@ -1465,19 +1548,19 @@ def run_analysis_from_api(tenants: str, subject_id: str, data_type: DataType,
             return
 
         # 解析数据
-        measurements = parse_raw_data(raw_data.get("data").get("list"), logger)
+        measurements,measurements_raw = parse_raw_data(raw_data.get("data").get("list"), logger)
 
-        if not measurements:
+        if not measurements_raw:
             logger.warning("无有效数据，退出程序")
             return
 
-        logger.info(f"成功获取并解析 {len(measurements)} 条数据")
+        logger.info(f"成功获取并解析 {len(measurements_raw)} 条数据")
 
         # 获取测量计划
         # 初始化数据获取器        "https://webportal-dev.vivalink.com/api/backend/abpm/plan?patientId=695db80024cd6c753484f95c"
         fetcher2 = DataFetcher(
-            auth_url="https://webportal-dev.vivalink.com/api/backend/authentication",
-            data_url="https://webportal-dev.vivalink.com",
+            auth_url=f"https://{web_url}/api/backend/authentication",
+            data_url=f"https://{web_url}",
             logger=logger
         )
         # 认证
@@ -1495,7 +1578,7 @@ def run_analysis_from_api(tenants: str, subject_id: str, data_type: DataType,
         logger.info(f"获取到测量计划：{measurement_plan}")
 
         # 数据分析
-        main_analysis(data_list=measurements,start_time=start_time, end_time=end_time, measurement_plan=measurement_plan,timezone_name=timezone, day_start_hour=day_start_hour, night_start_hour=night_start_hour, logger=logger)
+        main_analysis(data_list_raw=measurements_raw,data_list=measurements,start_time=start_time, end_time=end_time, measurement_plan=measurement_plan,timezone_name=timezone, day_start_hour=day_start_hour, night_start_hour=night_start_hour, logger=logger)
 
         logger.info("API数据分析流程完成")
 
@@ -1587,20 +1670,24 @@ if __name__ == "__main__":
     logger.info("血压数据分析程序启动")
 
     run_analysis_from_api(
-        tenants="Test360_V2_ABPM",
-        subject_id="J20260107001",
+        tenants="UATV2_360_ABPM",
+        subject_id="J20260118001",
         data_type=DataType.BP_RAW,
-        start_time="2026-01-08T05:00:00.338Z",
-        end_time="2026-01-09T05:00:59.999Z",
+        # start_time="2026-01-08T05:00:00Z",
+        # end_time="2026-01-09T05:00:59.999Z",
+        start_time="2025-11-01T04:00:00Z",  # 2026-01-10T05:00:00Z
+        end_time="2025-11-04T04:00:59.999Z",  # 2026-01-11T05:00:59.999Z
         auth_id="617070e40daf63ba334ece90d1",
         auth_key="@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF",
         timezone="America/New_York",
         log_file="api_analysis.log",
         email="jun@vivalink.com.cn",
         password="Jun@1234",
-        patient_id="695db80024cd6c753484f95c",
+        patient_id="696c3700542ce2f411df2d11",
         day_start_hour=8,
-        night_start_hour=20
+        night_start_hour=20,
+        vcloud_url="vcloud-test.vivalink.com", # 不传默认测试环境：vcloud-test.vivalink.com
+        web_url="webportal-dev2.vivalink.com" # 不传默认测试环境：webportal-dev.vivalink.com
     )
 
     # 通过配置文件运行
