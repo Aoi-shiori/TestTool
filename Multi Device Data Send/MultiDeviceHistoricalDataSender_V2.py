@@ -19,7 +19,6 @@ import time
 import random
 import re
 import json
-# from tarfile import version
 from typing import Dict, List, Union, Optional, Any,Tuple
 import requests
 from queue import Queue
@@ -203,7 +202,12 @@ class TimestampDataRouter:
 
     def __init__(self, config: Dict[str, Any] = None):
         self.config = config or DEFAULT_CONFIG
-        self.time_ranges = self.config.get('time_ranges', [])
+        self.month_configs = self.config.get('month_configs', {})
+        self.weekday_configs = self.config.get('weekday_configs', {})
+        self.day_configs = self.config.get('day_configs', {})
+        self.hour_configs = self.config.get('hour_configs', {})
+        self.minute_configs = self.config.get('minute_configs', {})
+        self.second_configs = self.config.get('second_configs', [])
 
     def normalize_timestamp(self, timestamp: float) -> float:
         """标准化时间戳为秒级"""
@@ -216,45 +220,179 @@ class TimestampDataRouter:
         else:  # 秒
             return timestamp
 
-    def get_second_in_minute(self, timestamp: float) -> int:
-        """获取一分钟中的第几秒"""
+    def get_datetime_components(self, timestamp: float) -> Dict[str, any]:
+        """获取时间戳的年、月、日、时、分、秒等组件"""
         normalized_ts = self.normalize_timestamp(timestamp)
-        return int(normalized_ts % 60)
+        dt = datetime.fromtimestamp(normalized_ts)
+
+        return {
+            'year': dt.year,
+            'month': dt.month,  # 1-12
+            'day': dt.day,  # 1-31
+            'hour': dt.hour,  # 0-23
+            'minute': dt.minute,  # 0-59
+            'second': dt.second,  # 0-59
+            'weekday': dt.weekday(),  # 0=周一, 6=周日
+            'day_of_year': dt.timetuple().tm_yday,
+            'timestamp': timestamp,
+            'normalized_timestamp': normalized_ts
+        }
+
+    def find_range_match(self, value: int, ranges_config: List[Dict]) -> Optional[Dict]:
+        """在范围列表中查找匹配的范围"""
+        for range_config in ranges_config:
+            range_start, range_end = range_config['range']
+            if range_start <= value < range_end:
+                return range_config
+        return None
 
     def get_data_for_timestamp(self, timestamp: float) -> Dict[str, Any]:
         """根据时间戳获取对应的数据配置"""
-        second = self.get_second_in_minute(timestamp)
+        components = self.get_datetime_components(timestamp)
+        month = components['month']
+        weekday = components['weekday']
+        day = components['day']
+        hour = components['hour']
+        minute = components['minute']
+        second = components['second']
 
-        for time_range in self.time_ranges:
-            range_start, range_end = time_range['range']
-            if range_start <= second < range_end:
-                return {
-                    'second': second,
-                    'data': time_range['data'],
-                    'Note': time_range.get('Note'),
-                    'priority': time_range.get('priority'),
-                    'timestamp': timestamp,
-                    'normalized_timestamp': self.normalize_timestamp(timestamp),
-                    'message': '默认配置数据'
-                }
+        result_info = {
+            'components': components,
+            'timestamp': timestamp,
+            'normalized_timestamp': components['normalized_timestamp'],
+            'message': '默认配置数据',
+            'matched_levels': []  # 记录匹配到的配置层级
+        }
 
-        # 如果没有匹配的范围，返回默认数据
+        matched_config = None
+        final_data = None
+
+        # 1. 检查月配置
+        month_ranges = self.month_configs.get('ranges', [])
+        if month_ranges:
+            month_match = self.find_range_match(month, month_ranges)
+            if month_match:
+                matched_config = month_match
+                final_data = month_match['data']
+                result_info['matched_levels'].append('month')
+                result_info['month_range'] = month_match['range']
+
+        # 2. 检查星期配置（如果存在且月配置也匹配或没有月配置）
+        weekday_ranges = self.weekday_configs.get('ranges', [])
+        if weekday_ranges:
+            weekday_match = self.find_range_match(weekday, weekday_ranges)
+            if weekday_match:
+                # 如果已经有月配置匹配，检查星期配置是否覆盖月配置
+                if matched_config:
+                    # 根据优先级决定是否覆盖：如果星期配置有更高优先级或月配置允许被覆盖
+                    if weekday_match.get('priority', 0) > matched_config.get('priority', 0):
+                        matched_config = weekday_match
+                        final_data = weekday_match['data']
+                        result_info['matched_levels'].append('weekday')
+                        result_info['weekday_range'] = weekday_match['range']
+                else:
+                    matched_config = weekday_match
+                    final_data = weekday_match['data']
+                    result_info['matched_levels'].append('weekday')
+                    result_info['weekday_range'] = weekday_match['range']
+
+        # 3. 检查日配置
+        day_ranges = self.day_configs.get('ranges', [])
+        if day_ranges:
+            day_match = self.find_range_match(day, day_ranges)
+            if day_match:
+                # 检查优先级
+                if not matched_config or day_match.get('priority', 0) > matched_config.get('priority', 0):
+                    matched_config = day_match
+                    final_data = day_match['data']
+                    result_info['matched_levels'].append('day')
+                    result_info['day_range'] = day_match['range']
+
+        # 4. 检查小时配置
+        hour_ranges = self.hour_configs.get('ranges', [])
+        if hour_ranges:
+            hour_match = self.find_range_match(hour, hour_ranges)
+            if hour_match:
+                # 检查优先级
+                if not matched_config or hour_match.get('priority', 0) > matched_config.get('priority', 0):
+                    matched_config = hour_match
+                    final_data = hour_match['data']
+                    result_info['matched_levels'].append('hour')
+                    result_info['hour_range'] = hour_match['range']
+
+        # 5. 检查分钟配置
+        minute_ranges = self.minute_configs.get('ranges', [])
+        if minute_ranges:
+            minute_match = self.find_range_match(minute, minute_ranges)
+            if minute_match:
+                # 检查优先级
+                if not matched_config or minute_match.get('priority', 0) > matched_config.get('priority', 0):
+                    matched_config = minute_match
+                    final_data = minute_match['data']
+                    result_info['matched_levels'].append('minute')
+                    result_info['minute_range'] = minute_match['range']
+
+        # 6. 检查秒配置
+        if self.second_configs:
+            second_match = self.find_range_match(second, self.second_configs)
+            if second_match:
+                # 检查优先级
+                if not matched_config or second_match.get('priority', 0) > matched_config.get('priority', 0):
+                    matched_config = second_match
+                    final_data = second_match['data']
+                    result_info['matched_levels'].append('second')
+                    result_info['second_range'] = second_match['range']
+
+        # 7. 如果有匹配的配置，返回对应的数据
+        if matched_config and final_data:
+            return {
+                **result_info,
+                'second': second,
+                'hour': hour,
+                'minute': minute,
+                'day': day,
+                'month': month,
+                'weekday': weekday,
+                'data': final_data,
+                'Note': matched_config.get('Note', ''),
+                'priority': matched_config.get('priority', 'normal'),
+                'config_level': result_info['matched_levels'][-1] if result_info['matched_levels'] else 'none',
+                'message': f"匹配到{result_info['matched_levels'][-1]}级配置" if result_info[
+                    'matched_levels'] else '无匹配配置'
+            }
+
+        # 8. 如果没有匹配任何配置，返回默认随机数据
         HR = random.choice(
             [-101, -201, -301, -316, -401, 0, 1, 11, 22, 33, 44, 55, 66, 77, 88, 99, 100, 151, 181, 199, 200, 300])
         RR = random.choice([15, 18, 19, 20])
         Temp = random.choice([33.2, 20, 44])
-        sys = random.choice([120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300])
-        dia = random.choice([80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300])
+        sys = random.choice(
+            [120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300])
+        dia = random.choice(
+            [80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290,
+             300])
 
         return {
+            **result_info,
             'second': second,
-            "data": {"HR": HR, "RR": RR, "Temp": Temp ,"sys": sys, "dia": dia},
+            'hour': hour,
+            'minute': minute,
+            'day': day,
+            'month': month,
+            'weekday': weekday,
+            "data": {"HR": HR, "RR": RR, "Temp": Temp, "sys": sys, "dia": dia},
             'Note': "默认随机列表数据",
             'priority': '默认',
-            'timestamp': timestamp,
-            'normalized_timestamp': self.normalize_timestamp(timestamp),
+            'config_level': 'default',
             'message': '没有匹配的时间范围,返回默认随机数据'
         }
+
+    def get_data_for_time(self, year: int, month: int, day: int,
+                          hour: int, minute: int, second: int) -> Dict[str, Any]:
+        """根据具体时间获取数据配置（方便测试）"""
+        dt = datetime(year, month, day, hour, minute, second)
+        timestamp = dt.timestamp() * 1000  # 转换为毫秒时间戳
+        return self.get_data_for_timestamp(timestamp)
 
 
 class AccStep:
@@ -651,8 +789,7 @@ class MedicalDeviceDataGenerator:
 
         hr = hr_data if hr_data else random.choice(self.abnormal_HR_list if use_abnormal else self.normal_HR_list)
         rr = rr_data if rr_data else random.choice(self.abnormal_RR_list if use_abnormal else self.normal_RR_list)
-        temp = temp_data if temp_data else random.choice(
-            self.abnormal_temp_list if use_abnormal else self.normal_temp_list)
+        temp = temp_data if temp_data else random.choice(self.abnormal_temp_list if use_abnormal else self.normal_temp_list)
 
 
         # ecg_wave = [random.randint(-100, 100) for _ in range(100)]
@@ -1070,7 +1207,7 @@ class MedicalDeviceDataGenerator:
                         "z": -2076
                     }
                 ],
-                "temperature": 25,
+                "temperature":TEMP,
                 "flash": self.is_flash,
                 "accActivity": 0,
                 "ecg": ECG,
@@ -1103,9 +1240,9 @@ class MedicalDeviceDataGenerator:
                 ],
                 "snr": -1,
                 "dataMode": "FullDualMode",
-                "rr": -101,
+                "rr": RR,
                 "receiveTime": recordTime,
-                "hr": 90,
+                "hr": HR,
                 "deviceInfo": {
                     "accSamplingFrequency": 25,
                     "manufacturer": "VIVALNK",
@@ -1122,7 +1259,7 @@ class MedicalDeviceDataGenerator:
                     "accSamplingAccuracy": 2048,
                     "channelNumber": ""
                 },
-                "rawTemp": "",
+                "rawTemp": TEMP,
                 "calibratedTemp": -1
             }
         }
@@ -1397,57 +1534,8 @@ class SendToVcloud:
 
         logger.info(f"数据发送完成，总共发送 {sent_groups} 组数据")
 
-
-    # async def send_data_group(self, data_group: Dict, token: str):
-    #     """发送单个数据分组（使用aiohttp）"""
-    #     try:
-    #         payload = data_group["data"]
-    #         record_times = [item.get("recordTime", 0) for item in payload if isinstance(item, dict)]
-    #         start_time = min(record_times) if record_times else 0
-    #         end_time = max(record_times) if record_times else 0
-    #
-    #         url = f"{self.Env.url}/v2/tenants/VivaLNK/events?type=dataEvent"
-    #         headers = {
-    #             'Content-Type': 'application/json',
-    #             'Authorization': token
-    #         }
-    #
-    #         # 使用 aiohttp 进行异步HTTP请求
-    #         timeout = aiohttp.ClientTimeout(total=30)
-    #         async with aiohttp.ClientSession(timeout=timeout) as session:
-    #             try:
-    #                 async with session.post(url, json=payload, headers=headers) as response:
-    #                     response_text = await response.text()
-    #
-    #                     if response.status == 200:
-    #                         response_data = json.loads(response_text)
-    #                         if response_data.get('code') == 200 and response_data.get(
-    #                                 'message') == 'Batch ingestion done':
-    #                             logger.info(f"✓ {data_group['device_name']} {data_group['data_type']} "
-    #                                         f"分组 {data_group['group_index']}/{data_group['total_groups']} "
-    #                                         f"({start_time}~{end_time}) 发送成功")
-    #                             return True
-    #                         else:
-    #                             logger.error(f"✗ 发送失败 - 响应: {response_data}")
-    #                             return False
-    #                     else:
-    #                         logger.error(f"✗ HTTP错误 - 状态码: {response.status}, 响应: {response_text}")
-    #                         return False
-    #
-    #             except asyncio.TimeoutError:
-    #                 logger.error(
-    #                     f"✗ 发送超时 - {data_group['device_name']} {data_group['data_type']} 分组 {data_group['group_index']}")
-    #                 return False
-    #             except Exception as e:
-    #                 logger.error(f"✗ 请求异常 - {data_group['device_name']} {data_group['data_type']}: {e}")
-    #                 return False
-    #
-    #     except Exception as e:
-    #         logger.error(f"✗ 发送异常 - {data_group['device_name']} {data_group['data_type']}: {e}")
-    #         return False
-
-
     async def send_data_group(self, data_group: Dict, token: str):
+        """分组发送数据"""
 
         # 创建CommonTools实例
         common_tools=CommonTools()
@@ -1673,48 +1761,130 @@ def get_timeranges():
         data_list.append(data)
     return data_list
 
-# 默认配置
+# # 默认配置
+# DEFAULT_CONFIG = {
+#     "timestamp_formats": {
+#         "second": 10,
+#         "millisecond": 13,
+#         "microsecond": 16,
+#         "nanosecond": 19
+#     },
+#     # 用 lamada 生成一个 0~60 秒，一秒_FHR,一秒_ZHR
+#     "time_ranges": get_timeranges(),
+# }
+
 DEFAULT_CONFIG = {
-    "timestamp_formats": {
-        "second": 10,
-        "millisecond": 13,
-        "microsecond": 16,
-        "nanosecond": 19
+    # 月配置：每个月1-10日，返回数据A，10-15，返回数据B，15~20 返回数据 C，20~25，返回数据 D,25~31，返回数据 E
+    'day_configs': {
+        'ranges': [
+            {
+                'range': [1, 11],  # 1-10日（包含1，不包含11）
+                'data': {"HR": 70, "RR": 16, "Temp": 36.2, "sys": 120, "dia": 80},
+                'Note': '每月1-10日数据A',
+                'priority': 10
+            },
+            {
+                'range': [10, 16],  # 10-15日
+                'data': {"HR": 75, "RR": 18, "Temp": 36.5, "sys": 125, "dia": 85},
+                'Note': '每月10-15日数据B',
+                'priority': 10
+            },
+            {
+                'range': [15, 21],  # 15-20日
+                'data': {"HR": 80, "RR": 20, "Temp": 36.8, "sys": 130, "dia": 90},
+                'Note': '每月15-20日数据C',
+                'priority': 10
+            },
+            {
+                'range': [20, 26],  # 20-25日
+                'data': {"HR": 85, "RR": 22, "Temp": 37.0, "sys": 135, "dia": 95},
+                'Note': '每月20-25日数据D',
+                'priority': 10
+            },
+            {
+                'range': [25, 32],  # 25-31日
+                'data': {"HR": 90, "RR": 24, "Temp": 37.2, "sys": 140, "dia": 100},
+                'Note': '每月25-31日数据E',
+                'priority': 10
+            }
+        ]
     },
-    # 用 lamada 生成一个 0~60 秒，一秒_FHR,一秒_ZHR
-    "time_ranges": get_timeranges(),
 
-        # {
-        #     "range": [0, 10],
-        #     "data": {"HR": _ZHR, "RR": 15, "Temp": 32.3},
-        #     "Note": "Case1",
-        #     "priority": "high"
-        # },
-        # {
-        #     "range": [20, 30],
-        #     "data": {"HR": _ZHR, "RR": 15, "Temp": 32.3},
-        #     "Note": "Case1",
-        #     "priority": "medium"
-        # },
-        # {
-        #     "range": [30, 40],
-        #     "data": {"HR": _FHR, "RR": 15, "Temp": 32.3},
-        #     "Note": "Case1",
-        #     "priority": "low"
-        # },
-        # {
-        #     "range": [40, 50],
-        #     "data": {"HR": _FHR, "RR": 15, "Temp": 32.3},
-        #     "Note": "Case1",
-        #     "priority": "lowest"
-        # },
-        # {
-        #     "range": [50, 60],
-        #     "data": {"HR": _FHR, "RR": 15, "Temp": 32.3},
-        #     "Note": "Case1",
-        #     "priority": "low"
-        # }
+    # 小时配置示例
+    'hour_configs': {
+        'ranges': [
+            {
+                'range': [0, 6],  # 0-5点
+                'data': {"HR": 65, "RR": 14, "Temp": 36.0, "sys": 115, "dia": 75},
+                'Note': '凌晨数据',
+                'priority': 20  # 优先级高于日配置
+            },
+            {
+                'range': [8, 12],  # 8-11点
+                'data': {"HR": 75, "RR": 18, "Temp": 36.6, "sys": 125, "dia": 85},
+                'Note': '上午数据',
+                'priority': 20
+            }
+        ]
+    },
 
+    # 分钟配置示例
+    'minute_configs': {
+        'ranges': [
+            {
+                'range': [0, 15],  # 0-14分
+                'data': {"HR": 72, "RR": 17, "Temp": 36.4, "sys": 122, "dia": 82},
+                'Note': '每刻钟前15分钟',
+                'priority': 30  # 优先级高于小时配置
+            }
+        ]
+    },
+
+    # 秒配置示例（原来的time_ranges）
+    'second_configs': [
+        {
+            'range': [0, 10],
+            'data': {"HR": 69, "RR": 18, "Temp": 36.3, "sys": 120, "dia": 80},
+            'Note': '每分钟前10秒',
+            'priority': 40  # 优先级最高
+        },
+        {
+            'range': [50, 60],
+            'data': {"HR": 89, "RR": 22, "Temp": 36.9, "sys": 135, "dia": 95},
+            'Note': '每分钟最后10秒',
+            'priority': 40
+        }
+    ],
+
+    # 星期配置示例
+    'weekday_configs': {
+        'ranges': [
+            {
+                'range': [0, 5],  # 周一至周五 (0=周一, 4=周五)
+                'data': {"HR": 75, "RR": 18, "Temp": 36.5, "sys": 125, "dia": 85},
+                'Note': '工作日数据',
+                'priority': 5  # 优先级低于日配置
+            },
+            {
+                'range': [5, 7],  # 周六至周日 (5=周六, 6=周日)
+                'data': {"HR": 68, "RR": 16, "Temp": 36.3, "sys": 118, "dia": 77},
+                'Note': '周末数据',
+                'priority': 5
+            }
+        ]
+    },
+
+    # 月配置示例
+    'month_configs': {
+        'ranges': [
+            {
+                'range': [12, 13],  # 12月 (1-12月)
+                'data': {"HR": 78, "RR": 19, "Temp": 36.7, "sys": 128, "dia": 88},
+                'Note': '十二月数据',
+                'priority': 1  # 最低优先级
+            }
+        ]
+    }
 }
 
 if __name__ == '__main__':
