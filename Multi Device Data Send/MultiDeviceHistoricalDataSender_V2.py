@@ -31,9 +31,6 @@ from getEcgData import *
 import aiohttp
 import jwt
 
-
-
-
 @dataclass
 class EnvParameterinfo:
     """环境参数配置类"""
@@ -1381,13 +1378,14 @@ class MedicalDeviceDataGenerator:
 class SendToVcloud:
     """云端数据发送器"""
 
-    def __init__(self, patient_data: List[Dict], env: EnvParameterinfo,timezone_name: str = "Asia/Shanghai", group_size: int = 30, patientprofile: PatientProfile = None):
+    def __init__(self, patient_data: List[Dict], env: EnvParameterinfo,timezone_name: str = "Asia/Shanghai", group_size: int = 30, patientprofile: PatientProfile = None,sequential_upload: bool = False):
         self.patient_data = patient_data
         self.Env = env
         self.group_size = group_size
         self.data_queue = Queue()
         self.timezone_name = timezone_name
         self.patientProfile=patientprofile
+        self.sequential_upload = sequential_upload
 
 
         # 处理数据分组
@@ -1500,6 +1498,39 @@ class SendToVcloud:
         logger.info(f"成功获取V2令牌: {token}")
         return token
 
+    # async def send(self):
+    #     """异步发送数据到云端"""
+    #     # 判断是否为v2
+    #     if self.is_v2_checked():
+    #         token = self.get_v2_token()
+    #     else:
+    #         token = self.get_app_token()
+    #
+    #     tasks = []
+    #     total_groups = self.data_queue.qsize()
+    #     sent_groups = 0
+    #
+    #     logger.info(f"开始发送数据，总分组数: {total_groups}")
+    #
+    #     while not self.data_queue.empty():
+    #         data_group = self.data_queue.get()
+    #         task = asyncio.create_task(
+    #             self.send_data_group(data_group, token)
+    #         )
+    #         tasks.append(task)
+    #         sent_groups += 1
+    #
+    #         # 每10组等待一次，避免过多并发
+    #         if len(tasks) >= 10:
+    #             await asyncio.gather(*tasks)
+    #             tasks.clear()
+    #             logger.info(f"发送进度: {sent_groups}/{total_groups}")
+    #
+    #     # 等待剩余任务完成
+    #     if tasks:
+    #         await asyncio.gather(*tasks)
+    #
+    #     logger.info(f"数据发送完成，总共发送 {sent_groups} 组数据")
     async def send(self):
         """异步发送数据到云端"""
         # 判断是否为v2
@@ -1508,29 +1539,48 @@ class SendToVcloud:
         else:
             token = self.get_app_token()
 
-        tasks = []
         total_groups = self.data_queue.qsize()
         sent_groups = 0
 
         logger.info(f"开始发送数据，总分组数: {total_groups}")
 
-        while not self.data_queue.empty():
-            data_group = self.data_queue.get()
-            task = asyncio.create_task(
-                self.send_data_group(data_group, token)
-            )
-            tasks.append(task)
-            sent_groups += 1
+        # 如果是顺序上传，逐个发送
+        if self.sequential_upload:
+            while not self.data_queue.empty():
+                data_group = self.data_queue.get()
+                try:
+                    # 等待当前分组发送完成
+                    result = await self.send_data_group(data_group, token)
+                    if result:
+                        sent_groups += 1
+                        logger.info(f"发送进度: {sent_groups}/{total_groups}")
+                    else:
+                        logger.error(f"分组 {data_group['group_index']} 发送失败，停止后续发送")
+                        break  # 如果某个分组发送失败，停止后续发送
+                except Exception as e:
+                    logger.error(f"发送分组时发生异常: {e}")
+                    break
+        else:
+            # 保持原有的并发上传逻辑
+            tasks = []
 
-            # 每10组等待一次，避免过多并发
-            if len(tasks) >= 10:
+            while not self.data_queue.empty():
+                data_group = self.data_queue.get()
+                task = asyncio.create_task(
+                    self.send_data_group(data_group, token)
+                )
+                tasks.append(task)
+                sent_groups += 1
+
+                # 每10组等待一次，避免过多并发
+                if len(tasks) >= 10:
+                    await asyncio.gather(*tasks)
+                    tasks.clear()
+                    logger.info(f"发送进度: {sent_groups}/{total_groups}")
+
+            # 等待剩余任务完成
+            if tasks:
                 await asyncio.gather(*tasks)
-                tasks.clear()
-                logger.info(f"发送进度: {sent_groups}/{total_groups}")
-
-        # 等待剩余任务完成
-        if tasks:
-            await asyncio.gather(*tasks)
 
         logger.info(f"数据发送完成，总共发送 {sent_groups} 组数据")
 
@@ -1592,14 +1642,15 @@ class SendToVcloud:
                         if response.status == 200:
                             try:
                                 response_data = json.loads(response_text)
-                                if response_data.get('code') == 200 and response_data.get(
-                                        'message') == 'Batch ingestion done':
+                                if response_data.get('code') == 200 and (response_data.get(
+                                        'message') == 'Batch ingestion done' or response_data.get("code") == 200):
                                     logger.info(f"✓ {data_group['device_name']} {data_group['data_type']} "
                                                 f"分组 {data_group['group_index']}/{data_group['total_groups']} "
                                                 f"({start_time}~{end_time} - {self.timezone_name} - {common_tools.format_time_range_by_timezone(start_time, end_time, self.timezone_name)}) 发送成功")
 
                                     return True
                                 else:
+
                                     logger.error(f"✗ 发送失败 - 响应: {response_data},入参：{payload}")
                                     return False
                             except json.JSONDecodeError:
@@ -1725,7 +1776,7 @@ async def main(startTime: str, endTime: str, device_names: List[str], patientpro
     logger.info("开始发送数据到云端...")
     start_send_time = time.time()
 
-    sender = SendToVcloud(data, env,patientProfile.timeZoneName, group_size=30, patientprofile=patientProfile)
+    sender = SendToVcloud(data, env,patientProfile.timeZoneName, group_size=200, patientprofile=patientProfile,sequential_upload=True)
     queue_info = sender.get_queue_info()
     logger.info(f"数据分组信息: {queue_info['total_groups']} 个分组")
 
@@ -1933,31 +1984,54 @@ if __name__ == '__main__':
     ]
 
     # 患者信息
+    # patientProfile = PatientProfile(
+    #     # 常规信息 v1
+    #     projectId="test2",
+    #     subjectId="J002",
+    #     siteName="test2",
+    #     deviceName=device_names,
+    #     timeZoneName="Asia/Shanghai",
+    #     timeZoneOffset=39600,
+    #     data_Config=DEFAULT_CONFIG,
+    #     startTime="2026-01-26 00:00:00",
+    #     is_get_timezone_offset=True,
+    #     version="v2",
+    #     days= 0,
+    #
+    #
+    #     # v2 用信息
+    #     tenantId="019bef40-f47a-7807-8e37-d02998a83d9d",
+    #     siteId="019bef40-f47a-780e-b840-62565b7fba0f",
+    #     deviceId="019c1d98-332c-71d0-b487-50efee55d8c7",
+    #     sensorId="019c2737-c62a-70e0-a03d-f7ca175e4ce7",
+    #     sessionId="019c2740-db5c-7b42-819a-f6ebf84bcca0",
+    #     patientId="019c2739-ccf2-74f7-8790-f1fd4352fe90",
+    #     deviceSecret="zkqGJRewFFMT6qw2ssJoKlcolgvT4F8E"
+    # )
+
     patientProfile = PatientProfile(
         # 常规信息 v1
         projectId="test2",
-        subjectId="J001",
+        subjectId="J003",
         siteName="test2",
         deviceName=device_names,
         timeZoneName="Asia/Shanghai",
         timeZoneOffset=39600,
         data_Config=DEFAULT_CONFIG,
-        startTime="2026-02-03 00:00:00",
+        startTime="2026-01-03 00:00:00",
         is_get_timezone_offset=True,
         version="v2",
-        days= 0,
-
+        days=15,
 
         # v2 用信息
         tenantId="019bef40-f47a-7807-8e37-d02998a83d9d",
         siteId="019bef40-f47a-780e-b840-62565b7fba0f",
         deviceId="019c1d98-332c-71d0-b487-50efee55d8c7",
-        sensorId="019c1d9b-d2b7-7d63-af84-345b6613d6c9",
-        sessionId="019c1d9d-0677-7bdd-9799-8aff64525863",
-        patientId="019c1d9d-048f-71d3-ab14-6daadbf16e4e",
+        sensorId="019c27d6-1dc7-7e11-b702-83e7f8792da1",
+        sessionId="019c27d6-9216-7a18-81f6-ce7ccfe8547d",
+        patientId="019c27d3-b005-71bf-9722-b3b85c8cbe19",
         deviceSecret="zkqGJRewFFMT6qw2ssJoKlcolgvT4F8E"
     )
-
 
     # 执行主程序
     start_total_time = time.time()
@@ -1971,7 +2045,7 @@ if __name__ == '__main__':
 
                 modify_Time = ModifyTime(patientProfile.startTime, days=i).date_minus()
                 start_time = ModifyTime(modify_Time, hours=0, minutes=00, seconds=0).date_plus()
-                end_time = ModifyTime(start_time, hours=0, minutes=00, seconds=1).date_plus()
+                end_time = ModifyTime(start_time, hours=23, minutes=59, seconds=59).date_plus()
 
                 logger.info(f"{a}↓↓↓ 发送Device：{device} {start_time}-->{end_time} 的数据 ↓↓↓{a}")
                 BP_DICT = None
