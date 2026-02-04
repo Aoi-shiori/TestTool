@@ -1593,9 +1593,14 @@ class SendToVcloud:
         """发送单个数据分组"""
         try:
             payload = data_group["data"]
-            record_times = [item.get("recordTime", 0) for item in payload if isinstance(item, dict)]
-            start_time = min(record_times) if record_times else 0
-            end_time = max(record_times) if record_times else 0
+            if self.patientProfile.version == "v2":
+                record_times = [item.get("recordTime", 0) for item in payload["items"] if isinstance(item, dict)]
+                start_time = min(record_times) if record_times else 0
+                end_time = max(record_times) if record_times else 0
+            else:
+                record_times = [item.get("recordTime", 0) for item in payload if isinstance(item, dict)]
+                start_time = min(record_times) if record_times else 0
+                end_time = max(record_times) if record_times else 0
 
             # 根据版本选择不同的URL
             if patientProfile.version == "v2":
@@ -2018,7 +2023,7 @@ if __name__ == '__main__':
         timeZoneName="Asia/Shanghai",
         timeZoneOffset=39600,
         data_Config=DEFAULT_CONFIG,
-        startTime="2026-01-03 00:00:00",
+        startTime="2026-01-01 00:00:00",
         is_get_timezone_offset=True,
         version="v2",
         days=15,
