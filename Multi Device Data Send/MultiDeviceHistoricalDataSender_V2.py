@@ -76,7 +76,7 @@ class AuthManager:
 
     # 类常量
     JWT_ALGORITHM = 'HS256'
-    TOKEN_TTL = timedelta(hours=1)
+    TOKEN_TTL = timedelta(hours=24)
     TOKEN_EXPIRY_BUFFER = 60  # 提前60秒刷新令牌
 
     def __init__(
@@ -464,7 +464,6 @@ class CommonTools:
         end_str = self._format_timestamp((end_ms + offset_ms))
         return f"{start_str} ~ {end_str}"
 
-    # 根据时区名格式时间范围
     @staticmethod
     def format_time_range_by_timezone(start_ms, end_ms, timezone_name):
         """根据时区名格式时间范围"""
@@ -477,6 +476,29 @@ class CommonTools:
         else:
             return f"{start_str} ~ {end_str}"
 
+    def get_timezone_offset(self,timezone_name: str, unix_timestamp: float) -> tuple:
+        """
+        根据时区名和Unix时间戳获取时区偏移量
+
+        Returns:
+            tuple: (格式化的时区偏移量, 以秒为单位的偏移量)
+        """
+        try:
+            utc_time = datetime.fromtimestamp(unix_timestamp, timezone.utc)
+            tz = pytz.timezone(timezone_name)
+            local_time = utc_time.astimezone(tz)
+            total_seconds = local_time.utcoffset().total_seconds()
+
+            hours = int(total_seconds // 3600)
+            minutes = int((total_seconds % 3600) // 60)
+            sign = '+' if hours >= 0 else '-'
+            offset_str = f"{sign}{abs(hours):02d}:{minutes:02d}"
+
+            return offset_str, int(total_seconds)
+        except pytz.UnknownTimeZoneError:
+            raise ValueError(f"未知的时区名称: {timezone_name}")
+        except Exception as e:
+            raise ValueError(f"时区偏移量获取错误: {str(e)}")
 
 
 class MedicalDeviceDataGenerator:
@@ -1633,7 +1655,7 @@ class SendToVcloud:
             async with aiohttp.ClientSession(
                     timeout=timeout,
                     connector=connector,
-                    headers=headers  # 设置默认headers
+                    headers=headers, # 设置默认headers
             ) as session:
                 try:
                     # 确保使用与 requests 相同的方式发送数据
@@ -1661,14 +1683,18 @@ class SendToVcloud:
                             except json.JSONDecodeError:
                                 logger.error(f"✗ 响应JSON解析失败: {response_text}")
                                 return False
-                        else:
+                        # 失败重发
+                        elif response.status == 400 or json.loads(response_text).get("code") == 400 :
                             logger.error(f"✗ HTTP错误 - 状态码: {response.status}, 响应: {response_text}")
                             return False
+                        else:
+                            logger.error(f"✗ 500错误 - 响应: {response_text},重新发送..")
+                            return await self.send_data_group(data_group, token)
 
                 except asyncio.TimeoutError:
                     logger.error(
-                        f"✗ 发送超时 - {data_group['device_name']} {data_group['data_type']} 分组 {data_group['group_index']}")
-                    return False
+                        f"✗ 发送超时 - {data_group['device_name']} {data_group['data_type']} 分组 {data_group['group_index']}-> 重新发送")
+                    return await self.send_data_group(data_group, token)
                 except Exception as e:
                     logger.error(f"✗ 请求异常 - {data_group['device_name']} {data_group['data_type']}: {e}")
                     return False
@@ -1676,30 +1702,6 @@ class SendToVcloud:
         except Exception as e:
             logger.error(f"✗ 发送异常 - {data_group['device_name']} {data_group['data_type']}: {e}")
             return False
-
-def get_timezone_offset(timezone_name: str, unix_timestamp: float) -> tuple:
-    """
-    根据时区名和Unix时间戳获取时区偏移量
-
-    Returns:
-        tuple: (格式化的时区偏移量, 以秒为单位的偏移量)
-    """
-    try:
-        utc_time = datetime.fromtimestamp(unix_timestamp, timezone.utc)
-        tz = pytz.timezone(timezone_name)
-        local_time = utc_time.astimezone(tz)
-        total_seconds = local_time.utcoffset().total_seconds()
-
-        hours = int(total_seconds // 3600)
-        minutes = int((total_seconds % 3600) // 60)
-        sign = '+' if hours >= 0 else '-'
-        offset_str = f"{sign}{abs(hours):02d}:{minutes:02d}"
-
-        return offset_str, int(total_seconds)
-    except pytz.UnknownTimeZoneError:
-        raise ValueError(f"未知的时区名称: {timezone_name}")
-    except Exception as e:
-        raise ValueError(f"时区偏移量获取错误: {str(e)}")
 
 
 async def main(startTime: str, endTime: str, device_names: List[str], patientprofile: PatientProfile, env: EnvParameterinfo,bp_dict:List[Tuple[int, int, int, str]]):
@@ -1719,10 +1721,12 @@ async def main(startTime: str, endTime: str, device_names: List[str], patientpro
     logger.info(f"设备列表: {device_names}")
     logger.info(f"发送URL: {env.url}")
 
+    commontools=CommonTools()
+
     # 处理时区偏移量
     if patientProfile.is_get_timezone_offset:
         try:
-            _, timeZone_offset = get_timezone_offset(patientProfile.timeZoneName, stampStartTime / 1000)
+            _, timeZone_offset = commontools.get_timezone_offset(patientProfile.timeZoneName, stampStartTime / 1000)
             logger.info(f"自动获取时区偏移量: {timeZone_offset}秒")
         except Exception as e:
             logger.warning(f"自动获取时区偏移量失败: {e}, 使用默认值: {patientProfile.timeZoneOffset}")
@@ -1978,64 +1982,38 @@ if __name__ == '__main__':
     #     description="加州测试环境"
     # )
 
-    device_names = [
-        "ECGRec_202420/E310614",  # ECG设备
-        # "BP_TM-2441_J26012401",
-        # "O2 J20251213001",
-        # "F53.25121301"
-        # "O2 C208S_J87C6F900004",  # SpO2设备 (注意: 这里使用了空格)
-        # "BP5S_00J00000004",  # BP设备
-        # "Temp_AOJ-20F_AJUN00000003"  # 体温设备
-    ]
 
     # 患者信息
-    # patientProfile = PatientProfile(
-    #     # 常规信息 v1
-    #     projectId="test2",
-    #     subjectId="J002",
-    #     siteName="test2",
-    #     deviceName=device_names,
-    #     timeZoneName="Asia/Shanghai",
-    #     timeZoneOffset=39600,
-    #     data_Config=DEFAULT_CONFIG,
-    #     startTime="2026-01-26 00:00:00",
-    #     is_get_timezone_offset=True,
-    #     version="v2",
-    #     days= 0,
-    #
-    #
-    #     # v2 用信息
-    #     tenantId="019bef40-f47a-7807-8e37-d02998a83d9d",
-    #     siteId="019bef40-f47a-780e-b840-62565b7fba0f",
-    #     deviceId="019c1d98-332c-71d0-b487-50efee55d8c7",
-    #     sensorId="019c2737-c62a-70e0-a03d-f7ca175e4ce7",
-    #     sessionId="019c2740-db5c-7b42-819a-f6ebf84bcca0",
-    #     patientId="019c2739-ccf2-74f7-8790-f1fd4352fe90",
-    #     deviceSecret="zkqGJRewFFMT6qw2ssJoKlcolgvT4F8E"
-    # )
-
     patientProfile = PatientProfile(
         # 常规信息 v1
         projectId="test2",
-        subjectId="J003",
+        subjectId="J007",
         siteName="test2",
-        deviceName=device_names,
+        deviceName=[
+            "ECGRec_202150/C823453",  # ECG设备-必改
+            # "BP_TM-2441_J26012401",
+            # "O2 J20251213001",
+            # "F53.25121301"
+            # "O2 C208S_J87C6F900004",  # SpO2设备 (注意: 这里使用了空格)
+            # "BP5S_00J00000004",  # BP设备
+            # "Temp_AOJ-20F_AJUN00000003"  # 体温设备
+        ],
         timeZoneName="Asia/Shanghai",
         timeZoneOffset=39600,
         data_Config=DEFAULT_CONFIG,
-        startTime="2026-01-01 00:00:00",
+        startTime="2026-02-02 00:00:00",
         is_get_timezone_offset=True,
         version="v2",
-        days=15,
+        days=14,
 
         # v2 用信息
         tenantId="019bef40-f47a-7807-8e37-d02998a83d9d",
-        siteId="019bef40-f47a-780e-b840-62565b7fba0f",
-        deviceId="019c1d98-332c-71d0-b487-50efee55d8c7",
-        sensorId="019c27d6-1dc7-7e11-b702-83e7f8792da1",
-        sessionId="019c27d6-9216-7a18-81f6-ce7ccfe8547d",
-        patientId="019c27d3-b005-71bf-9722-b3b85c8cbe19",
-        deviceSecret="zkqGJRewFFMT6qw2ssJoKlcolgvT4F8E"
+        siteId="019bef40-f47a-780e-b840-62565b7fba0f",  #
+        deviceId="019c4054-8a6b-7719-89e5-c8d9d4320fd4",  # 手机设备 Pixel 7_J02
+        sensorId="019c4059-7318-73a7-b6c6-403ecd41bbb5",  # ECG设备 id-必改
+        sessionId="019c405c-14f9-7564-9076-88350de2fefc",  # session id-必改
+        patientId="019c4054-5d4a-72b1-8242-0b7d8e28b169",  # 病人 id-必改
+        deviceSecret="kl3xO3P6SmeFZnmBlPKrAki5evB2HEgW"
     )
 
     # 执行主程序
@@ -2049,7 +2027,7 @@ if __name__ == '__main__':
             for i in range(patientProfile.days, -1, -1):
 
                 modify_Time = ModifyTime(patientProfile.startTime, days=i).date_minus()
-                start_time = ModifyTime(modify_Time, hours=0, minutes=00, seconds=0).date_plus()
+                start_time = ModifyTime(modify_Time, hours=00, minutes=0, seconds=0).date_plus()
                 end_time = ModifyTime(start_time, hours=23, minutes=59, seconds=59).date_plus()
 
                 logger.info(f"{a}↓↓↓ 发送Device：{device} {start_time}-->{end_time} 的数据 ↓↓↓{a}")
