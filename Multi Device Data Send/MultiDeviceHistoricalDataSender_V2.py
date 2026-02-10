@@ -545,7 +545,7 @@ class MedicalDeviceDataGenerator:
 
 
     def __init__(self,patientprofile: PatientProfile, project_id: str, subject_id: str, log_output: bool = False,
-                 is_flash: int = 0, data_config: Dict[str, Any] = None,dict_bp: List[Tuple[int, int, int, str]] = None):
+                 is_flash: int = 0, data_config: Dict[str, Any] = None):
         """
         初始化医疗设备数据生成器
 
@@ -558,7 +558,6 @@ class MedicalDeviceDataGenerator:
             data_config: 数据配置
         """
         self.patientProfile = patientprofile
-        self.DICT_BP = dict_bp
         self.ProjectId = project_id
         self.SubjectId = subject_id
         self.log_output = log_output
@@ -1611,6 +1610,16 @@ class SendToVcloud:
 
         # 创建CommonTools实例
         common_tools=CommonTools()
+        # 创建AuthManager实例，用于失败重新获取令牌
+        _authmanager = AuthManager(
+            tenant_name=patientProfile.projectId,
+            device_id=patientProfile.deviceId,
+            device_secret=patientProfile.deviceSecret,
+            site_id=patientProfile.siteId,
+            tenant_id=patientProfile.tenantId
+        )
+
+
 
         """发送单个数据分组"""
         try:
@@ -1658,7 +1667,7 @@ class SendToVcloud:
                     headers=headers, # 设置默认headers
             ) as session:
                 try:
-                    # 确保使用与 requests 相同的方式发送数据
+                    # 发送数据
                     async with session.post(url, json=payload) as response:
                         response_text = await response.text()
 
@@ -1683,18 +1692,25 @@ class SendToVcloud:
                             except json.JSONDecodeError:
                                 logger.error(f"✗ 响应JSON解析失败: {response_text}")
                                 return False
-                        # 失败重发
+                        # 400 Session 不正确,直接停止发送
                         elif response.status == 400 or json.loads(response_text).get("code") == 400 :
                             logger.error(f"✗ HTTP错误 - 状态码: {response.status}, 响应: {response_text}")
                             return False
+                        # 401 Token 无效，失败重发
+                        elif response.status == 401 or json.loads(response_text).get("code") == 401:
+                            logger.error(f"✗ 无效的Token - 响应: {response_text},重新获取 Token 发送..")
+
+                            _token=_authmanager.get_token()
+                            return await self.send_data_group(data_group, _token)
                         else:
                             logger.error(f"✗ 500错误 - 响应: {response_text},重新发送..")
                             return await self.send_data_group(data_group, token)
 
                 except asyncio.TimeoutError:
                     logger.error(
-                        f"✗ 发送超时 - {data_group['device_name']} {data_group['data_type']} 分组 {data_group['group_index']}-> 重新发送")
-                    return await self.send_data_group(data_group, token)
+                        f"✗ 发送超时 - {data_group['device_name']} {data_group['data_type']} 分组 {data_group['group_index']}-> 重新获取 Token 发送")
+                    _token = _authmanager.get_token()
+                    return await self.send_data_group(data_group, _token)
                 except Exception as e:
                     logger.error(f"✗ 请求异常 - {data_group['device_name']} {data_group['data_type']}: {e}")
                     return False
@@ -1704,7 +1720,7 @@ class SendToVcloud:
             return False
 
 
-async def main(startTime: str, endTime: str, device_names: List[str], patientprofile: PatientProfile, env: EnvParameterinfo,bp_dict:List[Tuple[int, int, int, str]]):
+async def main(startTime: str, endTime: str, device_names: List[str], patientprofile: PatientProfile, env: EnvParameterinfo):
 
     """主函数 - 生成并发送数据"""
     logger.info(f"{'=' * 60}")
@@ -1741,7 +1757,6 @@ async def main(startTime: str, endTime: str, device_names: List[str], patientpro
         log_output=True,
         is_flash=1,
         data_config=patientProfile.data_Config,
-        dict_bp = bp_dict,
 
     )
 
@@ -2004,7 +2019,7 @@ if __name__ == '__main__':
         startTime="2026-02-02 00:00:00",
         is_get_timezone_offset=True,
         version="v2",
-        days=14,
+        days=4,
 
         # v2 用信息
         tenantId="019bef40-f47a-7807-8e37-d02998a83d9d",
@@ -2027,7 +2042,7 @@ if __name__ == '__main__':
             for i in range(patientProfile.days, -1, -1):
 
                 modify_Time = ModifyTime(patientProfile.startTime, days=i).date_minus()
-                start_time = ModifyTime(modify_Time, hours=00, minutes=0, seconds=0).date_plus()
+                start_time = ModifyTime(modify_Time, hours=0, minutes=0, seconds=0).date_plus()
                 end_time = ModifyTime(start_time, hours=23, minutes=59, seconds=59).date_plus()
 
                 logger.info(f"{a}↓↓↓ 发送Device：{device} {start_time}-->{end_time} 的数据 ↓↓↓{a}")
