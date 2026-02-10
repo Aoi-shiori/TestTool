@@ -684,10 +684,11 @@ class BPDataAnalyzer:
                 day_data.append(measurement)
             else:
                 night_data.append(measurement)
-        if len(day_data) >= 20 and len(night_data) >= 7 and capture_rate_reslut.total_capture_rate >= 0.7:
+        # 根据UAT反馈 360-21， 修改逻辑只判断 total_capture_rate
+        if capture_rate_reslut.total_capture_rate >= 0.7:
             qc_result = [{"result": "pass", "day": len(day_data), "Night": len(night_data),
                           "total": capture_rate_reslut.total_capture_rate}]
-        elif len(day_data) < 20 or len(night_data) < 7 or capture_rate_reslut.total_capture_rate < 0.7:
+        elif capture_rate_reslut.total_capture_rate < 0.7:
             qc_result = [{"result": "fail", "day": len(day_data), "Night": len(night_data),
                           "total": capture_rate_reslut.total_capture_rate}]
         else:
@@ -1681,8 +1682,8 @@ def main_analysis(start_time: int, end_time: int, measurement_plan: MeasurementP
         else:
             dipper_status_dbp = "Reverse"
 
-        logger.info(f"Nocturnal BP fall (SBP): {nocturnal_fall_sbp:+.1f}% - {dipper_status_sbp}")
-        logger.info(f"Nocturnal BP fall (DBP): {nocturnal_fall_dbp:+.1f}% - {dipper_status_dbp}")
+        logger.info(f"Nocturnal BP Δ (SBP): {nocturnal_fall_sbp:+.1f}%({dipper_status_sbp})")
+        logger.info(f"Nocturnal BP Δ (DBP): {nocturnal_fall_dbp:+.1f}%({dipper_status_dbp})")
 
         # 记录完整结果到调试日志
         logger.debug(f"完整分析结果 - 白天: {day_result.to_dict()}")
@@ -1913,19 +1914,39 @@ if __name__ == "__main__":
     #     web_url="webportal-dev2.vivalink.com"  # 不传默认测试环境：webportal-dev.vivalink.com
     # )
 
+    # run_analysis_from_api(
+    #     tenants="UATV2_360_ABPM",
+    #     subject_id="J20260121002",
+    #     data_type=DataType.BP_RAW,
+    #     start_time="2025-03-09T05:00:00Z",
+    #     end_time="2025-03-10T05:00:00Z",
+    #     auth_id="617070e40daf63ba334ece90d1",
+    #     auth_key="@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF",
+    #     timezone="America/New_York",  # Europe/Brussels America/New_York
+    #     log_file="api_analysis.log",
+    #     email="jun@vivalink.com.cn",
+    #     password="Jun@1234",
+    #     patient_id="6970722aba8c3db350fffa05",
+    #     day_start_hour="08:00",
+    #     night_start_hour="20:00",
+    #     vcloud_url="vcloud-test.vivalink.com",  # 不传默认测试环境：vcloud-test.vivalink.com
+    #     web_url="webportal-dev2.vivalink.com"  # 不传默认测试环境：webportal-dev.vivalink.com
+    # )
+
+
     run_analysis_from_api(
         tenants="UATV2_360_ABPM",
-        subject_id="J20260121002",
+        subject_id="J20260122002",
         data_type=DataType.BP_RAW,
-        start_time="2025-03-09T05:00:00Z",
-        end_time="2025-03-10T05:00:00Z",
+        start_time="2026-01-02T17:00:00Z",
+        end_time="2026-01-03T17:00:00Z",
         auth_id="617070e40daf63ba334ece90d1",
         auth_key="@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF",
-        timezone="America/New_York",  # Europe/Brussels America/New_York
+        timezone="Asia/Shanghai",  # Europe/Brussels America/New_York
         log_file="api_analysis.log",
         email="jun@vivalink.com.cn",
         password="Jun@1234",
-        patient_id="6970722aba8c3db350fffa05",
+        patient_id="69709cf7ab3a22545d273d6c",
         day_start_hour="08:00",
         night_start_hour="20:00",
         vcloud_url="vcloud-test.vivalink.com",  # 不传默认测试环境：vcloud-test.vivalink.com
