@@ -57,6 +57,8 @@ class PatientProfile:
     data_Config: Dict[str, Any]
     startTime: str
     is_get_timezone_offset: bool
+    group_size: int
+    accFrequency: int
     version: str
     days: int
 
@@ -566,6 +568,142 @@ class MedicalDeviceDataGenerator:
 
         ecg_list, hr_list, rr_list = getEcgData()
 
+        acc_lists_200hz=[{"x":-52,"y":2019,"z":233},{"x":-55,"y":2023,"z":238},{"x":-61,"y":2020,"z":232},{"x":-60,"y":2025,"z":239},{"x":-63,"y":2027,"z":238},{"x":-62,"y":2023,"z":240},{"x":-57,"y":2022,"z":234},{"x":-61,"y":2019,"z":238},{"x":-63,"y":2018,"z":237},{"x":-60,"y":2019,"z":234},{"x":-65,"y":2026,"z":234},{"x":-62,"y":2019,"z":234},{"x":-63,"y":2021,"z":235},{"x":-65,"y":2021,"z":235},{"x":-66,"y":2018,"z":233},{"x":-59,"y":2022,"z":227},{"x":-54,"y":2018,"z":225},{"x":-52,"y":2016,"z":228},{"x":-55,"y":2016,"z":228},{"x":-56,"y":2018,"z":223},{"x":-55,"y":2020,"z":230},{"x":-58,"y":2019,"z":229},{"x":-56,"y":2016,"z":226},{"x":-56,"y":2015,"z":232},{"x":-57,"y":2022,"z":236},{"x":-64,"y":2021,"z":230},{"x":-68,"y":2016,"z":241},{"x":-73,"y":2014,"z":248},{"x":-74,"y":2016,"z":242},{"x":-68,"y":2013,"z":247},{"x":-72,"y":2007,"z":249},{"x":-77,"y":2011,"z":250},{"x":-71,"y":2016,"z":249},{"x":-67,"y":2019,"z":246},{"x":-69,"y":2021,"z":245},{"x":-73,"y":2021,"z":245},{"x":-67,"y":2020,"z":238},{"x":-64,"y":2017,"z":242},{"x":-66,"y":2018,"z":236},{"x":-60,"y":2017,"z":230},{"x":-61,"y":2024,"z":223},{"x":-65,"y":2025,"z":216},{"x":-61,"y":2026,"z":219},{"x":-58,"y":2022,"z":238},{"x":-52,"y":2027,"z":247},{"x":-56,"y":2024,"z":254},{"x":-60,"y":2027,"z":259},{"x":-60,"y":2026,"z":248},{"x":-66,"y":2023,"z":244},{"x":-71,"y":2013,"z":242},{"x":-72,"y":2008,"z":241},{"x":-71,"y":2009,"z":251},{"x":-73,"y":2015,"z":256},{"x":-73,"y":2006,"z":247},{"x":-72,"y":1999,"z":249},{"x":-73,"y":2003,"z":252},{"x":-66,"y":2007,"z":254},{"x":-65,"y":2013,"z":243},{"x":-61,"y":2023,"z":231},{"x":-59,"y":2030,"z":223},{"x":-56,"y":2027,"z":229},{"x":-57,"y":2032,"z":238},{"x":-54,"y":2028,"z":243},{"x":-56,"y":2031,"z":241},{"x":-55,"y":2029,"z":247},{"x":-57,"y":2021,"z":252},{"x":-58,"y":2019,"z":250},{"x":-62,"y":2020,"z":251},{"x":-70,"y":2025,"z":252},{"x":-74,"y":2023,"z":253},{"x":-74,"y":2022,"z":253},{"x":-72,"y":2022,"z":250},{"x":-72,"y":2024,"z":246},{"x":-74,"y":2027,"z":249},{"x":-70,"y":2024,"z":242},{"x":-71,"y":2024,"z":245},{"x":-66,"y":2023,"z":244},{"x":-65,"y":2021,"z":244},{"x":-67,"y":2021,"z":243},{"x":-71,"y":2019,"z":244},{"x":-67,"y":2019,"z":246},{"x":-72,"y":2021,"z":246},{"x":-71,"y":2018,"z":246},{"x":-71,"y":2014,"z":246},{"x":-71,"y":2019,"z":242},{"x":-78,"y":2016,"z":236},{"x":-81,"y":2018,"z":236},{"x":-72,"y":2022,"z":241},{"x":-75,"y":2020,"z":243},{"x":-76,"y":2020,"z":249},{"x":-73,"y":2026,"z":247},{"x":-73,"y":2035,"z":250},{"x":-71,"y":2026,"z":245},{"x":-70,"y":2023,"z":242},{"x":-65,"y":2025,"z":232},{"x":-69,"y":2027,"z":223},{"x":-67,"y":2016,"z":223},{"x":-72,"y":2018,"z":245},{"x":-72,"y":2016,"z":264},{"x":-69,"y":2012,"z":257},{"x":-71,"y":2008,"z":251},{"x":-73,"y":2003,"z":243},{"x":-73,"y":2006,"z":248},{"x":-73,"y":2013,"z":244},{"x":-71,"y":2014,"z":238},{"x":-66,"y":2013,"z":238},{"x":-64,"y":2013,"z":242},{"x":-62,"y":2010,"z":240},{"x":-58,"y":2010,"z":235},{"x":-55,"y":2013,"z":244},{"x":-56,"y":2012,"z":249},{"x":-56,"y":2022,"z":250},{"x":-53,"y":2024,"z":253},{"x":-58,"y":2027,"z":249},{"x":-70,"y":2028,"z":245},{"x":-74,"y":2028,"z":249},{"x":-70,"y":2032,"z":254},{"x":-67,"y":2036,"z":254},{"x":-68,"y":2032,"z":258},{"x":-75,"y":2031,"z":262},{"x":-72,"y":2032,"z":264},{"x":-70,"y":2036,"z":255},{"x":-66,"y":2024,"z":260},{"x":-79,"y":2028,"z":263},{"x":-77,"y":2025,"z":266},{"x":-76,"y":2019,"z":260},{"x":-78,"y":2022,"z":256},{"x":-77,"y":2021,"z":253},{"x":-76,"y":2024,"z":247},{"x":-69,"y":2015,"z":241},{"x":-70,"y":2020,"z":236},{"x":-67,"y":2013,"z":243},{"x":-68,"y":2009,"z":239},{"x":-65,"y":2010,"z":234},{"x":-57,"y":2004,"z":245},{"x":-54,"y":2005,"z":246},{"x":-59,"y":2007,"z":246},{"x":-60,"y":2003,"z":239},{"x":-58,"y":2011,"z":241},{"x":-58,"y":2010,"z":247},{"x":-60,"y":2011,"z":253},{"x":-66,"y":2013,"z":250},{"x":-67,"y":2016,"z":253},{"x":-66,"y":2023,"z":262},{"x":-68,"y":2025,"z":260},{"x":-67,"y":2023,"z":259},{"x":-69,"y":2028,"z":255},{"x":-74,"y":2027,"z":252},{"x":-80,"y":2027,"z":252},{"x":-82,"y":2034,"z":255},{"x":-78,"y":2029,"z":254},{"x":-84,"y":2023,"z":259},{"x":-86,"y":2022,"z":265},{"x":-80,"y":2029,"z":265},{"x":-81,"y":2028,"z":259},{"x":-84,"y":2026,"z":259},{"x":-87,"y":2023,"z":259},{"x":-87,"y":2021,"z":256},{"x":-76,"y":2022,"z":242},{"x":-73,"y":2019,"z":224},{"x":-69,"y":2019,"z":222},{"x":-64,"y":2023,"z":223},{"x":-55,"y":2016,"z":234},{"x":-53,"y":2015,"z":245},{"x":-56,"y":2017,"z":261},{"x":-51,"y":2018,"z":269},{"x":-52,"y":2016,"z":271},{"x":-55,"y":2011,"z":262},{"x":-53,"y":2018,"z":245},{"x":-56,"y":2014,"z":248},{"x":-54,"y":2015,"z":260},{"x":-54,"y":2015,"z":267},{"x":-66,"y":2016,"z":261},{"x":-75,"y":2015,"z":258},{"x":-66,"y":2021,"z":262},{"x":-62,"y":2034,"z":267},{"x":-68,"y":2036,"z":272},{"x":-67,"y":2038,"z":274},{"x":-56,"y":2046,"z":261},{"x":-55,"y":2043,"z":256},{"x":-59,"y":2044,"z":266},{"x":-61,"y":2039,"z":266},{"x":-59,"y":2032,"z":262},{"x":-56,"y":2019,"z":265},{"x":-57,"y":2018,"z":267},{"x":-64,"y":2013,"z":259},{"x":-67,"y":2003,"z":262},{"x":-66,"y":2005,"z":261},{"x":-70,"y":2008,"z":258},{"x":-75,"y":2005,"z":255},{"x":-75,"y":2009,"z":252},{"x":-74,"y":2015,"z":247},{"x":-72,"y":2010,"z":250},{"x":-66,"y":2016,"z":250},{"x":-67,"y":2022,"z":249},{"x":-68,"y":2016,"z":243},{"x":-67,"y":2014,"z":242},{"x":-60,"y":2014,"z":246},{"x":-62,"y":2012,"z":246},{"x":-65,"y":2010,"z":242},{"x":-62,"y":1998,"z":251},{"x":-62,"y":1994,"z":261}]
+        acc_lists_5hz=[
+                    {"x": -15, "y": 67, "z": -2022},
+                    {"x": -8, "y": 60, "z": -2030},
+                    {"x": -18, "y": 63, "z": -2028},
+                    {"x": -15, "y": 65, "z": -2036},
+                    {"x": -16, "y": 64, "z": -2027}
+                ]
+        acc_lists_25hz=[
+                    {
+                        "x": -9,
+                        "y": -6,
+                        "z": -2094
+                    },
+                    {
+                        "x": -8,
+                        "y": 4,
+                        "z": -2100
+                    },
+                    {
+                        "x": -13,
+                        "y": -2,
+                        "z": -2088
+                    },
+                    {
+                        "x": -18,
+                        "y": 6,
+                        "z": -2086
+                    },
+                    {
+                        "x": -18,
+                        "y": -11,
+                        "z": -2080
+                    },
+                    {
+                        "x": 1,
+                        "y": -4,
+                        "z": -2094
+                    },
+                    {
+                        "x": -5,
+                        "y": 1,
+                        "z": -2085
+                    },
+                    {
+                        "x": -9,
+                        "y": 3,
+                        "z": -2107
+                    },
+                    {
+                        "x": -16,
+                        "y": 15,
+                        "z": -2088
+                    },
+                    {
+                        "x": -8,
+                        "y": 3,
+                        "z": -2093
+                    },
+                    {
+                        "x": -15,
+                        "y": 9,
+                        "z": -2085
+                    },
+                    {
+                        "x": -1,
+                        "y": 4,
+                        "z": -2093
+                    },
+                    {
+                        "x": -14,
+                        "y": 17,
+                        "z": -2084
+                    },
+                    {
+                        "x": -14,
+                        "y": 11,
+                        "z": -2090
+                    },
+                    {
+                        "x": -16,
+                        "y": 7,
+                        "z": -2089
+                    },
+                    {
+                        "x": -9,
+                        "y": 3,
+                        "z": -2086
+                    },
+                    {
+                        "x": -8,
+                        "y": -5,
+                        "z": -2095
+                    },
+                    {
+                        "x": -7,
+                        "y": 14,
+                        "z": -2087
+                    },
+                    {
+                        "x": -3,
+                        "y": 12,
+                        "z": -2089
+                    },
+                    {
+                        "x": -10,
+                        "y": -3,
+                        "z": -2079
+                    },
+                    {
+                        "x": -9,
+                        "y": 4,
+                        "z": -2084
+                    },
+                    {
+                        "x": -5,
+                        "y": -9,
+                        "z": -2090
+                    },
+                    {
+                        "x": -6,
+                        "y": 15,
+                        "z": -2088
+                    },
+                    {
+                        "x": -14,
+                        "y": 12,
+                        "z": -2084
+                    },
+                    {
+                        "x": -5,
+                        "y": 5,
+                        "z": -2076
+                    }
+                ]
+        self.acc_data={"5hz":acc_lists_5hz,"25hz":acc_lists_25hz,"200hz":acc_lists_200hz}
         # 保存所有ECG数据
         self.ecg_data = ecg_list
         self.hr_data = hr_list
@@ -573,6 +711,7 @@ class MedicalDeviceDataGenerator:
 
         # 初始化索引和当前数据
         self.current_index = 0
+
         self.ECG_waveform = self.ecg_data[self.current_index]
 
 
@@ -818,8 +957,19 @@ class MedicalDeviceDataGenerator:
         acc_step = AccStep(record_time_ms, timezone_offset or 28800)
         steps = acc_step.get_acc_step_total()
 
+        # 根据 ACC 频率设置匹配，默认 25hz
+        if self.patientProfile.accFrequency == 200:
+            acc_list= self.acc_data.get("200hz")
+            accFrequency=200
 
-        ecgData = self.assemble_ECG_data(record_time_ms, ecg_wave, hr, rr, temp,steps,
+        elif self.patientProfile.accFrequency == 5:
+            acc_list= self.acc_data.get("5hz")
+            accFrequency=5
+        else:
+            acc_list = self.acc_data.get("25hz")
+            accFrequency=25
+
+        ecgData = self.assemble_ECG_data(record_time_ms, ecg_wave,accFrequency, acc_list,hr, rr, temp,steps,
                                timezone_offset, timezone_name, device_name)
         ecgData["data"]["steps"] = steps  # 更新步数
         result = router_data
@@ -961,7 +1111,7 @@ class MedicalDeviceDataGenerator:
         return data
 
 
-    def assemble_ECG_data(self, recordTime: int, ECG: List[int], HR: int, RR: int, TEMP: float,Steps: int,
+    def assemble_ECG_data(self, recordTime: int, ECG: List[int],accFrequency: int,ACC:List[any], HR: int, RR: int, TEMP: float,Steps: int,
                           TimeZoneOffset: Optional[int], TimeZoneName: Optional[str], device_name: str,) -> Dict:
         """ 组装 ECG 数据 """
         #精简设备名称
@@ -1002,6 +1152,7 @@ class MedicalDeviceDataGenerator:
                 "temperature": TEMP,
                 "rawTemp": TEMP,
                 "accAccuracy": 2048,
+                "accFrequency": accFrequency,
                 "accStepOffset": 1,
                 "accStepTotal": Steps,
                 "sf": "128",
@@ -1014,13 +1165,7 @@ class MedicalDeviceDataGenerator:
                 "avRR": 25,
                 "rmssd": random.choice([55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65]),
                 "battery": 15,
-                "acc": [
-                    {"x": -15, "y": 67, "z": -2022},
-                    {"x": -8, "y": 60, "z": -2030},
-                    {"x": -18, "y": 63, "z": -2028},
-                    {"x": -15, "y": 65, "z": -2036},
-                    {"x": -16, "y": 64, "z": -2027}
-                ],
+                "acc": ACC,
                 "deviceSN": device_name,
                 "leadOn": 1,
                 "rri": [242, 257, 242, 242, 0],
@@ -1087,7 +1232,7 @@ class MedicalDeviceDataGenerator:
             "sensorTypeName": "ECG",
             "data": {
                 "dataStreamMode": "FullDualMode",
-                "accFrequency": 25,
+                "accFrequency": accFrequency,
                 "denoiseEcg":"",
                 "ecgFrequency": 128,
                 "effective": -1,
@@ -1098,133 +1243,7 @@ class MedicalDeviceDataGenerator:
                 "accStepTotal": Steps,
                 "sf": 128,
                 "rssi": -10001,
-                "acc": [
-                    {
-                        "x": -9,
-                        "y": -6,
-                        "z": -2094
-                    },
-                    {
-                        "x": -8,
-                        "y": 4,
-                        "z": -2100
-                    },
-                    {
-                        "x": -13,
-                        "y": -2,
-                        "z": -2088
-                    },
-                    {
-                        "x": -18,
-                        "y": 6,
-                        "z": -2086
-                    },
-                    {
-                        "x": -18,
-                        "y": -11,
-                        "z": -2080
-                    },
-                    {
-                        "x": 1,
-                        "y": -4,
-                        "z": -2094
-                    },
-                    {
-                        "x": -5,
-                        "y": 1,
-                        "z": -2085
-                    },
-                    {
-                        "x": -9,
-                        "y": 3,
-                        "z": -2107
-                    },
-                    {
-                        "x": -16,
-                        "y": 15,
-                        "z": -2088
-                    },
-                    {
-                        "x": -8,
-                        "y": 3,
-                        "z": -2093
-                    },
-                    {
-                        "x": -15,
-                        "y": 9,
-                        "z": -2085
-                    },
-                    {
-                        "x": -1,
-                        "y": 4,
-                        "z": -2093
-                    },
-                    {
-                        "x": -14,
-                        "y": 17,
-                        "z": -2084
-                    },
-                    {
-                        "x": -14,
-                        "y": 11,
-                        "z": -2090
-                    },
-                    {
-                        "x": -16,
-                        "y": 7,
-                        "z": -2089
-                    },
-                    {
-                        "x": -9,
-                        "y": 3,
-                        "z": -2086
-                    },
-                    {
-                        "x": -8,
-                        "y": -5,
-                        "z": -2095
-                    },
-                    {
-                        "x": -7,
-                        "y": 14,
-                        "z": -2087
-                    },
-                    {
-                        "x": -3,
-                        "y": 12,
-                        "z": -2089
-                    },
-                    {
-                        "x": -10,
-                        "y": -3,
-                        "z": -2079
-                    },
-                    {
-                        "x": -9,
-                        "y": 4,
-                        "z": -2084
-                    },
-                    {
-                        "x": -5,
-                        "y": -9,
-                        "z": -2090
-                    },
-                    {
-                        "x": -6,
-                        "y": 15,
-                        "z": -2088
-                    },
-                    {
-                        "x": -14,
-                        "y": 12,
-                        "z": -2084
-                    },
-                    {
-                        "x": -5,
-                        "y": 5,
-                        "z": -2076
-                    }
-                ],
+                "acc": ACC,
                 "temperature":TEMP,
                 "flash": self.is_flash,
                 "accActivity": 0,
@@ -1610,6 +1629,7 @@ class SendToVcloud:
 
         # 创建CommonTools实例
         common_tools=CommonTools()
+
         # 创建AuthManager实例，用于失败重新获取令牌
         _authmanager = AuthManager(
             tenant_name=patientProfile.projectId,
@@ -1712,7 +1732,7 @@ class SendToVcloud:
                     _token = _authmanager.get_token()
                     return await self.send_data_group(data_group, _token)
                 except Exception as e:
-                    logger.error(f"✗ 请求异常 - {data_group['device_name']} {data_group['data_type']}: {e}")
+                    logger.error(f"✗ 请求异常 - {data_group['device_name']} {data_group['data_type']}: {response_text}-捕获异常：-{e}")
                     return False
 
         except Exception as e:
@@ -1800,7 +1820,12 @@ async def main(startTime: str, endTime: str, device_names: List[str], patientpro
     logger.info("开始发送数据到云端...")
     start_send_time = time.time()
 
-    sender = SendToVcloud(data, env,patientProfile.timeZoneName, group_size=200, patientprofile=patientProfile,sequential_upload=True)
+    if patientProfile.version == "V2" or patientProfile.version == "v2":
+        sender = SendToVcloud(data, env, patientProfile.timeZoneName, group_size=patientProfile.group_size, patientprofile=patientProfile,
+                              sequential_upload=True)
+    else:
+        sender = SendToVcloud(data, env,patientProfile.timeZoneName, group_size=patientProfile.group_size, patientprofile=patientProfile,sequential_upload=False)
+
     queue_info = sender.get_queue_info()
     logger.info(f"数据分组信息: {queue_info['total_groups']} 个分组")
 
@@ -1980,12 +2005,12 @@ if __name__ == '__main__':
 
     """V2环境配置"""
     env_config = EnvParameterinfo(
-        url='https://test2.uat.ai.vivalink.com',
+        url='https://first.stage.core.vivalink.com',
         name="V2-UAT环境-孟买",
         env_type="UAT",
         id="617070e40daf63ba334ece90d1",
         value="@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF",
-        description="V2-UAT环境"
+        description="V2-stage环境"
     )
 
     # env_config = EnvParameterinfo(
@@ -2001,11 +2026,11 @@ if __name__ == '__main__':
     # 患者信息
     patientProfile = PatientProfile(
         # 常规信息 v1
-        projectId="test2",
-        subjectId="J007",
-        siteName="test2",
+        projectId="first",
+        subjectId="J20260324001",
+        siteName="first",
         deviceName=[
-            "ECGRec_202150/C823453",  # ECG设备-必改
+            "ECGRec_202420/E310614",  # ECG设备-必改
             # "BP_TM-2441_J26012401",
             # "O2 J20251213001",
             # "F53.25121301"
@@ -2016,21 +2041,22 @@ if __name__ == '__main__':
         timeZoneName="Asia/Shanghai",
         timeZoneOffset=39600,
         data_Config=DEFAULT_CONFIG,
-        startTime="2026-02-02 00:00:00",
+        startTime="2026-03-23 00:00:00",
         is_get_timezone_offset=True,
+        group_size=100,  # 分组数量
+        accFrequency=200,  # 5hz 25hz 200hz,默认 25hz
         version="v2",
-        days=4,
+        days=0,
 
         # v2 用信息
-        tenantId="019bef40-f47a-7807-8e37-d02998a83d9d",
-        siteId="019bef40-f47a-780e-b840-62565b7fba0f",  #
-        deviceId="019c4054-8a6b-7719-89e5-c8d9d4320fd4",  # 手机设备 Pixel 7_J02
-        sensorId="019c4059-7318-73a7-b6c6-403ecd41bbb5",  # ECG设备 id-必改
-        sessionId="019c405c-14f9-7564-9076-88350de2fefc",  # session id-必改
-        patientId="019c4054-5d4a-72b1-8242-0b7d8e28b169",  # 病人 id-必改
-        deviceSecret="kl3xO3P6SmeFZnmBlPKrAki5evB2HEgW"
+        tenantId="019cdbd3-4741-752e-bf34-9e436d752aa5",
+        siteId="019cdbd3-4741-753e-a233-bd8b052c7790",  #
+        deviceId="019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",  # 手机设备 Pixel 7_J02
+        sensorId="019d1e8d-57e0-7df9-99e7-86719a3d45b0",  # ECG设备 id-必改
+        sessionId="019d1e8d-ea84-7d0c-9f11-aafb05570f2f",  # session id-必改
+        patientId="019d1e77-3821-7012-acf5-a4b059b7a34a",  # 病人 id-必改
+        deviceSecret="IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
     )
-
     # 执行主程序
     start_total_time = time.time()
     a = "-" * 15
@@ -2042,15 +2068,14 @@ if __name__ == '__main__':
             for i in range(patientProfile.days, -1, -1):
 
                 modify_Time = ModifyTime(patientProfile.startTime, days=i).date_minus()
-                start_time = ModifyTime(modify_Time, hours=0, minutes=0, seconds=0).date_plus()
-                end_time = ModifyTime(start_time, hours=23, minutes=59, seconds=59).date_plus()
+                start_time = ModifyTime(modify_Time, hours=0, minutes=33, seconds=20).date_plus()
+                end_time = ModifyTime(start_time, hours=23, minutes=26, seconds=39).date_plus()
 
                 logger.info(f"{a}↓↓↓ 发送Device：{device} {start_time}-->{end_time} 的数据 ↓↓↓{a}")
-                BP_DICT = None
 
                 # 运行异步主函数
                 asyncio.run(
-                    main(start_time, end_time, [device], patientProfile, env_config, BP_DICT)
+                    main(start_time, end_time, [device], patientProfile, env_config)
                 )
                 k += 1
 
