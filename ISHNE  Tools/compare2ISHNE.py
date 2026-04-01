@@ -109,5 +109,5 @@ def main(ISHNE_file_path, ISHNE_all):
 
 if __name__ == '__main__':
     # INSHE_ecg("/Users/rexren/2vivalnk脚本库/Check S3 file/INSHEToJson/ECGRec_202128_C766122_1698199175750.ecg")
-    main('J20260318001-ECGRec_202603_J031801-2026-02-15_UTC+0800.ecg',
-         'J20260318001-ECGRec_202603_J031801-2026-02-15_UTC+0800.ecg')
+    main('test2_J005_2026-01-07_UTC+0800_CST_ECG_raw.ecg',
+         'test2_J005_2026-01-07_UTC+0800_CST_ECG_raw.ecg')
