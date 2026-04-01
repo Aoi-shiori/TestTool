@@ -169,23 +169,23 @@ if __name__ == '__main__':
     # Light sleep 浅睡
     "Stage1": [
         {
-            "start": "2025-3-19 22:30",
-            "end": "2025-3-20 02:30"
+            "start": "2026-3-31 11:31",
+            "end": "2026-4-01 02:30"
         }
     ],
     # REM sleep 快速眼动
     "Stage2": [
 
         {
-            "start": "2025-3-20 06:30",
-            "end": "2025-3-20 07:30"
+            "start": "2026-4-01 08:30",
+            "end": "2026-4-01 11:32"
         }
     ],
     # Deep sleep 深睡
     "Stage3": [
         {
-            "start": "2025-3-20 02:30",
-            "end": "2025-3-20 06:30"
+            "start": "2026-4-01 02:30",
+            "end": "2026-4-01 08:30"
         }
     ],
     # 断连,睡眠数据过短无法分析
@@ -207,13 +207,13 @@ if __name__ == '__main__':
 
     # 参数信息
     Patient_Data = {
-        "sensorId": "ECGRec_202513/J032701",
-        "subjectId": "J20250327001",
-        "tenant": "Test_310",
+        "sensorId": "ECGRec_202420/E310614",
+        "subjectId": "J20260330001",
+        "tenant": "Test360_V2",
         "timezoneName": "Asia/Shanghai",
         "timezoneOffset": 28800,
-            "sleep_start_time" :"2025-3-19 22:30",
-            "sleep_end_time" :"2025-3-20 07:30"
+            "sleep_start_time" :"2026-03-31 11:31",
+            "sleep_end_time" :"2026-04-01 11:32"
     }
 
     setup(sensor_id=Patient_Data["sensorId"], start_time=Patient_Data["sleep_start_time"], end_time=Patient_Data["sleep_end_time"], subject_id=Patient_Data["subjectId"], tenant=Patient_Data["tenant"], timezone_name=Patient_Data["timezoneName"], timezone_offset=Patient_Data["timezoneOffset"],str_stage_dict=stage_dict)
