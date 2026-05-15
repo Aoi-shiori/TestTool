@@ -22,13 +22,14 @@ import json
 from typing import Dict, List, Union, Optional, Any,Tuple
 import requests
 from queue import Queue
-from logger import logger
+# from logger import logger as logging
 import asyncio
 from datetime import datetime, timedelta, UTC, timezone
 import pytz
 from dataclasses import dataclass
 from getEcgData import *
 import aiohttp
+# pyjwt
 import jwt
 
 @dataclass
@@ -48,28 +49,35 @@ class EnvParameterinfo:
 class PatientProfile:
     """患者信息类"""
     # 常规信息
-    projectId: str
-    subjectId: str
-    siteName: str
-    deviceName: list[Any]
-    timeZoneName: str
-    timeZoneOffset: int
-    data_Config: Dict[str, Any]
-    startTime: str
-    is_get_timezone_offset: bool
-    group_size: int
-    accFrequency: int
-    version: str
-    days: int
+    projectId: str  = ""
+    subjectId: str = ""
+    siteName: str = ""
+    deviceName: list[Any] = ""
+    timeZoneName: str = "Asia/Shanghai"
+    timeZoneOffset: int = 28800
+    data_Config: Dict[str, Any] =  'DEFAULT_CONFIG'
+    startTime: str = ""
+    endTime: str = ""
+    is_get_timezone_offset: bool = True
+    group_size: int =""
+    accFrequency: int ="5"
+    version: str = "v1"
+    sequential_upload: bool =True
+    days: int =0
 
     # v2 用信息
-    tenantId: str
-    siteId: str
-    deviceId: str
-    sensorId: str
-    sessionId: str
-    patientId: str
-    deviceSecret: str
+    tenantId: str = ""
+    siteId: str = ""
+    deviceId: str = ""
+    sensorId: str = ""
+    sessionId: str = ""
+    patientId: str = ""
+    deviceSecret: str = ""
+
+    def __post_init__(self):
+        # 将 version 统一转为小写
+        if self.version is not None:
+         self.version = self.version.lower()
 
 
 
@@ -87,7 +95,9 @@ class AuthManager:
             device_id: str,
             device_secret: str,
             site_id: Optional[str] = None,
-            tenant_id: Optional[str] = None
+            tenant_id: Optional[str] = None,
+            env: EnvParameterinfo = None
+
     ) -> None:
         """
         初始化认证管理器
@@ -98,6 +108,7 @@ class AuthManager:
             device_secret: 设备密钥
             site_id: 站点ID (可选)
             tenant_id: 租户ID (可选)
+            env: 环境配置
         """
         self.tenant_name = tenant_name
         self.site_id = site_id
@@ -106,6 +117,7 @@ class AuthManager:
         self.tenant_id = tenant_id
 
         self._token: Optional[str] = None
+        self.Env = env
 
     def _is_token_valid(self) -> bool:
         """
@@ -127,7 +139,13 @@ class AuthManager:
             )
 
             # 检查是否即将过期（提前过期缓冲时间）
-            exp_timestamp = decoded.get('exp')
+
+            if patientProfile.version == 'v1':
+                # 解码 JWT 令牌
+                decoded = jwt.decode(self._token, options={"verify_signature": False})
+                exp_timestamp= decoded.get('exp')
+            else:
+                exp_timestamp = decoded.get('exp')
             if not exp_timestamp:
                 return False
 
@@ -170,6 +188,37 @@ class AuthManager:
             algorithm=self.JWT_ALGORITHM
         )
 
+        return self._token
+
+    def refresh_vcloud_token(self) -> str:
+        """
+        刷新vcloud令牌
+
+        Returns:
+            str: 新的vcloud令牌
+        """
+        url = f"{self.Env.url}/auth"
+        payload = json.dumps({
+            "id": self.Env.id,
+            "key": self.Env.value
+        })
+        headers = {'Content-Type': 'application/json'}
+
+        try:
+            response = requests.post(url, headers=headers, data=payload, timeout=10)
+            response.raise_for_status()
+            token = response.json()['data']['token']
+            # logger.info("成功获取令牌(token)")
+            self._token = token
+        except requests.RequestException as e:
+            logger.error(f"获取令牌(token)失败: {e}")
+            raise
+        return self.token
+
+    def get_app_token(self) -> str:
+        """获取应用令牌"""
+        if not self._is_token_valid():
+            self.refresh_vcloud_token()
         return self._token
 
     def get_token(self) -> str:
@@ -506,6 +555,15 @@ class CommonTools:
 class MedicalDeviceDataGenerator:
     """医疗设备数据生成器 - 整合了TimestampDataRouter和AccStep功能"""
 
+    # 设备发送频率（秒）
+    DEVICE_FREQUENCIES = {
+        "ECG": 60,  # 每秒1条
+        "BP": 3600,  # 每300秒（5分钟）1条
+        "SpO2": 4,  # 每4秒1条
+        "Temperature": 12,  # 每12秒1条
+        "CGM": 300  # 每300秒（5分钟）1条
+    }
+
     # 设备类型映射
     DEVICE_TYPES = {
         100: "ECG",
@@ -523,28 +581,6 @@ class MedicalDeviceDataGenerator:
         "Temperature": "Temp_J2025090501",
         "CGM": "CGL_J2025090501"
     }
-
-    # 设备发送频率（秒）
-    DEVICE_FREQUENCIES = {
-        "ECG": 1,  # 每秒1条
-        "BP": 3600,  # 每300秒（5分钟）1条
-        "SpO2": 4,  # 每4秒1条
-        "Temperature": 12,  # 每12秒1条
-        "CGM": 300  # 每300秒（5分钟）1条
-    }
-    """
-                  (120, 120, "Non-Dipper"),
-                  (120, 119.9, "Non-Dipper"),
-                  (120, 108, "Dipper"),
-                  (120, 108.012, "Non-Dipper"),
-                  (120, 96, "Extreme"),
-                  (120, 96.012, "Dipper"),
-                  (120, 126, "Reverse"),
-                  (130, 104, "Extreme"),
-                  (100, 90, "Dipper"),
-                  (140, 126, "Dipper"),
-          """
-
 
     def __init__(self,patientprofile: PatientProfile, project_id: str, subject_id: str, log_output: bool = False,
                  is_flash: int = 0, data_config: Dict[str, Any] = None):
@@ -1505,23 +1541,18 @@ class SendToVcloud:
         }
 
     def get_app_token(self) -> str:
-        """获取应用令牌"""
-        url = f"{self.Env.url}/auth"
-        payload = json.dumps({
-            "id": self.Env.id,
-            "key": self.Env.value
-        })
-        headers = {'Content-Type': 'application/json'}
-
-        try:
-            response = requests.post(url, headers=headers, data=payload, timeout=10)
-            response.raise_for_status()
-            token = response.json()['data']['token']
-            logger.info("成功获取令牌(token)")
-            return token
-        except requests.RequestException as e:
-            logger.error(f"获取令牌(token)失败: {e}")
-            raise
+        """获取v1令牌"""
+        auth_manager = AuthManager(
+            tenant_name=patientProfile.projectId,
+            device_id=patientProfile.deviceId,
+            device_secret=patientProfile.deviceSecret,
+            site_id=patientProfile.siteId,
+            tenant_id=patientProfile.tenantId,
+            env=self.Env
+        )
+        token = auth_manager.refresh_vcloud_token()
+        logger.info(f"成功获取应用令牌: {token}")
+        return token
 
     def get_v2_token(self) -> str:
         """获取v2令牌"""
@@ -1636,7 +1667,8 @@ class SendToVcloud:
             device_id=patientProfile.deviceId,
             device_secret=patientProfile.deviceSecret,
             site_id=patientProfile.siteId,
-            tenant_id=patientProfile.tenantId
+            tenant_id=patientProfile.tenantId,
+            env=self.Env
         )
 
 
@@ -1659,7 +1691,7 @@ class SendToVcloud:
                 token=f"Bearer {token}"
             else:
 
-                if "site2" in self.Env.url:
+                if "site" in self.Env.url:
                     url = f"{self.Env.url}/internal/tenants/VivaLNK/events?type=dataEvent"       #https://site2-vcloud-test.vivalink.com/internal/tenants/VivaLNK/events?type=dataEven
                 else:
                     url = f"{self.Env.url}/v2/tenants/VivaLNK/events?type=dataEvent"
@@ -1705,8 +1737,28 @@ class SendToVcloud:
                                                 f"({start_time}~{end_time} - {self.timezone_name} - {common_tools.format_time_range_by_timezone(start_time, end_time, self.timezone_name)}) 发送成功")
 
                                     return True
-                                else:
+                                # 补发逻辑当前版本为V1时，如果发送失败，则重新发送
+                                elif response_data.get('code') != 200 and patientProfile.version == "v1":
+                                    logger.error(f"x 发送失败-{response_data} - {data_group['device_name']} {data_group['data_type']} "
+                                                f"分组 {data_group['group_index']}/{data_group['total_groups']} "
+                                                f"({start_time}~{end_time} - {self.timezone_name} - {common_tools.format_time_range_by_timezone(start_time, end_time, self.timezone_name)}) 重新获取 Token 发送")
+                                    _token = _authmanager.get_app_token()
+                                    return await self.send_data_group(data_group,_token)
+                                elif response_data.get('code') == 1001:
+                                    logger.error(f"x 分组发送失败 - {data_group['device_name']} {data_group['data_type']} "
+                                                f"分组 {data_group['group_index']}/{data_group['total_groups']} "
+                                                f"({start_time}~{end_time} - {self.timezone_name} - {common_tools.format_time_range_by_timezone(start_time, end_time, self.timezone_name)
+                                                }) -  x 异常响应: {response_data} ")
+                                    return False
+                                # V2版本发送失败，重新补发
+                                elif response_data.get('code') != 200 and patientProfile.version == "v2":
+                                    _token = _authmanager.get_token()
+                                    logger.error(
+                                    f"✗ 发送失败-{response_data} - {data_group['device_name']} {data_group['data_type']} 分组 {data_group['group_index']}-> 重新获取 Token 发送")
 
+                                    _token = _authmanager.get_token()
+                                    return await self.send_data_group(data_group,_token)
+                                else:
                                     logger.error(f"✗ 发送失败 - 响应: {response_data},入参：{payload}")
                                     return False
                             except json.JSONDecodeError:
@@ -1732,16 +1784,44 @@ class SendToVcloud:
                     _token = _authmanager.get_token()
                     return await self.send_data_group(data_group, _token)
                 except Exception as e:
-                    logger.error(f"✗ 请求异常 - {data_group['device_name']} {data_group['data_type']}: {response_text}-捕获异常：-{e}")
+                    logger.error(f"✗ 请求异常 - 捕获异常：-{e} - {data_group['device_name']} {data_group['data_type']}: {response_text}-")
                     return False
 
         except Exception as e:
             logger.error(f"✗ 发送异常 - {data_group['device_name']} {data_group['data_type']}: {e}")
             return False
 
+class GetPatientProfile:
+    """
+    获取患者配置
+    parm
+
+    """
+    # 初始化
+    def __init__(self, subjectId: Any, filename: str):
+        self.subjectId = subjectId
+        self.filename = filename
+
+    def get_patient_config(self):
+
+        with open(self.filename, "r", encoding="utf-8") as f:
+            patients_data = json.load(f)  # 得到 { "J20260417004": {...}, ... }
+
+        profiles = {}
+        for subject_id, cfg in patients_data.items():
+            # 直接用字典解包创建 PatientProfile 对象
+            profile = PatientProfile(**cfg)
+            profiles[subject_id] = profile
+        if self.subjectId not in profiles:
+            raise Exception(f"未找到患者配置: {self.subjectId}")
+        # 判断患者ID是否为空则返回所有患者配置
+        elif self.subjectId == "" or self.subjectId is None:
+            return profiles
+        else:
+            return profiles[self.subjectId]
+
 
 async def main(startTime: str, endTime: str, device_names: List[str], patientprofile: PatientProfile, env: EnvParameterinfo):
-
     """主函数 - 生成并发送数据"""
     logger.info(f"{'=' * 60}")
     logger.info("开始执行数据生成和发送任务")
@@ -1755,6 +1835,8 @@ async def main(startTime: str, endTime: str, device_names: List[str], patientpro
 
     logger.info(f"时间范围: {startTime} -> {endTime}")
     logger.info(f"设备列表: {device_names}")
+    logger.info(f"ProjectID: {patientprofile.projectId}")
+    logger.info(f"SubjectID: {patientprofile.subjectId}")
     logger.info(f"发送URL: {env.url}")
 
     commontools=CommonTools()
@@ -1819,12 +1901,12 @@ async def main(startTime: str, endTime: str, device_names: List[str], patientpro
     # 发送数据
     logger.info("开始发送数据到云端...")
     start_send_time = time.time()
-
-    if patientProfile.version == "V2" or patientProfile.version == "v2":
+    # 如果是 V2 强制顺序上传
+    if patientProfile.version ==  "v2":
         sender = SendToVcloud(data, env, patientProfile.timeZoneName, group_size=patientProfile.group_size, patientprofile=patientProfile,
                               sequential_upload=True)
     else:
-        sender = SendToVcloud(data, env,patientProfile.timeZoneName, group_size=patientProfile.group_size, patientprofile=patientProfile,sequential_upload=False)
+        sender = SendToVcloud(data, env,patientProfile.timeZoneName, group_size=patientProfile.group_size, patientprofile=patientProfile,sequential_upload=patientProfile.sequential_upload)
 
     queue_info = sender.get_queue_info()
     logger.info(f"数据分组信息: {queue_info['total_groups']} 个分组")
@@ -1860,6 +1942,8 @@ def get_timeranges():
         }
         data_list.append(data)
     return data_list
+
+
 
 # # 默认配置
 # DEFAULT_CONFIG = {
@@ -1988,11 +2072,6 @@ DEFAULT_CONFIG = {
 }
 
 if __name__ == '__main__':
-    # 设置日志的等级 #logging.DEBUG
-    # logger.setLevel(logging.DEBUG)
-    logger.setLevel(logging.INFO)
-
-
     """V1环境配置"""
     # env_config = EnvParameterinfo(
     #     url='https://vcloud-test.vivalnk.com',
@@ -2003,11 +2082,20 @@ if __name__ == '__main__':
     #     description="孟买测试环境"
     # )
 
+    # env_config = EnvParameterinfo(
+    #     url='https://site3-vcloud.vivalink.com',
+    #     name="巴黎生产",
+    #     env_type="PROD",
+    #     id="6170706009be6b1f2045cbac77",
+    #     value="Whn_Nla;UtMLt@uUsQL]PDLx^?h46n<ri?v`K[@D",
+    #     description="巴黎生产环境 Site3"
+    # )
+
     """V2环境配置"""
     env_config = EnvParameterinfo(
         url='https://first.stage.core.vivalink.com',
         name="V2-UAT环境-孟买",
-        env_type="UAT",
+        env_type="Stage",
         id="617070e40daf63ba334ece90d1",
         value="@baIevnyO<iqo<r5L5VYK0BH[CFvJXUf0W4Y;WZF",
         description="V2-stage环境"
@@ -2023,39 +2111,36 @@ if __name__ == '__main__':
     # )
 
 
+    getpatientprofile= GetPatientProfile(subjectId="J20260417004",filename="patient_config.json")
+    patient=getpatientprofile.get_patient_config()
+
     # 患者信息
     patientProfile = PatientProfile(
         # 常规信息 v1
-        projectId="first",
-        subjectId="J20260324001",
-        siteName="first",
-        deviceName=[
-            "ECGRec_202420/E310614",  # ECG设备-必改
-            # "BP_TM-2441_J26012401",
-            # "O2 J20251213001",
-            # "F53.25121301"
-            # "O2 C208S_J87C6F900004",  # SpO2设备 (注意: 这里使用了空格)
-            # "BP5S_00J00000004",  # BP设备
-            # "Temp_AOJ-20F_AJUN00000003"  # 体温设备
-        ],
+        projectId=patient.projectId,
+        subjectId=patient.subjectId,
+        siteName=patient.siteName,
+        deviceName=patient.deviceName,
         timeZoneName="Asia/Shanghai",
         timeZoneOffset=39600,
         data_Config=DEFAULT_CONFIG,
-        startTime="2026-03-23 00:00:00",
+        startTime="2026-04-30 00:00:00",
+        endTime="2026-03-01 23:59:59", #传固定时段数据填写，否则为空或者 None
         is_get_timezone_offset=True,
-        group_size=100,  # 分组数量
-        accFrequency=200,  # 5hz 25hz 200hz,默认 25hz
+        group_size=200,  # 分组数量
+        accFrequency=5,  # 5hz 25hz 200hz,默认 25hz
         version="v2",
-        days=0,
+        sequential_upload=True, # 是否按顺序上传数据，V2强制顺序上传
+        days=5,
 
         # v2 用信息
-        tenantId="019cdbd3-4741-752e-bf34-9e436d752aa5",
-        siteId="019cdbd3-4741-753e-a233-bd8b052c7790",  #
-        deviceId="019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",  # 手机设备 Pixel 7_J02
-        sensorId="019d1e8d-57e0-7df9-99e7-86719a3d45b0",  # ECG设备 id-必改
-        sessionId="019d1e8d-ea84-7d0c-9f11-aafb05570f2f",  # session id-必改
-        patientId="019d1e77-3821-7012-acf5-a4b059b7a34a",  # 病人 id-必改
-        deviceSecret="IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+        tenantId=patient.tenantId,
+        siteId=patient.siteId,  #
+        deviceId=patient.deviceId,  # 手机设备 Pixel 7_J02
+        sensorId=patient.sensorId,  # ECG设备 id-必改
+        sessionId=patient.sessionId,  # session id-必改
+        patientId=patient.patientId,  # 病人 id-必改
+        deviceSecret=patient.deviceSecret,
     )
     # 执行主程序
     start_total_time = time.time()
@@ -2064,12 +2149,22 @@ if __name__ == '__main__':
     try:
         for device in patientProfile.deviceName:
             logger.info(f"{'@' * 80}")
+            end_timestamp = datetime.strptime(patientProfile.endTime, "%Y-%m-%d %H:%M:%S").timestamp()
+
+            # if patientProfile.endTime == "":
+            #     patientProfile.endTime = patientProfile.startTime
+            # if end_timestamp < datetime.strptime(patientProfile.startTime, "%Y-%m-%d %H:%M:%S").timestamp():
+            #     logger.info(f"{a}开始时间不能大于结束时间{a}")
+            #     exit()
+            # else:
+            #     asyncio.run(
+            #                     main(patientProfile.startTime, patientProfile.endTime, [device], patientProfile, env_config)
+            #                 )
             k = 0
             for i in range(patientProfile.days, -1, -1):
-
                 modify_Time = ModifyTime(patientProfile.startTime, days=i).date_minus()
-                start_time = ModifyTime(modify_Time, hours=0, minutes=33, seconds=20).date_plus()
-                end_time = ModifyTime(start_time, hours=23, minutes=26, seconds=39).date_plus()
+                start_time = ModifyTime(modify_Time, hours=0, minutes=0, seconds=0).date_plus() #2026-04-09 15:29:32
+                end_time = ModifyTime(start_time, hours=23, minutes=59, seconds=59).date_plus()
 
                 logger.info(f"{a}↓↓↓ 发送Device：{device} {start_time}-->{end_time} 的数据 ↓↓↓{a}")
 

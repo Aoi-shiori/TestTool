@@ -1,0 +1,152 @@
+{
+  "J20260417008": {
+    "projectId": "first",
+    "subjectId": "J20260417008",
+    "siteName": "first",
+    "deviceName": [
+      "ECGRec_202614/J041708"
+    ],
+    "tenantId": "019cdbd3-4741-752e-bf34-9e436d752aa5",
+    "siteId": "019cdbd3-4741-753e-a233-bd8b052c7790",
+    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+    "sensorId": "019d9938-e88d-7305-aa7a-d945f5cb25f4",
+    "sessionId": "019d9937-b089-7930-be3e-7c38ace5048a",
+    "patientId": "019d9937-b086-7c6d-9f11-e2658e0fbc48",
+    "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+  },
+  "J20260417007": {
+    "projectId": "first",
+    "subjectId": "J20260417007",
+    "siteName": "first",
+    "deviceName": [
+      "ECGRec_202614/J041707"
+    ],
+    "tenantId": "019cdbd3-4741-752e-bf34-9e436d752aa5",
+    "siteId": "019cdbd3-4741-753e-a233-bd8b052c7790",
+    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+    "sensorId": "019d9938-cc4b-709c-a2bb-d7e2f0498c3e",
+    "sessionId": "019d9937-1012-7232-b488-8d7d61b81a58",
+    "patientId": "019d9937-100f-7c32-ae72-02d5b11111ca",
+    "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+  },
+  "J20260417006": {
+    "projectId": "first",
+    "subjectId": "J20260417006",
+    "siteName": "first",
+    "deviceName": [
+      "ECGRec_202614/J041706"
+    ],
+    "tenantId": "019cdbd3-4741-752e-bf34-9e436d752aa5",
+    "siteId": "019cdbd3-4741-753e-a233-bd8b052c7790",
+    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+    "sensorId": "019d9938-afbc-7c46-9ec2-28733f4240b9",
+    "sessionId": "019d9936-c16a-7dc5-926a-6f649a783750",
+    "patientId": "019d9936-c167-7e5f-a5ae-486bfd8ec72d",
+    "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+  },
+  "J20260417005": {
+    "projectId": "first",
+    "subjectId": "J20260417005",
+    "siteName": "first",
+    "deviceName": [
+      "ECGRec_202614/J041705"
+    ],
+    "tenantId": "019cdbd3-4741-752e-bf34-9e436d752aa5",
+    "siteId": "019cdbd3-4741-753e-a233-bd8b052c7790",
+    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+    "sensorId": "019d9938-8f54-7f37-89f5-9c328f5ccf4f",
+    "sessionId": "019d9936-866d-7b33-9e59-f38dd26619d4",
+    "patientId": "019d9936-866b-716a-80f0-ac40bc191749",
+    "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+  },
+  "J20260417004": {
+    "projectId": "first",
+    "subjectId": "J20260417004",
+    "siteName": "first",
+    "deviceName": [
+      "ECGRec_202614/J041704"
+    ],
+    "tenantId": "019cdbd3-4741-752e-bf34-9e436d752aa5",
+    "siteId": "019cdbd3-4741-753e-a233-bd8b052c7790",
+    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+    "sensorId": "019d9938-708c-7ade-a36d-dc687e670761",
+    "sessionId": "019d9936-3437-7929-adca-3ab0a0d04722",
+    "patientId": "019d9936-3434-7ca8-b8fa-1f478d565da8",
+    "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+  },
+  "J20260417003": {
+    "projectId": "first",
+    "subjectId": "J20260417003",
+    "siteName": "first",
+    "deviceName": [
+      "ECGRec_202614/J041703"
+    ],
+    "tenantId": "019cdbd3-4741-752e-bf34-9e436d752aa5",
+    "siteId": "019cdbd3-4741-753e-a233-bd8b052c7790",
+    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+    "sensorId": "019d9938-54dc-7536-a7c0-6ca3cd31cc64",
+    "sessionId": "019d9936-02fe-75d4-b47a-0421a60f0a9c",
+    "patientId": "019d9936-02fb-7c20-b8b1-e108ed32f35c",
+    "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+  },
+  "J20260417002": {
+    "projectId": "first",
+    "subjectId": "J20260417002",
+    "siteName": "first",
+    "deviceName": [
+      "ECGRec_202614/J041702"
+    ],
+    "tenantId": "019cdbd3-4741-752e-bf34-9e436d752aa5",
+    "siteId": "019cdbd3-4741-753e-a233-bd8b052c7790",
+    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+    "sensorId": "019d9938-3a8c-7443-a685-2eac68a63138",
+    "sessionId": "019d9935-c457-7162-8bfa-ea228a0046de",
+    "patientId": "019d9935-c454-78b2-8a88-17610e3f9251",
+    "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+  },
+  "J20260417001": {
+    "projectId": "first",
+    "subjectId": "J20260417001",
+    "siteName": "first",
+    "deviceName": [
+      "ECGRec_202614/J041701"
+    ],
+    "tenantId": "019cdbd3-4741-752e-bf34-9e436d752aa5",
+    "siteId": "019cdbd3-4741-753e-a233-bd8b052c7790",
+    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+    "sensorId": "019d9938-2055-75f4-b71a-057715971049",
+    "sessionId": "019d9935-7fd4-79c5-b2b8-108e1687c152",
+    "patientId": "019d9935-7fd2-7007-8f60-27946c3b4d90",
+    "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+  },
+  "J20260416002": {
+    "projectId": "first",
+    "subjectId": "J20260416002",
+    "siteName": "first",
+    "deviceName": [
+      "ECGRec_202614/J041601"
+    ],
+    "tenantId": "019cdbd3-4741-752e-bf34-9e436d752aa5",
+    "siteId": "019cdbd3-4741-753e-a233-bd8b052c7790",
+    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+    "sensorId": "019d9583-922f-7a62-996f-c612c986b0da",
+    "sessionId": "019d9585-2daf-7429-9686-2ead2d511373",
+    "patientId": "019d9585-2dad-76f8-ab32-e501268bccd5",
+    "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+  },
+  "J20260416001": {
+    "projectId": "first",
+    "subjectId": "J20260416001",
+    "siteName": "first",
+    "deviceName": [
+      "ECGRec_202348/E319401"
+    ],
+    "tenantId": "019cdbd3-4741-752e-bf34-9e436d752aa5",
+    "siteId": "019cdbd3-4741-753e-a233-bd8b052c7790",
+    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+    "sensorId": "019d27e2-198b-7d05-9cd0-00a5ef8d7577",
+    "sessionId": "019d9556-3ee7-70a3-8c6c-f6e3ca4ac190",
+    "patientId": "019d9556-3ee4-71fc-9705-d5fbc05158f1",
+    "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
+  }
+}

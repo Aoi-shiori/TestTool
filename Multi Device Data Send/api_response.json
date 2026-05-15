@@ -1,0 +1,635 @@
+{
+    "data": [
+        {
+            "id": "019d9937-b086-7c6d-9f11-e2658e0fbc48",
+            "firstName": "J20260417008",
+            "lastName": "J20260417008",
+            "subjectId": "J20260417008",
+            "physician": null,
+            "sensors": [
+                {
+                    "id": "019d9938-e88d-7305-aa7a-d945f5cb25f4",
+                    "identifier": "ECGRec_202614/J041708",
+                    "type": 100,
+                    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "firstRecordTime": null
+                }
+            ],
+            "devices": [
+                {
+                    "id": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "uniqueId": "Pixel 7",
+                    "name": "Pixel 7"
+                }
+            ],
+            "isOpenPrescribingPhysician": false,
+            "prescribingPhysicianName": "",
+            "birthDate": "1970-01-07T00:00:00Z",
+            "timeZoneOffset": 28800,
+            "timeZoneName": "Asia/Shanghai",
+            "isRpm": false,
+            "rpmGroupIds": null,
+            "rpmGroups": null,
+            "phoneNo": "",
+            "gender": "Male",
+            "weight": 0,
+            "height": 0,
+            "job": "",
+            "codes": null,
+            "monitoringProtocol": {
+                "id": "019cdbd3-4744-7af2-a48f-27551e3615f3",
+                "name": "Default Monitoring Protocol"
+            },
+            "studiesList": null,
+            "thirdPartyNotification": [],
+            "createdAt": "2026-04-17T02:14:16.968407Z",
+            "updatedAt": "2026-04-17T02:30:18.499881Z",
+            "isRpmUpdatedAt": null,
+            "sessionPlanStartedAt": null,
+            "sessionPlanEndedAt": null,
+            "sessionPlanStartedStatus": 0,
+            "sessionPlanEndedStatus": 0,
+            "activeSession": {
+                "id": "019d9937-b089-7930-be3e-7c38ace5048a",
+                "active": true,
+                "start": "2025-12-30T10:25:48Z",
+                "end": null,
+                "startOptMode": 0,
+                "endOptMode": 0
+            },
+            "isOnline": false,
+            "lastDataAt": null,
+            "autoTimezone": true,
+            "location": "",
+            "birthDateStr": "1970-01-07"
+        },
+        {
+            "id": "019d9937-100f-7c32-ae72-02d5b11111ca",
+            "firstName": "J20260417007",
+            "lastName": "J20260417007",
+            "subjectId": "J20260417007",
+            "physician": null,
+            "sensors": [
+                {
+                    "id": "019d9938-cc4b-709c-a2bb-d7e2f0498c3e",
+                    "identifier": "ECGRec_202614/J041707",
+                    "type": 100,
+                    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "firstRecordTime": null
+                }
+            ],
+            "devices": [
+                {
+                    "id": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "uniqueId": "Pixel 7",
+                    "name": "Pixel 7"
+                }
+            ],
+            "isOpenPrescribingPhysician": false,
+            "prescribingPhysicianName": "",
+            "birthDate": "1970-01-07T00:00:00Z",
+            "timeZoneOffset": 28800,
+            "timeZoneName": "Asia/Shanghai",
+            "isRpm": false,
+            "rpmGroupIds": null,
+            "rpmGroups": null,
+            "phoneNo": "",
+            "gender": "Male",
+            "weight": 0,
+            "height": 0,
+            "job": "",
+            "codes": null,
+            "monitoringProtocol": {
+                "id": "019cdbd3-4744-7af2-a48f-27551e3615f3",
+                "name": "Default Monitoring Protocol"
+            },
+            "studiesList": null,
+            "thirdPartyNotification": [],
+            "createdAt": "2026-04-17T02:13:35.889282Z",
+            "updatedAt": "2026-04-17T02:30:08.670086Z",
+            "isRpmUpdatedAt": null,
+            "sessionPlanStartedAt": null,
+            "sessionPlanEndedAt": null,
+            "sessionPlanStartedStatus": 0,
+            "sessionPlanEndedStatus": 0,
+            "activeSession": {
+                "id": "019d9937-1012-7232-b488-8d7d61b81a58",
+                "active": true,
+                "start": "2025-12-30T10:25:48Z",
+                "end": null,
+                "startOptMode": 0,
+                "endOptMode": 0
+            },
+            "isOnline": false,
+            "lastDataAt": null,
+            "autoTimezone": true,
+            "location": "",
+            "birthDateStr": "1970-01-07"
+        },
+        {
+            "id": "019d9936-c167-7e5f-a5ae-486bfd8ec72d",
+            "firstName": "J20260417006",
+            "lastName": "J20260417006",
+            "subjectId": "J20260417006",
+            "physician": null,
+            "sensors": [
+                {
+                    "id": "019d9938-afbc-7c46-9ec2-28733f4240b9",
+                    "identifier": "ECGRec_202614/J041706",
+                    "type": 100,
+                    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "firstRecordTime": null
+                }
+            ],
+            "devices": [
+                {
+                    "id": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "uniqueId": "Pixel 7",
+                    "name": "Pixel 7"
+                }
+            ],
+            "isOpenPrescribingPhysician": false,
+            "prescribingPhysicianName": "",
+            "birthDate": "1970-01-06T00:00:00Z",
+            "timeZoneOffset": 28800,
+            "timeZoneName": "Asia/Shanghai",
+            "isRpm": false,
+            "rpmGroupIds": null,
+            "rpmGroups": null,
+            "phoneNo": "",
+            "gender": "Male",
+            "weight": 0,
+            "height": 0,
+            "job": "",
+            "codes": null,
+            "monitoringProtocol": {
+                "id": "019cdbd3-4744-7af2-a48f-27551e3615f3",
+                "name": "Default Monitoring Protocol"
+            },
+            "studiesList": null,
+            "thirdPartyNotification": [],
+            "createdAt": "2026-04-17T02:13:15.753556Z",
+            "updatedAt": "2026-04-17T02:29:58.843279Z",
+            "isRpmUpdatedAt": null,
+            "sessionPlanStartedAt": null,
+            "sessionPlanEndedAt": null,
+            "sessionPlanStartedStatus": 0,
+            "sessionPlanEndedStatus": 0,
+            "activeSession": {
+                "id": "019d9936-c16a-7dc5-926a-6f649a783750",
+                "active": true,
+                "start": "2025-12-30T10:25:48Z",
+                "end": null,
+                "startOptMode": 0,
+                "endOptMode": 0
+            },
+            "isOnline": false,
+            "lastDataAt": null,
+            "autoTimezone": true,
+            "location": "",
+            "birthDateStr": "1970-01-06"
+        },
+        {
+            "id": "019d9936-866b-716a-80f0-ac40bc191749",
+            "firstName": "J20260417005",
+            "lastName": "J20260417005",
+            "subjectId": "J20260417005",
+            "physician": null,
+            "sensors": [
+                {
+                    "id": "019d9938-8f54-7f37-89f5-9c328f5ccf4f",
+                    "identifier": "ECGRec_202614/J041705",
+                    "type": 100,
+                    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "firstRecordTime": null
+                }
+            ],
+            "devices": [
+                {
+                    "id": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "uniqueId": "Pixel 7",
+                    "name": "Pixel 7"
+                }
+            ],
+            "isOpenPrescribingPhysician": false,
+            "prescribingPhysicianName": "",
+            "birthDate": "1970-01-09T00:00:00Z",
+            "timeZoneOffset": 28800,
+            "timeZoneName": "Asia/Shanghai",
+            "isRpm": false,
+            "rpmGroupIds": null,
+            "rpmGroups": null,
+            "phoneNo": "",
+            "gender": "Male",
+            "weight": 0,
+            "height": 0,
+            "job": "",
+            "codes": null,
+            "monitoringProtocol": {
+                "id": "019cdbd3-4744-7af2-a48f-27551e3615f3",
+                "name": "Default Monitoring Protocol"
+            },
+            "studiesList": null,
+            "thirdPartyNotification": [],
+            "createdAt": "2026-04-17T02:13:00.652627Z",
+            "updatedAt": "2026-04-17T02:29:48.389204Z",
+            "isRpmUpdatedAt": null,
+            "sessionPlanStartedAt": null,
+            "sessionPlanEndedAt": null,
+            "sessionPlanStartedStatus": 0,
+            "sessionPlanEndedStatus": 0,
+            "activeSession": {
+                "id": "019d9936-866d-7b33-9e59-f38dd26619d4",
+                "active": true,
+                "start": "2025-12-30T10:25:48Z",
+                "end": null,
+                "startOptMode": 0,
+                "endOptMode": 0
+            },
+            "isOnline": false,
+            "lastDataAt": null,
+            "autoTimezone": true,
+            "location": "",
+            "birthDateStr": "1970-01-09"
+        },
+        {
+            "id": "019d9936-3434-7ca8-b8fa-1f478d565da8",
+            "firstName": "J20260417004",
+            "lastName": "J20260417004",
+            "subjectId": "J20260417004",
+            "physician": null,
+            "sensors": [
+                {
+                    "id": "019d9938-708c-7ade-a36d-dc687e670761",
+                    "identifier": "ECGRec_202614/J041704",
+                    "type": 100,
+                    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "firstRecordTime": "2026-04-15T05:20:00.173Z"
+                }
+            ],
+            "devices": [
+                {
+                    "id": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "uniqueId": "Pixel 7",
+                    "name": "Pixel 7"
+                }
+            ],
+            "isOpenPrescribingPhysician": false,
+            "prescribingPhysicianName": "",
+            "birthDate": "1969-12-31T00:00:00Z",
+            "timeZoneOffset": 28800,
+            "timeZoneName": "Asia/Shanghai",
+            "isRpm": false,
+            "rpmGroupIds": null,
+            "rpmGroups": null,
+            "phoneNo": "",
+            "gender": "Male",
+            "weight": 0,
+            "height": 0,
+            "job": "",
+            "codes": null,
+            "monitoringProtocol": {
+                "id": "019cdbd3-4744-7af2-a48f-27551e3615f3",
+                "name": "Default Monitoring Protocol"
+            },
+            "studiesList": null,
+            "thirdPartyNotification": [],
+            "createdAt": "2026-04-17T02:12:39.606479Z",
+            "updatedAt": "2026-04-17T02:29:35.717393Z",
+            "isRpmUpdatedAt": null,
+            "sessionPlanStartedAt": null,
+            "sessionPlanEndedAt": null,
+            "sessionPlanStartedStatus": 0,
+            "sessionPlanEndedStatus": 0,
+            "activeSession": {
+                "id": "019d9936-3437-7929-adca-3ab0a0d04722",
+                "active": true,
+                "start": "2025-12-30T10:25:48Z",
+                "end": null,
+                "startOptMode": 0,
+                "endOptMode": 0
+            },
+            "isOnline": false,
+            "lastDataAt": "2026-04-21T15:59:00.892Z",
+            "autoTimezone": true,
+            "location": "",
+            "birthDateStr": "1969-12-31"
+        },
+        {
+            "id": "019d9936-02fb-7c20-b8b1-e108ed32f35c",
+            "firstName": "J20260417003",
+            "lastName": "J20260417003",
+            "subjectId": "J20260417003-Rename2",
+            "physician": null,
+            "sensors": [
+                {
+                    "id": "019d9938-54dc-7536-a7c0-6ca3cd31cc64",
+                    "identifier": "ECGRec_202614/J041703",
+                    "type": 100,
+                    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "firstRecordTime": null
+                }
+            ],
+            "devices": [
+                {
+                    "id": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "uniqueId": "Pixel 7",
+                    "name": "Pixel 7"
+                }
+            ],
+            "isOpenPrescribingPhysician": false,
+            "prescribingPhysicianName": "",
+            "birthDate": "1970-01-13T00:00:00Z",
+            "timeZoneOffset": 28800,
+            "timeZoneName": "Asia/Shanghai",
+            "isRpm": false,
+            "rpmGroupIds": null,
+            "rpmGroups": null,
+            "phoneNo": "",
+            "gender": "Male",
+            "weight": 0,
+            "height": 0,
+            "job": "",
+            "codes": null,
+            "monitoringProtocol": {
+                "id": "019cdbd3-4744-7af2-a48f-27551e3615f3",
+                "name": "Default Monitoring Protocol"
+            },
+            "studiesList": null,
+            "thirdPartyNotification": [],
+            "createdAt": "2026-04-17T02:12:27.005028Z",
+            "updatedAt": "2026-04-23T05:39:04.519094Z",
+            "isRpmUpdatedAt": null,
+            "sessionPlanStartedAt": null,
+            "sessionPlanEndedAt": null,
+            "sessionPlanStartedStatus": 0,
+            "sessionPlanEndedStatus": 0,
+            "activeSession": {
+                "id": "019d9936-02fe-75d4-b47a-0421a60f0a9c",
+                "active": true,
+                "start": "2025-12-30T10:25:48Z",
+                "end": null,
+                "startOptMode": 0,
+                "endOptMode": 0
+            },
+            "isOnline": false,
+            "lastDataAt": null,
+            "autoTimezone": true,
+            "location": "",
+            "birthDateStr": "1970-01-13"
+        },
+        {
+            "id": "019d9935-c454-78b2-8a88-17610e3f9251",
+            "firstName": "J20260417002",
+            "lastName": "J20260417002",
+            "subjectId": "J20260417002-Rename2",
+            "physician": null,
+            "sensors": [
+                {
+                    "id": "019d9938-3a8c-7443-a685-2eac68a63138",
+                    "identifier": "ECGRec_202614/J041702",
+                    "type": 100,
+                    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "firstRecordTime": null
+                }
+            ],
+            "devices": [
+                {
+                    "id": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "uniqueId": "Pixel 7",
+                    "name": "Pixel 7"
+                }
+            ],
+            "isOpenPrescribingPhysician": false,
+            "prescribingPhysicianName": "",
+            "birthDate": "1970-01-15T00:00:00Z",
+            "timeZoneOffset": 28800,
+            "timeZoneName": "Asia/Shanghai",
+            "isRpm": false,
+            "rpmGroupIds": null,
+            "rpmGroups": null,
+            "phoneNo": "",
+            "gender": "Male",
+            "weight": 0,
+            "height": 0,
+            "job": "",
+            "codes": null,
+            "monitoringProtocol": {
+                "id": "019cdbd3-4744-7af2-a48f-27551e3615f3",
+                "name": "Default Monitoring Protocol"
+            },
+            "studiesList": null,
+            "thirdPartyNotification": [],
+            "createdAt": "2026-04-17T02:12:10.965897Z",
+            "updatedAt": "2026-04-23T05:54:57.677555Z",
+            "isRpmUpdatedAt": null,
+            "sessionPlanStartedAt": null,
+            "sessionPlanEndedAt": null,
+            "sessionPlanStartedStatus": 0,
+            "sessionPlanEndedStatus": 0,
+            "activeSession": {
+                "id": "019d9935-c457-7162-8bfa-ea228a0046de",
+                "active": true,
+                "start": "2025-12-30T10:25:48Z",
+                "end": null,
+                "startOptMode": 0,
+                "endOptMode": 0
+            },
+            "isOnline": false,
+            "lastDataAt": null,
+            "autoTimezone": true,
+            "location": "",
+            "birthDateStr": "1970-01-15"
+        },
+        {
+            "id": "019d9935-7fd2-7007-8f60-27946c3b4d90",
+            "firstName": "J20260417001",
+            "lastName": "J20260417001",
+            "subjectId": "J20260417001",
+            "physician": null,
+            "sensors": [
+                {
+                    "id": "019d9938-2055-75f4-b71a-057715971049",
+                    "identifier": "ECGRec_202614/J041701",
+                    "type": 100,
+                    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "firstRecordTime": null
+                }
+            ],
+            "devices": [
+                {
+                    "id": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "uniqueId": "Pixel 7",
+                    "name": "Pixel 7"
+                }
+            ],
+            "isOpenPrescribingPhysician": false,
+            "prescribingPhysicianName": "",
+            "birthDate": "1970-01-14T00:00:00Z",
+            "timeZoneOffset": 28800,
+            "timeZoneName": "Asia/Shanghai",
+            "isRpm": false,
+            "rpmGroupIds": null,
+            "rpmGroups": null,
+            "phoneNo": "",
+            "gender": "Male",
+            "weight": 0,
+            "height": 0,
+            "job": "",
+            "codes": null,
+            "monitoringProtocol": {
+                "id": "019cdbd3-4744-7af2-a48f-27551e3615f3",
+                "name": "Default Monitoring Protocol"
+            },
+            "studiesList": null,
+            "thirdPartyNotification": [],
+            "createdAt": "2026-04-17T02:11:53.427444Z",
+            "updatedAt": "2026-04-17T02:29:06.991932Z",
+            "isRpmUpdatedAt": null,
+            "sessionPlanStartedAt": null,
+            "sessionPlanEndedAt": null,
+            "sessionPlanStartedStatus": 0,
+            "sessionPlanEndedStatus": 0,
+            "activeSession": {
+                "id": "019d9935-7fd4-79c5-b2b8-108e1687c152",
+                "active": true,
+                "start": "2025-12-30T10:25:48Z",
+                "end": null,
+                "startOptMode": 0,
+                "endOptMode": 0
+            },
+            "isOnline": false,
+            "lastDataAt": null,
+            "autoTimezone": true,
+            "location": "",
+            "birthDateStr": "1970-01-14"
+        },
+        {
+            "id": "019d9585-2dad-76f8-ab32-e501268bccd5",
+            "firstName": "J20260416002",
+            "lastName": "J20260416002",
+            "subjectId": "J20260416002",
+            "physician": null,
+            "sensors": [
+                {
+                    "id": "019d9583-922f-7a62-996f-c612c986b0da",
+                    "identifier": "ECGRec_202614/J041601",
+                    "type": 100,
+                    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "firstRecordTime": null
+                }
+            ],
+            "devices": [
+                {
+                    "id": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "uniqueId": "Pixel 7",
+                    "name": "Pixel 7"
+                }
+            ],
+            "isOpenPrescribingPhysician": false,
+            "prescribingPhysicianName": "",
+            "birthDate": "1970-01-14T00:00:00Z",
+            "timeZoneOffset": 28800,
+            "timeZoneName": "Asia/Shanghai",
+            "isRpm": false,
+            "rpmGroupIds": null,
+            "rpmGroups": null,
+            "phoneNo": "",
+            "gender": "Male",
+            "weight": 0,
+            "height": 0,
+            "job": "",
+            "codes": null,
+            "monitoringProtocol": {
+                "id": "019cdbd3-4744-7af2-a48f-27551e3615f3",
+                "name": "Default Monitoring Protocol"
+            },
+            "studiesList": null,
+            "thirdPartyNotification": [],
+            "createdAt": "2026-04-16T09:00:26.414361Z",
+            "updatedAt": "2026-04-16T09:16:48.481314Z",
+            "isRpmUpdatedAt": null,
+            "sessionPlanStartedAt": null,
+            "sessionPlanEndedAt": null,
+            "sessionPlanStartedStatus": 0,
+            "sessionPlanEndedStatus": 0,
+            "activeSession": {
+                "id": "019d9585-2daf-7429-9686-2ead2d511373",
+                "active": true,
+                "start": "2026-02-01T17:16:03Z",
+                "end": null,
+                "startOptMode": 0,
+                "endOptMode": 0
+            },
+            "isOnline": false,
+            "lastDataAt": null,
+            "autoTimezone": true,
+            "location": "",
+            "birthDateStr": "1970-01-14"
+        },
+        {
+            "id": "019d9556-3ee4-71fc-9705-d5fbc05158f1",
+            "firstName": "J20260416001",
+            "lastName": "J20260416001",
+            "subjectId": "J20260416001",
+            "physician": null,
+            "sensors": [
+                {
+                    "id": "019d27e2-198b-7d05-9cd0-00a5ef8d7577",
+                    "identifier": "ECGRec_202348/E319401",
+                    "type": 100,
+                    "deviceId": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "firstRecordTime": null
+                }
+            ],
+            "devices": [
+                {
+                    "id": "019cfa5b-7aa1-7d02-97ff-cfe8f06079cb",
+                    "uniqueId": "Pixel 7",
+                    "name": "Pixel 7"
+                }
+            ],
+            "isOpenPrescribingPhysician": false,
+            "prescribingPhysicianName": "",
+            "birthDate": null,
+            "timeZoneOffset": 28800,
+            "timeZoneName": "Asia/Shanghai",
+            "isRpm": false,
+            "rpmGroupIds": null,
+            "rpmGroups": null,
+            "phoneNo": "",
+            "gender": "",
+            "weight": 0,
+            "height": 0,
+            "job": "",
+            "codes": null,
+            "monitoringProtocol": {
+                "id": "019cdbd3-4744-7af2-a48f-27551e3615f3",
+                "name": "Default Monitoring Protocol"
+            },
+            "studiesList": null,
+            "thirdPartyNotification": [],
+            "createdAt": "2026-04-16T08:09:10.629454Z",
+            "updatedAt": "2026-04-16T08:09:10.629454Z",
+            "isRpmUpdatedAt": null,
+            "sessionPlanStartedAt": null,
+            "sessionPlanEndedAt": null,
+            "sessionPlanStartedStatus": 0,
+            "sessionPlanEndedStatus": 0,
+            "activeSession": {
+                "id": "019d9556-3ee7-70a3-8c6c-f6e3ca4ac190",
+                "active": true,
+                "start": "2026-04-16T08:09:10.631042Z",
+                "end": null,
+                "startOptMode": 0,
+                "endOptMode": 0
+            },
+            "isOnline": false,
+            "lastDataAt": null,
+            "autoTimezone": true,
+            "location": "",
+            "birthDateStr": null
+        }
+    ],
+    "total": 20
+}
