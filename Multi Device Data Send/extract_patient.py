@@ -37,7 +37,9 @@ def extract_patient_config(patient: Dict[str, Any]) -> Dict[str, Any]:
     """从单个病人对象中提取所需配置"""
     # 基础字段
     subject_id_raw = patient.get("subjectId", "")
-    subject_id = normalize_subject_id(subject_id_raw)
+
+    # subject_id = normalize_subject_id(subject_id_raw)
+    subject_id=subject_id_raw
 
     # 提取设备信息（取第一个传感器和第一个设备）
     sensors = patient.get("sensors", [])

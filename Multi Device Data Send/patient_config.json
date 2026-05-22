@@ -119,9 +119,9 @@
     "patientId": "019d9935-7fd2-7007-8f60-27946c3b4d90",
     "deviceSecret": "IK6U0dly3Uax33IXZz5wwf3Q5aI13bGI"
   },
-  "J20260416002": {
+  "J20260417002-Rename2": {
     "projectId": "first",
-    "subjectId": "J20260416002",
+    "subjectId": "J20260417002-Rename2",
     "siteName": "first",
     "deviceName": [
       "ECGRec_202614/J041601"

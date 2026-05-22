@@ -2111,7 +2111,7 @@ if __name__ == '__main__':
     # )
 
 
-    getpatientprofile= GetPatientProfile(subjectId="J20260417004",filename="patient_config.json")
+    getpatientprofile= GetPatientProfile(subjectId="J20260417005",filename="patient_config.json")
     patient=getpatientprofile.get_patient_config()
 
     # 患者信息
@@ -2131,7 +2131,7 @@ if __name__ == '__main__':
         accFrequency=5,  # 5hz 25hz 200hz,默认 25hz
         version="v2",
         sequential_upload=True, # 是否按顺序上传数据，V2强制顺序上传
-        days=5,
+        days=99,
 
         # v2 用信息
         tenantId=patient.tenantId,
